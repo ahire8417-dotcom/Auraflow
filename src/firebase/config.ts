@@ -1,10 +1,15 @@
+
 'use client';
 
+/**
+ * ATTENTION: Replace the placeholder values below with your actual 
+ * Firebase configuration from the Firebase Console (Project Settings > General).
+ */
 export const firebaseConfig = {
-  apiKey: "AIzaSy...", // These are public config values
+  apiKey: "REPLACE_WITH_YOUR_ACTUAL_API_KEY",
   authDomain: "auraflow-app.firebaseapp.com",
   projectId: "auraflow-app",
   storageBucket: "auraflow-app.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:abcdef"
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID"
 };

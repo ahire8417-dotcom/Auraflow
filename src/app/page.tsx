@@ -1,18 +1,45 @@
+
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Progress } from "@/components/ui/progress"
-import { Flame, Star, Bell, Plus, CheckCircle2, Bot, Sparkles, Map, Target, Sidebar as SidebarIcon, Zap } from "lucide-react"
+import { Flame, Star, Bell, Plus, CheckCircle2, Bot, Sparkles, Map, Target, Sidebar as SidebarIcon, Zap, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { useSidebar } from "@/components/ui/sidebar"
+import { useUser, useFirestore, useDoc } from "@/firebase"
+import { doc, setDoc, serverTimestamp } from "firebase/firestore"
 
 export default function Dashboard() {
-  const [streak] = useState(12)
-  const [xp] = useState(1250)
-  const [timerActive, setTimerActive] = useState(false)
+  const { user, loading: userLoading } = useUser()
+  const firestore = useFirestore()
   const { toggleSidebar } = useSidebar()
+  const [timerActive, setTimerActive] = useState(false)
+
+  // Use Memo to prevent re-creating doc reference on every render
+  const userStatsRef = useMemo(() => user ? doc(firestore, "users", user.uid) : null, [user, firestore])
+  const { data: userStats, loading: statsLoading } = useDoc(userStatsRef)
+
+  // Initialize or Sync User Stats (handles first-time Google logins)
+  useEffect(() => {
+    if (user && !statsLoading && userStats === null) {
+      const statsRef = doc(firestore, "users", user.uid)
+      setDoc(statsRef, {
+        uid: user.uid,
+        displayName: user.displayName || "Elite Scholar",
+        photoURL: user.photoURL || "",
+        totalScore: 0,
+        level: "Beginner",
+        quizzesCompleted: 0,
+        lastActive: serverTimestamp(),
+      }, { merge: true })
+    }
+  }, [user, userStats, statsLoading, firestore])
+
+  const xp = userStats?.totalScore || 0
+  const level = userStats?.level || "Beginner"
+  const rank = xp >= 500 ? "Master" : xp >= 300 ? "Advanced" : xp >= 150 ? "Skilled" : xp >= 50 ? "Learner" : "Beginner"
 
   const quickActions = [
     { title: "AI Solver", icon: Bot, href: "/tools/solver", color: "bg-purple-500/20 text-purple-400 border-purple-500/30" },
@@ -21,12 +48,20 @@ export default function Dashboard() {
     { title: "Tools Hub", icon: Plus, href: "/tools", color: "bg-white/5 text-white border-white/10" },
   ]
 
+  if (userLoading) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-full p-4 md:p-8 max-w-5xl mx-auto space-y-10">
       {/* Top Navigation */}
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={toggleSidebar} className="md:hidden glass-panel rounded-xl">
+          <Button variant="ghost" size="icon" onClick={toggleSidebar} className="md:hidden glass-panel rounded-xl h-10 w-10">
             <SidebarIcon className="w-5 h-5" />
           </Button>
           <div>
@@ -37,9 +72,9 @@ export default function Dashboard() {
         <div className="flex gap-3">
           <div className="glass-panel rounded-2xl px-4 py-2 flex items-center gap-2 border-orange-500/30 bg-orange-500/5">
             <Flame className="w-4 h-4 text-orange-500" />
-            <span className="text-sm font-bold">{streak} Day Streak</span>
+            <span className="text-sm font-bold">Scholar Streak</span>
           </div>
-          <Button variant="ghost" size="icon" className="rounded-2xl glass-panel relative">
+          <Button variant="ghost" size="icon" className="rounded-2xl glass-panel relative h-10 w-10">
             <Bell className="w-5 h-5" />
             <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full animate-pulse" />
           </Button>
@@ -53,14 +88,14 @@ export default function Dashboard() {
             <Star className="absolute -right-6 -top-6 w-28 h-28 text-primary/10 rotate-12 transition-transform group-hover:scale-110" />
             <div>
               <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mb-2">Academic Rank</p>
-              <h2 className="text-2xl font-headline font-bold">Level 14 Elite</h2>
+              <h2 className="text-2xl font-headline font-bold">{rank} Scholar</h2>
             </div>
             <div className="space-y-3">
               <div className="flex justify-between text-xs font-bold text-primary">
                 <span>{xp} XP Earned</span>
-                <span>Next Goal: 1500 XP</span>
+                <span>Next Milestone: {xp < 50 ? 50 : xp < 150 ? 150 : xp < 300 ? 300 : xp < 500 ? 500 : "MAX"} XP</span>
               </div>
-              <Progress value={83} className="h-2 bg-white/5" />
+              <Progress value={Math.min(100, (xp / 500) * 100)} className="h-2 bg-white/5" />
             </div>
           </section>
 
@@ -117,8 +152,8 @@ export default function Dashboard() {
             </div>
             <div className="grid gap-3">
               {[
-                { title: "Quantum Physics Review", time: "10:30 AM", type: "Study", done: false },
-                { title: "Design Portfolio Update", time: "2:00 PM", type: "Career", done: true },
+                { title: "Mastering Quantum Core", time: "10:30 AM", type: "Study", done: xp > 0 },
+                { title: "Refining Strategy Portfolio", time: "2:00 PM", type: "Career", done: xp > 200 },
               ].map((task, i) => (
                 <div key={i} className="glass-panel p-5 rounded-[2rem] flex items-center justify-between group hover:border-primary/40 transition-all cursor-pointer">
                   <div className="flex items-center gap-5">
@@ -149,11 +184,17 @@ export default function Dashboard() {
                 <h4 className="font-headline font-bold text-lg">Aura AI</h4>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                "It looks like you have a heavy load on <span className="text-white font-bold">Thursday</span>. I suggest breaking down the <span className="text-primary font-bold">History Essay</span> into 2 focus sessions tonight."
+                {xp === 0 ? (
+                   "Welcome, Scholar! Start your first <span class='text-primary font-bold'>Adaptive Quiz</span> to initialize your rank and unlock the global leaderboard."
+                ) : (
+                  "Your trajectory is looking <span class='text-white font-bold'>Elite</span>. I've optimized your next focus session based on your recent Quiz Master performance."
+                )}
               </p>
-              <Button size="sm" variant="outline" className="w-full rounded-2xl border-white/10 text-[10px] h-10 font-bold hover:bg-primary hover:text-white transition-all uppercase tracking-widest">
-                Optimize My Plan
-              </Button>
+              <Link href="/tools/quiz" className="block w-full">
+                <Button size="sm" variant="outline" className="w-full rounded-2xl border-white/10 text-[10px] h-10 font-bold hover:bg-primary hover:text-white transition-all uppercase tracking-widest">
+                  Start Training Session
+                </Button>
+              </Link>
             </div>
           </section>
         </div>

@@ -11,7 +11,6 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Loader2, Mail, Lock, Chrome, ArrowRight, Sparkles, AlertCircle } from "lucide-react"
 import Link from "next/link"
-import { cn } from "@/lib/utils"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
 export default function LoginPage() {
@@ -40,10 +39,14 @@ export default function LoginPage() {
     setError("")
     try {
       const provider = new GoogleAuthProvider()
+      // Adding standard scopes if needed
+      provider.addScope('profile')
+      provider.addScope('email')
       await signInWithPopup(auth, provider)
       router.push("/")
     } catch (err: any) {
-      setError(err.message || "Google sign-in failed.")
+      console.error(err)
+      setError("Google sign-in was interrupted or failed. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -51,7 +54,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-[#0A0714] relative overflow-hidden">
-      {/* Background Orbs */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px] animate-pulse" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/20 rounded-full blur-[120px] animate-pulse" />
 
@@ -82,7 +84,7 @@ export default function LoginPage() {
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="glass-panel h-12 pl-11 rounded-xl border-white/5 focus:border-primary/50 transition-all"
+                  className="glass-panel h-12 pl-11 rounded-xl border-white/5 focus:border-primary/50 transition-all bg-white/5"
                 />
               </div>
             </div>
@@ -99,7 +101,7 @@ export default function LoginPage() {
                   required
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="glass-panel h-12 pl-11 rounded-xl border-white/5 focus:border-primary/50 transition-all"
+                  className="glass-panel h-12 pl-11 rounded-xl border-white/5 focus:border-primary/50 transition-all bg-white/5"
                 />
               </div>
             </div>
@@ -127,7 +129,7 @@ export default function LoginPage() {
             onClick={handleGoogleLogin}
             disabled={loading}
           >
-            <Chrome className="w-5 h-5 text-primary" />
+            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Chrome className="w-5 h-5 text-primary" />}
             Google
           </Button>
         </CardContent>

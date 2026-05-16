@@ -3,7 +3,8 @@
 
 import { useState } from "react"
 import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider } from "firebase/auth"
-import { useAuth } from "@/firebase"
+import { useAuth, useFirestore } from "@/firebase"
+import { doc, setDoc, serverTimestamp } from "firebase/firestore"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,6 +16,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 
 export default function SignupPage() {
   const { auth } = useAuth()
+  const firestore = useFirestore()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -27,6 +29,18 @@ export default function SignupPage() {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password)
       await updateProfile(userCredential.user, { displayName: formData.name })
+      
+      // Initialize UserStats in Firestore immediately
+      await setDoc(doc(firestore, "users", userCredential.user.uid), {
+        uid: userCredential.user.uid,
+        displayName: formData.name,
+        photoURL: "",
+        totalScore: 0,
+        level: "Beginner",
+        quizzesCompleted: 0,
+        lastActive: serverTimestamp(),
+      })
+
       router.push("/")
     } catch (err: any) {
       setError(err.message || "Registration failed. Try a different email.")
@@ -43,7 +57,7 @@ export default function SignupPage() {
       await signInWithPopup(auth, provider)
       router.push("/")
     } catch (err: any) {
-      setError(err.message || "Google sign-up failed.")
+      setError("Google sign-up failed. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -51,7 +65,6 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-[#0A0714] relative overflow-hidden">
-      {/* Background Orbs */}
       <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/20 rounded-full blur-[120px] animate-pulse" />
       <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px] animate-pulse" />
 
@@ -81,7 +94,7 @@ export default function SignupPage() {
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="glass-panel h-12 pl-11 rounded-xl border-white/5 focus:border-secondary/50 transition-all"
+                  className="glass-panel h-12 pl-11 rounded-xl border-white/5 focus:border-secondary/50 transition-all bg-white/5"
                 />
               </div>
             </div>
@@ -95,7 +108,7 @@ export default function SignupPage() {
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="glass-panel h-12 pl-11 rounded-xl border-white/5 focus:border-secondary/50 transition-all"
+                  className="glass-panel h-12 pl-11 rounded-xl border-white/5 focus:border-secondary/50 transition-all bg-white/5"
                 />
               </div>
             </div>
@@ -109,7 +122,7 @@ export default function SignupPage() {
                   required
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="glass-panel h-12 pl-11 rounded-xl border-white/5 focus:border-secondary/50 transition-all"
+                  className="glass-panel h-12 pl-11 rounded-xl border-white/5 focus:border-secondary/50 transition-all bg-white/5"
                 />
               </div>
             </div>
@@ -137,7 +150,7 @@ export default function SignupPage() {
             onClick={handleGoogleSignup}
             disabled={loading}
           >
-            <Chrome className="w-5 h-5 text-secondary" />
+            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Chrome className="w-5 h-5 text-secondary" />}
             Google
           </Button>
         </CardContent>

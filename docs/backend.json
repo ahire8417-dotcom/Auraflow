@@ -1,0 +1,51 @@
+
+{
+  "entities": {
+    "UserStats": {
+      "title": "User Statistics",
+      "description": "Stores user gamification data, scores, and progression levels.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "totalScore": { "type": "number", "description": "Cumulative score across all quizzes." },
+        "level": { "type": "string", "enum": ["Beginner", "Learner", "Skilled", "Advanced", "Master"] },
+        "quizzesCompleted": { "type": "number" },
+        "lastActive": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "totalScore"]
+    },
+    "QuizAttempt": {
+      "title": "Quiz Attempt",
+      "description": "Records the results of an individual quiz session.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "subject": { "type": "string" },
+        "score": { "type": "number" },
+        "correctAnswers": { "type": "number" },
+        "totalQuestions": { "type": "number" },
+        "difficulty": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "auth": {
+    "providers": ["google.com"]
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserStats",
+      "description": "Global user profile and gamification stats."
+    },
+    "/users/{userId}/quizHistory/{quizId}": {
+      "schema": "QuizAttempt",
+      "description": "History of quizzes taken by the user."
+    },
+    "/leaderboard/{userId}": {
+      "schema": "UserStats",
+      "description": "Redundant index for global ranking (optional, usually we just query /users)."
+    }
+  }
+}

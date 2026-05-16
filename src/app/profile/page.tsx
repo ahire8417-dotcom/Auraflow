@@ -1,12 +1,13 @@
 
 "use client"
 
+import { useEffect } from "react"
 import { useUser, useAuth } from "@/firebase"
 import { signOut } from "firebase/auth"
 import { useRouter } from "next/navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Trophy, Settings, Shield, Bell, HelpCircle, LogOut, ChevronRight } from "lucide-react"
+import { Trophy, Settings, Shield, Bell, HelpCircle, LogOut, ChevronRight, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { HeaderNav } from "@/components/shared/header-nav"
 import { cn } from "@/lib/utils"
@@ -16,22 +17,23 @@ export default function Profile() {
   const auth = useAuth()
   const router = useRouter()
 
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push("/auth/login")
+    }
+  }, [user, loading, router])
+
   const handleLogout = async () => {
     await signOut(auth)
     router.push("/auth/login")
   }
 
-  if (loading) {
+  if (loading || !user) {
     return (
       <div className="min-h-full flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-primary animate-spin" />
       </div>
     )
-  }
-
-  if (!user) {
-    router.push("/auth/login")
-    return null
   }
 
   return (
@@ -113,5 +115,3 @@ export default function Profile() {
     </div>
   )
 }
-
-import { Loader2 } from "lucide-react"

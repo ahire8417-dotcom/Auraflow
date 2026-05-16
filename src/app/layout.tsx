@@ -1,7 +1,5 @@
 import type {Metadata} from 'next';
 import './globals.css';
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/shared/app-sidebar"
 import { BottomNav } from "@/components/shared/bottom-nav"
 import { Toaster } from "@/components/ui/toaster"
 import { FirebaseClientProvider } from "@/firebase/client-provider"
@@ -25,17 +23,12 @@ export default function RootLayout({
       </head>
       <body className="font-body bg-[#0A0714] text-foreground antialiased min-h-screen overflow-x-hidden">
         <FirebaseClientProvider>
-          <SidebarProvider defaultOpen={true}>
-            <div className="flex min-h-screen w-full relative">
-              <AppSidebar />
-              <SidebarInset className="flex-1 flex flex-col min-w-0 bg-transparent">
-                <main className="flex-1 pb-20 md:pb-0 overflow-y-auto">
-                  {children}
-                </main>
-                <BottomNav />
-              </SidebarInset>
-            </div>
-          </SidebarProvider>
+          <div className="flex flex-col min-h-screen w-full relative">
+            <main className="flex-1 pb-24 overflow-y-auto">
+              {children}
+            </main>
+            <BottomNav />
+          </div>
         </FirebaseClientProvider>
         <Toaster />
       </body>

@@ -3,13 +3,12 @@
 import { useState, useEffect, useMemo, useCallback } from "react"
 import { Progress } from "@/components/ui/progress"
 import { 
-  Flame, Bell, Plus, Bot, Sparkles, 
-  Map, Trophy, ArrowUpRight, Users, BrainCircuit, Zap, Loader2, Sidebar as SidebarIcon
+  Flame, Bell, Bot, Sparkles, 
+  Map, Trophy, ArrowUpRight, Users, BrainCircuit, Zap, Loader2
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
-import { useSidebar } from "@/components/ui/sidebar"
 import { useUser, useFirestore, useDoc, useAuth } from "@/firebase"
 import { doc, setDoc, serverTimestamp } from "firebase/firestore"
 import { signInAnonymously } from "firebase/auth"
@@ -20,7 +19,6 @@ export default function Dashboard() {
   const { user, loading: userLoading } = useUser()
   const auth = useAuth()
   const firestore = useFirestore()
-  const { toggleSidebar } = useSidebar()
   
   const [timerActive, setTimerActive] = useState(false)
   const [timeLeft, setTimeLeft] = useState(1500)
@@ -105,12 +103,9 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-full p-4 md:p-8 max-w-6xl mx-auto space-y-12 pb-24 md:pb-8 animate-in fade-in duration-700">
+    <div className="min-h-full p-4 md:p-8 max-w-6xl mx-auto space-y-12 pb-24 animate-in fade-in duration-700">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 gpu-layer">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={toggleSidebar} className="md:hidden glass-panel rounded-xl h-10 w-10">
-            <SidebarIcon className="w-5 h-5" />
-          </Button>
           <div className="space-y-1">
             <div className="flex items-center gap-3">
                <h1 className="text-4xl font-headline font-bold gradient-text tracking-tighter">AuraFlow</h1>

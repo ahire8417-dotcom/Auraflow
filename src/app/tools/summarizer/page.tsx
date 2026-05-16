@@ -7,7 +7,7 @@ import { HeaderNav } from "@/components/shared/header-nav"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { FileUp, Loader2, BookOpen, Key, LayoutGrid, CheckCircle, FileText, Download } from "lucide-react"
+import { FileUp, Loader2, BookOpen, Key, LayoutGrid, FileText, Download, Sparkles } from "lucide-react"
 
 export default function Summarizer() {
   const [loading, setLoading] = useState(false)

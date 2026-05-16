@@ -120,7 +120,7 @@ export default function DoubtSolver() {
                   <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]" />
                   <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" />
                 </div>
-                <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Thinking...</span>
+                <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Thinking</span>
               </div>
             </div>
           )}

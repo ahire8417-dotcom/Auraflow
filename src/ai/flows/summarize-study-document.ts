@@ -1,75 +1,37 @@
 'use server';
 /**
- * @fileOverview This file defines a Genkit flow for summarizing study documents.
- *
- * - summarizeStudyDocument - A function that processes various study materials (PDF, DOCX, PPT, text)
- *   and generates short notes, key points, flashcards, and chapter-wise summaries using AI.
- * - SummarizeStudyDocumentInput - The input type for the summarizeStudyDocument function.
- * - SummarizeStudyDocumentOutput - The return type for the summarizeStudyDocument function.
+ * @fileOverview Elite AI document synthesizer for rapid study notes and high-density analysis.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-// Input Schema
 const SummarizeStudyDocumentInputSchema = z.object({
   fileContent: z
     .string()
     .describe(
-      "The content of the study material as a data URI. This can be a PDF, DOCX, PPT, or plain text file. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
+      "The content of the study material as a data URI. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
   documentDescription: z
     .string()
-    .describe(
-      'A brief description of the document content or its purpose (e.g., "Lecture notes on quantum physics", "History textbook chapter on World War II").'
-    )
+    .describe('A brief description of the document.')
     .optional()
 });
-export type SummarizeStudyDocumentInput = z.infer<
-  typeof SummarizeStudyDocumentInputSchema
->;
+export type SummarizeStudyDocumentInput = z.infer<typeof SummarizeStudyDocumentInputSchema>;
 
-// Output Schema
 const SummarizeStudyDocumentOutputSchema = z.object({
-  shortNotes: z
-    .string()
-    .describe('A concise, overall summary of the entire document, highlighting main ideas.'),
-  keyPoints: z
-    .array(z.string())
-    .describe('A bulleted list of the most critical key points and takeaways from the document.'),
-  flashcards: z
-    .array(
-      z.object({
-        question: z
-          .string()
-          .describe('The question part of a flashcard.'),
-        answer: z
-          .string()
-          .describe('The answer part of a flashcard.')
-      })
-    )
-    .describe('A set of question-and-answer flashcards generated from the document content.'),
-  chapterSummaries: z
-    .array(
-      z.object({
-        chapterTitle: z
-          .string()
-          .optional()
-          .describe(
-            'The title of the chapter or major section. This field is optional if explicit chapters are not identified.'
-          ),
-        summary: z
-          .string()
-          .describe('A summary of the specific chapter or section.')
-      })
-    )
-    .describe(
-      'A list of detailed summaries, broken down by chapters or significant sections of the document.'
-    )
+  shortNotes: z.string().describe('Executive summary for fast review.'),
+  keyPoints: z.array(z.string()).describe('High-impact critical takeaways.'),
+  flashcards: z.array(z.object({
+    question: z.string(),
+    answer: z.string()
+  })).describe('Active recall flashcards.'),
+  chapterSummaries: z.array(z.object({
+    chapterTitle: z.string().optional(),
+    summary: z.string()
+  })).describe('Structural breakdown of content.')
 });
-export type SummarizeStudyDocumentOutput = z.infer<
-  typeof SummarizeStudyDocumentOutputSchema
->;
+export type SummarizeStudyDocumentOutput = z.infer<typeof SummarizeStudyDocumentOutputSchema>;
 
 export async function summarizeStudyDocument(
   input: SummarizeStudyDocumentInput
@@ -81,7 +43,19 @@ const summarizeStudyDocumentPrompt = ai.definePrompt({
   name: 'summarizeStudyDocumentPrompt',
   input: {schema: SummarizeStudyDocumentInputSchema},
   output: {schema: SummarizeStudyDocumentOutputSchema},
-  prompt: `You are an intelligent study assistant specialized in helping students understand and revise study materials efficiently.\nYour task is to process the provided study document and generate various study aids.\n\nBased on the document, please provide the following in a structured JSON format:\n1.  **shortNotes**: A concise, overall summary of the entire document, highlighting its main ideas and purpose.\n2.  **keyPoints**: A bulleted list of the most critical key points, facts, and takeaways. Each point should be a separate string in an array.\n3.  **flashcards**: A set of question-and-answer flashcards. Each flashcard should be an object with a 'question' and an 'answer' field. Generate at least 5 flashcards if the content allows.\n4.  **chapterSummaries**: A list of detailed summaries, broken down by chapters or significant sections of the document. Each summary should be an object with a 'chapterTitle' (if identifiable, otherwise omit or use a generic title like 'Section X') and a 'summary' field.\n\nIf the document is about: {{{documentDescription}}}\n\nDocument Content: {{media url=fileContent}}\n\nEnsure the output is a valid JSON object matching the specified schema.`
+  prompt: `You are an Elite Academic Synthesizer. Your goal is to process the following document with extreme speed and accuracy, providing high-density knowledge extraction.
+
+### Objectives:
+1. **Executive Synthesis**: Provide a high-level summary that captures the core thesis.
+2. **Critical Extraction**: Identify the "must-know" points that would appear on an exam.
+3. **Active Recall**: Create challenging flashcards focusing on definitions and relationships.
+4. **Structural Audit**: Break down the content into logical sections or chapters.
+
+If context is provided: {{{documentDescription}}}
+
+Document Source: {{media url=fileContent}}
+
+Provide the synthesis in high-fidelity markdown-ready structure inside the JSON fields.`
 });
 
 const summarizeStudyDocumentFlow = ai.defineFlow(
@@ -92,9 +66,7 @@ const summarizeStudyDocumentFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await summarizeStudyDocumentPrompt(input);
-    if (!output) {
-      throw new Error('Failed to generate study document summary.');
-    }
+    if (!output) throw new Error('Failed to synthesize document.');
     return output;
   }
 );

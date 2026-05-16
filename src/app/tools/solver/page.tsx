@@ -5,7 +5,7 @@ import { solveAcademicDoubt } from "@/ai/flows/solve-academic-doubt-flow"
 import { HeaderNav } from "@/components/shared/header-nav"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { Loader2, Send, Bot, User, Sparkles } from "lucide-react"
+import { Loader2, Send, Bot, User, Sparkles, Trash2 } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 
@@ -33,38 +33,50 @@ export default function DoubtSolver() {
       const result = await solveAcademicDoubt({ question: userMsg })
       setMessages(prev => [...prev, { role: 'ai', content: result.explanation }])
     } catch (error) {
-      setMessages(prev => [...prev, { role: 'ai', content: "I encountered a minor glitch. Could you try rephrasing?" }])
+      setMessages(prev => [...prev, { role: 'ai', content: "I encountered a minor glitch. I'm ready to try again—could you rephrase your question?" }])
     } finally {
       setLoading(false)
     }
   }
 
+  const clearChat = () => setMessages([])
+
   return (
     <div className="flex flex-col h-[calc(100svh-64px)] md:h-screen bg-transparent">
-      <div className="p-4 bg-background/50 backdrop-blur-xl border-b border-white/5 sticky top-0 z-10">
-        <HeaderNav title="Doubt Solver" subtitle="AI Academic Tutor" />
+      <div className="p-4 bg-background/50 backdrop-blur-xl border-b border-white/5 sticky top-0 z-10 flex items-center justify-between">
+        <HeaderNav title="Aura AI Tutor" subtitle="Expert Academic Support" className="mb-0" />
+        {messages.length > 0 && (
+          <Button variant="ghost" size="icon" onClick={clearChat} className="text-muted-foreground hover:text-destructive">
+            <Trash2 className="w-4 h-4" />
+          </Button>
+        )}
       </div>
 
       <ScrollArea className="flex-1">
-        <div className="max-w-2xl mx-auto space-y-6 py-8 px-4">
+        <div className="max-w-3xl mx-auto space-y-8 py-10 px-4">
           {messages.length === 0 && (
-            <div className="text-center py-12 space-y-6 animate-in fade-in duration-700">
-              <div className="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center mx-auto animate-pulse-glow">
-                <Sparkles className="w-10 h-10 text-primary" />
+            <div className="text-center py-16 space-y-8 animate-in fade-in duration-1000">
+              <div className="w-24 h-24 bg-primary/20 rounded-[2.5rem] flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(140,106,255,0.2)]">
+                <Sparkles className="w-12 h-12 text-primary" />
               </div>
-              <div className="space-y-2">
-                <h2 className="text-2xl font-headline font-bold">What's the doubt?</h2>
-                <p className="text-sm text-muted-foreground px-8 leading-relaxed">
-                  Complex equations, historical facts, or coding bugs. I provide step-by-step logic.
+              <div className="space-y-3">
+                <h2 className="text-3xl font-headline font-bold">What are we learning today?</h2>
+                <p className="text-muted-foreground max-w-md mx-auto leading-relaxed">
+                  I can solve complex equations, explain historical events, or help you debug code with step-by-step logic.
                 </p>
               </div>
-              <div className="flex flex-wrap gap-2 justify-center">
-                {["Solve x² + 5x + 6 = 0", "Explain Photosynthesis", "React Hook Rules"].map((s, i) => (
+              <div className="flex flex-wrap gap-2 justify-center max-w-lg mx-auto">
+                {[
+                  "Solve for x: 2x² - 4x + 2 = 0", 
+                  "Explain the 1st Law of Thermodynamics", 
+                  "Write a Python script for binary search",
+                  "Why did the Industrial Revolution start in Britain?"
+                ].map((s, i) => (
                   <Button 
                     key={i} 
                     variant="outline" 
                     size="sm" 
-                    className="rounded-full border-white/10 text-[10px] bg-white/5 hover:bg-primary hover:text-white transition-all"
+                    className="rounded-full border-white/10 text-xs bg-white/5 hover:bg-primary hover:text-white transition-all px-4 h-9"
                     onClick={() => setQuestion(s)}
                   >
                     {s}
@@ -76,20 +88,20 @@ export default function DoubtSolver() {
           
           {messages.map((msg, i) => (
             <div key={i} className={cn(
-              "flex gap-3 max-w-[95%] md:max-w-[85%] animate-in fade-in slide-in-from-bottom-2 duration-300",
-              msg.role === 'user' ? "ml-auto flex-row-reverse" : ""
+              "flex gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500",
+              msg.role === 'user' ? "flex-row-reverse" : "flex-row"
             )}>
               <div className={cn(
-                "w-9 h-9 md:w-10 md:h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-lg",
+                "w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-xl",
                 msg.role === 'user' ? "bg-secondary" : "bg-primary"
               )}>
                 {msg.role === 'user' ? <User className="w-5 h-5 text-white" /> : <Bot className="w-5 h-5 text-white" />}
               </div>
               <div className={cn(
-                "p-4 md:p-5 rounded-[1.5rem] text-sm leading-relaxed shadow-xl",
+                "p-5 md:p-6 rounded-[2rem] text-sm leading-relaxed shadow-2xl max-w-[85%] md:max-w-[75%]",
                 msg.role === 'user' 
-                  ? "bg-secondary/10 border border-secondary/20 rounded-tr-none text-white" 
-                  : "glass-panel rounded-tl-none text-muted-foreground border-white/5"
+                  ? "bg-secondary/20 border border-secondary/30 rounded-tr-none text-white ml-auto" 
+                  : "glass-panel rounded-tl-none text-foreground border-white/5 mr-auto whitespace-pre-wrap"
               )}>
                 {msg.content}
               </div>
@@ -97,13 +109,17 @@ export default function DoubtSolver() {
           ))}
 
           {loading && (
-            <div className="flex gap-3 animate-in fade-in slide-in-from-bottom-2">
+            <div className="flex gap-4 animate-in fade-in slide-in-from-bottom-2">
               <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center">
                 <Bot className="w-5 h-5 text-white animate-pulse" />
               </div>
-              <div className="glass-panel p-5 rounded-[1.5rem] rounded-tl-none flex items-center gap-3">
-                <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                <span className="text-xs font-medium text-muted-foreground">Decoding complexity...</span>
+              <div className="glass-panel p-6 rounded-[2rem] rounded-tl-none flex items-center gap-4 border-primary/20 bg-primary/5">
+                <div className="flex gap-1">
+                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]" />
+                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]" />
+                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
+                </div>
+                <span className="text-xs font-bold text-primary uppercase tracking-widest">Aura is thinking...</span>
               </div>
             </div>
           )}
@@ -111,11 +127,11 @@ export default function DoubtSolver() {
         </div>
       </ScrollArea>
 
-      <div className="p-4 bg-[#0A0714] border-t border-white/5 sticky bottom-0 z-20">
-        <div className="max-w-2xl mx-auto relative group">
+      <div className="p-4 bg-background border-t border-white/5 sticky bottom-0 z-20">
+        <div className="max-w-3xl mx-auto relative">
           <Textarea 
-            placeholder="Type your academic doubt here..."
-            className="min-h-[60px] max-h-[150px] pr-14 rounded-2xl border-white/10 bg-black/40 focus:ring-primary focus:border-primary/50 transition-all text-sm py-4 resize-none"
+            placeholder="Ask anything... (Shift+Enter for new line)"
+            className="min-h-[60px] max-h-[200px] pr-16 pl-6 rounded-3xl border-white/10 bg-white/5 focus:ring-primary focus:border-primary/50 transition-all text-sm py-5 resize-none shadow-inner"
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             onKeyDown={(e) => {
@@ -127,7 +143,7 @@ export default function DoubtSolver() {
           />
           <Button 
             size="icon" 
-            className="absolute right-3 bottom-3 rounded-xl h-10 w-10 shadow-lg"
+            className="absolute right-3 bottom-3 rounded-2xl h-11 w-11 shadow-lg bg-primary hover:bg-primary/90 transition-all active:scale-95"
             disabled={loading || !question.trim()}
             onClick={handleSolve}
           >

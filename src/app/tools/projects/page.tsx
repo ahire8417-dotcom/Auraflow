@@ -37,7 +37,12 @@ export default function ProjectIdeaGenerator() {
 
   return (
     <div className="min-h-full p-4 md:p-8 max-w-4xl mx-auto space-y-8">
-      <HeaderNav title="Project Spark" subtitle="Elite Portfolio Architect" showBack={true} />
+      <HeaderNav 
+        title="Project Spark" 
+        subtitle="Elite Portfolio Architect" 
+        showBack={true} 
+        info="Elite portfolio architect. Generates unique project ideas with creative twists and market impact analysis to make your resume stand out."
+      />
 
       {!result ? (
         <div className="max-w-2xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4">

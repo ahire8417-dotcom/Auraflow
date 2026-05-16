@@ -50,7 +50,11 @@ export default function Summarizer() {
 
   return (
     <div className="min-h-screen p-4 pb-24 max-w-4xl mx-auto">
-      <HeaderNav title="Smart Synthesizer" subtitle="High-IQ Analysis" />
+      <HeaderNav 
+        title="Smart Synthesizer" 
+        subtitle="High-IQ Analysis" 
+        info="PDF to smart notes. Upload documents to instantly extract executive summaries, key exam points, and active recall flashcards."
+      />
 
       {!result ? (
         <div className="max-w-xl mx-auto space-y-8 py-12 animate-in fade-in duration-500">

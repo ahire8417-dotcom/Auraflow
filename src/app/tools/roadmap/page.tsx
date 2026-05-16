@@ -38,7 +38,12 @@ export default function CareerRoadmapPage() {
 
   return (
     <div className="min-h-full p-4 md:p-8 max-w-2xl mx-auto space-y-8">
-      <HeaderNav title="Career Navigator" subtitle="AI Pathways" showBack={true} />
+      <HeaderNav 
+        title="Career Navigator" 
+        subtitle="AI Pathways" 
+        showBack={true} 
+        info="Strategic career navigator. Charts a detailed roadmap to your goals, identifying essential skills, courses, and jobs for your specific field."
+      />
 
       {!result ? (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">

@@ -44,7 +44,12 @@ export default function DoubtSolver() {
   return (
     <div className="flex flex-col h-[calc(100svh-64px)] md:h-screen bg-transparent">
       <div className="p-4 bg-background/50 backdrop-blur-xl border-b border-white/5 sticky top-0 z-10 flex items-center justify-between">
-        <HeaderNav title="Aura AI Tutor" subtitle="Adaptive Intellect" className="mb-0" />
+        <HeaderNav 
+          title="Aura AI Tutor" 
+          subtitle="Adaptive Intellect" 
+          className="mb-0" 
+          info="Expert AI tutoring. Adapts its response depth from direct answers to detailed academic breakthroughs based on your query."
+        />
         {messages.length > 0 && (
           <Button variant="ghost" size="icon" onClick={clearChat} className="text-muted-foreground hover:text-destructive">
             <Trash2 className="w-4 h-4" />

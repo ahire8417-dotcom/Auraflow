@@ -28,7 +28,11 @@ export default function MotivationCompanion() {
 
   return (
     <div className="min-h-screen p-4 pb-24 max-w-xl mx-auto">
-      <HeaderNav title="Aura Companion" subtitle="Mental Wellness" />
+      <HeaderNav 
+        title="Aura Companion" 
+        subtitle="Mental Wellness" 
+        info="Empathetic wellness space. Get personalized motivation, wellness exercises, and micro-actions to beat academic stress and burnout."
+      />
 
       {!result ? (
         <div className="space-y-6">

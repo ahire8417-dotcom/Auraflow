@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useMemo } from "react"
@@ -191,8 +190,14 @@ export default function QuizMaster() {
   return (
     <div className="min-h-full p-4 md:p-8 max-w-2xl mx-auto space-y-8">
       <div className="flex items-center justify-between">
-        <HeaderNav title="Quiz Master" subtitle="Adaptive Arena" showBack={true} className="mb-0" />
-        <Link href="/tools/quiz/leaderboard">
+        <HeaderNav 
+          title="Quiz Master" 
+          subtitle="Adaptive Arena" 
+          showBack={true} 
+          className="mb-0 flex-1" 
+          info="Adaptive arena. Quizzes get harder as you win. Earn XP and climb the global ranks by proving your mastery."
+        />
+        <Link href="/tools/quiz/leaderboard" className="ml-4">
           <Button variant="ghost" size="sm" className="rounded-xl glass-panel text-yellow-500 gap-2">
             <Medal className="w-4 h-4" />
             <span className="text-[10px] font-bold uppercase tracking-widest">Global Ranks</span>

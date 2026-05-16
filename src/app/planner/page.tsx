@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react"
@@ -99,7 +98,12 @@ export default function StudyPlanner() {
 
   return (
     <div className="min-h-full p-4 md:p-8 max-w-4xl mx-auto space-y-8">
-      <HeaderNav title="Dynamic Planner" subtitle="Strategic Study Allocation" showBack={true} />
+      <HeaderNav 
+        title="Dynamic Planner" 
+        subtitle="Strategic Study Allocation" 
+        showBack={true} 
+        info="Scientific study strategist. Uses Spaced Repetition and Interleaving to design an optimized blueprint that balances intensity and memory retention."
+      />
 
       {!timetable ? (
         <div className="space-y-10 max-w-2xl mx-auto">

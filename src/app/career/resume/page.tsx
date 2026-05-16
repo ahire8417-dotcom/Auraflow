@@ -58,7 +58,12 @@ export default function ResumeBuilder() {
 
   return (
     <div className="min-h-full p-4 md:p-8 max-w-2xl mx-auto space-y-8">
-      <HeaderNav title="Resume Optimizer" subtitle="High-Impact Strategist" showBack={true} />
+      <HeaderNav 
+        title="Resume Optimizer" 
+        subtitle="High-Impact Strategist" 
+        showBack={true} 
+        info="ATS-optimized professional strategist. Crafts powerful bullet points using high-impact action verbs and metric-driven results tailored to specific roles."
+      />
 
       {!result ? (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">

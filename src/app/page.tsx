@@ -4,16 +4,16 @@ import { useState, useEffect } from "react"
 import { BottomNav } from "@/components/shared/bottom-nav"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { Badge } from "@/components/ui/badge"
-import { Flame, Star, Clock, Bell, Plus, CheckCircle2 } from "lucide-react"
+import { Flame, Star, Clock, Bell, Plus, CheckCircle2, Bot, Sparkles, GraduationCap, Map } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
+import { cn } from "@/lib/utils"
 
 export default function Dashboard() {
   const [streak, setStreak] = useState(0)
   const [xp, setXp] = useState(0)
 
   useEffect(() => {
-    // Simulated hydration-safe state
     setStreak(12)
     setXp(1250)
   }, [])
@@ -22,6 +22,13 @@ export default function Dashboard() {
     { id: 1, title: "Quantum Physics Chapter 4", status: "pending", time: "10:00 AM" },
     { id: 2, title: "Modern Art History Essay", status: "completed", time: "1:30 PM" },
     { id: 3, title: "Advanced Calculus Quiz", status: "pending", time: "4:00 PM" },
+  ]
+
+  const quickActions = [
+    { title: "Solver", icon: Bot, href: "/tools/solver", color: "text-purple-400" },
+    { title: "Planner", icon: Clock, href: "/planner", color: "text-blue-400" },
+    { title: "Roadmap", icon: Map, href: "/tools/roadmap", color: "text-orange-400" },
+    { title: "Projects", icon: Sparkles, href: "/tools/projects", color: "text-yellow-400" },
   ]
 
   return (
@@ -59,6 +66,18 @@ export default function Dashboard() {
           <p className="text-xs text-muted-foreground italic">"Consistent effort is the key to mastery."</p>
         </section>
 
+        {/* Quick Access AI Tools */}
+        <section className="grid grid-cols-4 gap-3">
+          {quickActions.map((action, i) => (
+            <Link key={i} href={action.href} className="flex flex-col items-center gap-2">
+              <div className="w-full aspect-square glass-panel rounded-2xl flex items-center justify-center hover:bg-white/5 transition-all">
+                <action.icon className={cn("w-6 h-6", action.color)} />
+              </div>
+              <span className="text-[10px] font-bold uppercase tracking-tighter opacity-70">{action.title}</span>
+            </Link>
+          ))}
+        </section>
+
         {/* Daily Tasks */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
@@ -76,7 +95,7 @@ export default function Dashboard() {
                     {task.status === 'completed' ? <CheckCircle2 className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
                   </div>
                   <div>
-                    <h4 className={cn("font-medium", task.status === 'completed' && "line-through opacity-50")}>{task.title}</h4>
+                    <h4 className={cn("font-medium", task.status === 'completed' && "line-through opacity-50 text-muted-foreground")}>{task.title}</h4>
                     <p className="text-xs text-muted-foreground">{task.time}</p>
                   </div>
                 </div>
@@ -86,28 +105,6 @@ export default function Dashboard() {
               </div>
             ))}
           </div>
-        </section>
-
-        {/* Quick Tools */}
-        <section className="grid grid-cols-2 gap-4">
-          <Card className="glass-panel border-0 hover:bg-white/5 transition-all">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-headline">Study Hours</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold text-primary">4.2h</p>
-              <p className="text-[10px] text-muted-foreground">+12% from yesterday</p>
-            </CardContent>
-          </Card>
-          <Card className="glass-panel border-0 hover:bg-white/5 transition-all">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-headline">Completion</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold text-secondary">75%</p>
-              <p className="text-[10px] text-muted-foreground">3 of 4 tasks done</p>
-            </CardContent>
-          </Card>
         </section>
 
         {/* AI Suggestions */}
@@ -121,6 +118,9 @@ export default function Dashboard() {
               <p className="text-xs text-muted-foreground leading-relaxed">
                 You have a Physics exam in 3 days. Focus on "Electromagnetism" today. I've updated your schedule for optimal retention.
               </p>
+              <Button size="sm" variant="outline" className="mt-2 h-7 text-[10px] rounded-full border-secondary/30">
+                View Updated Plan
+              </Button>
             </div>
           </div>
         </section>
@@ -130,9 +130,3 @@ export default function Dashboard() {
     </div>
   )
 }
-
-function cn(...classes: any[]) {
-  return classes.filter(Boolean).join(" ")
-}
-
-import { Bot } from "lucide-react"

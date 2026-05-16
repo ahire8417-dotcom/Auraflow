@@ -1,8 +1,7 @@
-
 "use client"
 
 import { BottomNav } from "@/components/shared/bottom-nav"
-import { Bot, FileText, MessageSquare, Map, Pencil, Heart, Plus } from "lucide-react"
+import { Bot, FileText, MessageSquare, Map, Pencil, Heart, Lightbulb, Plus } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 
@@ -20,6 +19,13 @@ const tools = [
     icon: MessageSquare,
     href: "/tools/solver",
     color: "bg-purple-500"
+  },
+  {
+    title: "Project Spark",
+    desc: "AI-generated portfolio ideas",
+    icon: Lightbulb,
+    href: "/tools/projects",
+    color: "bg-yellow-500"
   },
   {
     title: "Aura Companion",
@@ -47,7 +53,7 @@ const tools = [
 export default function AITools() {
   return (
     <div className="min-h-screen p-4 pb-24">
-      <header className="mb-8">
+      <header className="mb-8 mt-4">
         <h1 className="text-3xl font-headline font-bold gradient-text">AI Arsenal</h1>
         <p className="text-muted-foreground">Supercharge your studies with intelligence.</p>
       </header>

@@ -1,12 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { DocumentReference, onSnapshot, DocumentData } from 'firebase/firestore';
+import { DocumentReference, onSnapshot, DocumentData, FirestoreError } from 'firebase/firestore';
+import { errorEmitter } from '../error-emitter';
+import { FirestorePermissionError } from '../errors';
 
 export function useDoc<T = DocumentData>(ref: DocumentReference<T> | null) {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<FirestoreError | null>(null);
 
   useEffect(() => {
     if (!ref) {
@@ -20,8 +22,13 @@ export function useDoc<T = DocumentData>(ref: DocumentReference<T> | null) {
         setData(doc.exists() ? doc.data() : null);
         setLoading(false);
       },
-      (err) => {
-        console.error(err);
+      async (err) => {
+        const permissionError = new FirestorePermissionError({
+          path: ref.path,
+          operation: 'get',
+        });
+        errorEmitter.emit('permission-error', permissionError);
+        
         setError(err);
         setLoading(false);
       }

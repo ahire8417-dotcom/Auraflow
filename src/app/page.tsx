@@ -1,7 +1,6 @@
-
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useCallback } from "react"
 import { Progress } from "@/components/ui/progress"
 import { 
   Flame, Bell, Plus, Bot, Sparkles, 
@@ -22,10 +21,11 @@ export default function Dashboard() {
   const auth = useAuth()
   const firestore = useFirestore()
   const { toggleSidebar } = useSidebar()
+  
   const [timerActive, setTimerActive] = useState(false)
   const [timeLeft, setTimeLeft] = useState(1500)
 
-  // Auto-initialization: Silent sync for a seamless experience
+  // Auto-initialization
   useEffect(() => {
     if (!userLoading && !user && auth) {
       signInAnonymously(auth).catch(err => console.error("Auto-sync error:", err))
@@ -34,8 +34,9 @@ export default function Dashboard() {
 
   const userStatsRef = useMemo(() => 
     user && firestore ? doc(firestore, "users", user.uid) : null, 
-    [user, firestore]
+    [user?.uid, firestore]
   )
+  
   const { data: userStats, loading: statsLoading } = useDoc(userStatsRef)
 
   useEffect(() => {
@@ -53,8 +54,9 @@ export default function Dashboard() {
     }
   }, [user, userStats, statsLoading, firestore])
 
+  // Optimized Timer
   useEffect(() => {
-    let interval: any
+    let interval: NodeJS.Timeout | null = null;
     if (timerActive && timeLeft > 0) {
       interval = setInterval(() => {
         setTimeLeft((prev) => prev - 1)
@@ -63,17 +65,23 @@ export default function Dashboard() {
       setTimerActive(false)
       toast({ title: "Focus Complete", description: "Flow session ended. Excellent discipline." })
     }
-    return () => clearInterval(interval)
+    return () => { if (interval) clearInterval(interval) }
   }, [timerActive, timeLeft])
 
-  const formatTime = (seconds: number) => {
+  const formatTime = useCallback((seconds: number) => {
     const mins = Math.floor(seconds / 60)
     const secs = seconds % 60
     return `${mins}:${secs.toString().padStart(2, '0')}`
-  }
+  }, [])
 
   const xp = userStats?.totalScore || 0
-  const rank = xp >= 500 ? "Master" : xp >= 300 ? "Advanced" : xp >= 150 ? "Skilled" : xp >= 50 ? "Learner" : "Beginner"
+  const rank = useMemo(() => {
+    if (xp >= 500) return "Master"
+    if (xp >= 300) return "Advanced"
+    if (xp >= 150) return "Skilled"
+    if (xp >= 50) return "Learner"
+    return "Beginner"
+  }, [xp])
 
   const quickActions = [
     { title: "AI Solver", icon: Bot, href: "/tools/solver", color: "bg-purple-500/20 text-purple-400 border-purple-500/30", desc: "Step-by-step help" },
@@ -91,8 +99,8 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-full p-4 md:p-8 max-w-6xl mx-auto space-y-12 pb-20 md:pb-8 animate-in fade-in duration-700">
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div className="min-h-full p-4 md:p-8 max-w-6xl mx-auto space-y-12 pb-24 md:pb-8 animate-in fade-in duration-700">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 gpu-layer">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={toggleSidebar} className="md:hidden glass-panel rounded-xl h-10 w-10">
             <SidebarIcon className="w-5 h-5" />
@@ -133,7 +141,7 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         <div className="lg:col-span-2 space-y-12">
-          <section className="animate-in slide-in-from-left-8 duration-700">
+          <section className="animate-in slide-in-from-left-8 duration-700 gpu-layer">
             <div className="glass-panel p-10 rounded-[3.5rem] relative overflow-hidden group border-primary/20 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 shadow-2xl transition-all hover:border-primary/40">
               <div className="absolute -right-8 -top-8 w-64 h-64 bg-primary/10 rounded-full blur-[100px] group-hover:bg-primary/20 transition-all duration-700" />
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 relative z-10">
@@ -169,7 +177,7 @@ export default function Dashboard() {
             </div>
           </section>
 
-          <section className="space-y-6 animate-in slide-in-from-bottom-8 duration-700 delay-200">
+          <section className="space-y-6 animate-in slide-in-from-bottom-8 duration-700 delay-200 gpu-layer">
             <div className="flex items-center justify-between px-4">
               <h3 className="text-xl font-headline font-bold flex items-center gap-3">
                 <BrainCircuit className="w-6 h-6 text-primary" /> Study Arsenal
@@ -180,7 +188,7 @@ export default function Dashboard() {
               {quickActions.map((action, i) => (
                 <Link key={i} href={action.href} className="group">
                   <div className={cn(
-                    "w-full p-8 rounded-[3rem] flex flex-col items-center justify-center text-center transition-all group-hover:translate-y-[-8px] group-active:scale-95 border-2 shadow-xl h-full relative overflow-hidden",
+                    "w-full p-8 rounded-[3rem] flex flex-col items-center justify-center text-center transition-all group-hover:translate-y-[-8px] group-active:scale-95 border-2 shadow-xl h-full relative overflow-hidden gpu-layer",
                     action.color
                   )}>
                     <div className="bg-white/5 p-4 rounded-2xl mb-5 group-hover:scale-110 transition-all shadow-lg relative z-10">
@@ -195,9 +203,9 @@ export default function Dashboard() {
           </section>
         </div>
 
-        <div className="space-y-10 animate-in slide-in-from-right-8 duration-700 delay-300">
+        <div className="space-y-10 animate-in slide-in-from-right-8 duration-700 delay-300 gpu-layer">
           <section className={cn(
-            "p-10 rounded-[4rem] relative overflow-hidden flex flex-col justify-between h-96 transition-all duration-1000 border shadow-2xl group",
+            "p-10 rounded-[4rem] relative overflow-hidden flex flex-col justify-between h-96 transition-all duration-1000 border shadow-2xl group gpu-layer",
             timerActive ? "bg-primary/20 border-primary/50" : "glass-panel border-white/10"
           )}>
             <Zap className={cn("absolute -right-12 -top-12 w-56 h-56 rotate-12 transition-all duration-1000", timerActive ? "text-primary/30 scale-110 animate-pulse" : "text-white/5")} />
@@ -235,7 +243,7 @@ export default function Dashboard() {
             </div>
           </section>
 
-          <section className="glass-panel p-10 rounded-[3.5rem] border border-white/5 bg-gradient-to-br from-secondary/10 via-transparent to-transparent relative overflow-hidden group shadow-2xl">
+          <section className="glass-panel p-10 rounded-[3.5rem] border border-white/5 bg-gradient-to-br from-secondary/10 via-transparent to-transparent relative overflow-hidden group shadow-2xl gpu-layer">
              <div className="space-y-8 relative z-10">
                <div className="flex items-center gap-4">
                  <div className="bg-primary/20 p-3.5 rounded-2xl shadow-xl group-hover:scale-110 transition-transform">

@@ -1,12 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Query, onSnapshot, DocumentData } from 'firebase/firestore';
+import { Query, onSnapshot, DocumentData, FirestoreError } from 'firebase/firestore';
+import { errorEmitter } from '../error-emitter';
+import { FirestorePermissionError } from '../errors';
 
 export function useCollection<T = DocumentData>(q: Query<T> | null) {
   const [data, setData] = useState<T[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<FirestoreError | null>(null);
 
   useEffect(() => {
     if (!q) {
@@ -21,15 +23,21 @@ export function useCollection<T = DocumentData>(q: Query<T> | null) {
         setData(docs);
         setLoading(false);
       },
-      (err) => {
-        console.error("Firestore useCollection error:", err);
+      async (err) => {
+        // Emit rich error for development context
+        const permissionError = new FirestorePermissionError({
+          path: 'Query Listener',
+          operation: 'list',
+        });
+        errorEmitter.emit('permission-error', permissionError);
+        
         setError(err);
         setLoading(false);
       }
     );
 
     return () => unsubscribe();
-  }, [q]); // Removed circular stringify dependency
+  }, [q]); 
 
   return { data, loading, error };
 }

@@ -1,11 +1,11 @@
-
 "use client"
 
+import { useMemo } from "react"
 import { useFirestore, useCollection } from "@/firebase"
 import { collection, query, orderBy, limit } from "firebase/firestore"
 import { HeaderNav } from "@/components/shared/header-nav"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Trophy, Medal, Crown, Star } from "lucide-react"
+import { Trophy, Medal, Crown, Star, RefreshCcw } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const getLevel = (score: number) => {
@@ -19,34 +19,37 @@ const getLevel = (score: number) => {
 export default function Leaderboard() {
   const firestore = useFirestore()
   
-  const leaderboardQuery = firestore ? query(
-    collection(firestore, "users"),
-    orderBy("totalScore", "desc"),
-    limit(20)
-  ) : null
+  // Memoize the query to prevent infinite listener re-creation
+  const leaderboardQuery = useMemo(() => {
+    if (!firestore) return null
+    return query(
+      collection(firestore, "users"),
+      orderBy("totalScore", "desc"),
+      limit(20)
+    )
+  }, [firestore])
   
   const { data: users, loading } = useCollection(leaderboardQuery)
 
   return (
-    <div className="min-h-full p-4 md:p-8 max-w-2xl mx-auto space-y-8">
+    <div className="min-h-full p-4 md:p-8 max-w-2xl mx-auto space-y-8 animate-in fade-in duration-700 pb-24 md:pb-8">
       <HeaderNav title="Global Arena" subtitle="Top Ranked Scholars" showBack={true} />
 
       <div className="space-y-4">
         {loading ? (
-          <div className="space-y-4 animate-pulse">
-            {[1, 2, 3, 4, 5].map(i => (
-              <div key={i} className="h-20 bg-white/5 rounded-2xl" />
-            ))}
+          <div className="flex flex-col items-center justify-center py-20 gap-4">
+            <RefreshCcw className="w-8 h-8 text-primary animate-spin" />
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Syncing Arena Standings...</p>
           </div>
         ) : (
-          <div className="grid gap-3">
+          <div className="grid gap-3 gpu-layer">
             {users?.map((user: any, idx) => {
               const rank = idx + 1
               const isTopThree = rank <= 3
               
               return (
                 <div key={user.uid} className={cn(
-                  "glass-panel p-5 rounded-[2rem] flex items-center justify-between group transition-all relative overflow-hidden",
+                  "glass-panel p-5 rounded-[2rem] flex items-center justify-between group transition-all relative overflow-hidden gpu-layer",
                   rank === 1 && "border-yellow-500/30 bg-yellow-500/5",
                   rank === 2 && "border-gray-400/30 bg-gray-400/5",
                   rank === 3 && "border-orange-500/30 bg-orange-500/5",

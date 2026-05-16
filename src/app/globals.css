@@ -33,11 +33,16 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Prevent rubber banding on mobile */
+    overscroll-behavior-y: none;
   }
 }
 
 .glass-panel {
-  @apply bg-card/60 backdrop-blur-xl border border-white/10 shadow-xl;
+  @apply bg-card/60 backdrop-blur-md border border-white/10 shadow-xl;
+  /* GPU acceleration for blur transitions */
+  transform: translateZ(0);
+  will-change: transform, backdrop-filter;
 }
 
 .gradient-text {
@@ -64,12 +69,17 @@
 }
 
 .bottom-nav-blur {
-  @apply bg-background/80 backdrop-blur-md border-t border-white/5;
+  @apply bg-background/90 backdrop-blur-lg border-t border-white/5;
+  transform: translateZ(0);
 }
 
 @layer utilities {
   .animate-pulse-glow {
     animation: pulse-glow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  .gpu-layer {
+    transform: translateZ(0);
+    will-change: transform;
   }
 }
 

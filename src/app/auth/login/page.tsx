@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react"
@@ -22,6 +21,10 @@ export default function LoginPage() {
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!auth) {
+      setError("Authentication service is not ready. Please refresh.")
+      return
+    }
     setLoading(true)
     setError("")
     try {
@@ -35,6 +38,10 @@ export default function LoginPage() {
   }
 
   const handleGoogleLogin = async () => {
+    if (!auth) {
+      setError("Authentication service is not ready. Please refresh.")
+      return
+    }
     setLoading(true)
     setError("")
     try {

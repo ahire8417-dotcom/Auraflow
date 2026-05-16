@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Query, onSnapshot, DocumentData, query, limit } from 'firebase/firestore';
+import { Query, onSnapshot, DocumentData } from 'firebase/firestore';
 
 export function useCollection<T = DocumentData>(q: Query<T> | null) {
   const [data, setData] = useState<T[]>([]);
@@ -22,14 +22,14 @@ export function useCollection<T = DocumentData>(q: Query<T> | null) {
         setLoading(false);
       },
       (err) => {
-        console.error(err);
+        console.error("Firestore useCollection error:", err);
         setError(err);
         setLoading(false);
       }
     );
 
     return () => unsubscribe();
-  }, [q ? JSON.stringify(q) : null]);
+  }, [q]); // Removed circular stringify dependency
 
   return { data, loading, error };
 }

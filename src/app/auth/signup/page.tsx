@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react"
@@ -24,6 +23,10 @@ export default function SignupPage() {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!auth || !firestore) {
+      setError("Authentication service is not ready. Please refresh.")
+      return
+    }
     setLoading(true)
     setError("")
     try {
@@ -50,6 +53,10 @@ export default function SignupPage() {
   }
 
   const handleGoogleSignup = async () => {
+    if (!auth) {
+      setError("Authentication service is not ready. Please refresh.")
+      return
+    }
     setLoading(true)
     setError("")
     try {

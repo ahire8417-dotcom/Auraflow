@@ -1,9 +1,11 @@
 'use client';
 
 /**
- * AURAFLOW FIREBASE CONFIGURATION
+ * AURAFLOW PRODUCTION FIREBASE CONFIGURATION
  * 
- * Synchronized with production project: auraflow-app
+ * IMPORTANT: To share this app, replace these placeholders with 
+ * your actual project settings from the Firebase Console:
+ * Project Settings > Your Apps > Web App Configuration
  */
 export const firebaseConfig = {
   apiKey: "AIzaSyB-EXAMPLE-REAL-KEY-FROM-SERVICE", 

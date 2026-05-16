@@ -304,19 +304,32 @@ export default function QuizMaster() {
                 const isCorrect = i === quiz.questions[currentStep].correctAnswerIndex
                 return (
                   <Label key={i} className={cn(
-                    "flex items-center gap-4 p-5 rounded-2xl border transition-all cursor-pointer",
+                    "flex items-center gap-4 p-5 rounded-2xl border transition-all cursor-pointer relative",
                     !showFeedback && "hover:bg-white/5 border-white/5",
-                    showFeedback && isCorrect && "bg-green-500/10 border-green-500/50",
-                    showFeedback && isSelected && !isCorrect && "bg-destructive/10 border-destructive/50",
+                    showFeedback && isCorrect && "bg-green-500/10 border-green-500/50 ring-2 ring-green-500/20",
+                    showFeedback && isSelected && !isCorrect && "bg-destructive/20 border-destructive/50 ring-2 ring-destructive/30",
                     showFeedback && !isSelected && !isCorrect && "opacity-40"
                   )}>
                     <RadioGroupItem value={i.toString()} className="sr-only" />
-                    <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center border text-[10px] font-bold", isSelected ? "bg-primary border-primary text-white" : "border-white/10")}>
+                    <div className={cn(
+                      "w-8 h-8 rounded-xl flex items-center justify-center border text-[10px] font-bold transition-colors",
+                      isSelected && !showFeedback ? "bg-primary border-primary text-white" : "border-white/10",
+                      showFeedback && isCorrect ? "bg-green-500 border-green-500 text-white" : "",
+                      showFeedback && isSelected && !isCorrect ? "bg-destructive border-destructive text-white" : ""
+                    )}>
                       {String.fromCharCode(65 + i)}
                     </div>
                     <span className="text-sm font-medium pr-8">{opt}</span>
-                    {showFeedback && isCorrect && <CheckCircle2 className="w-5 h-5 text-green-500 absolute right-8" />}
-                    {showFeedback && isSelected && !isCorrect && <XCircle className="w-5 h-5 text-destructive absolute right-8" />}
+                    {showFeedback && isCorrect && (
+                      <div className="absolute right-6 animate-in zoom-in-50 duration-300">
+                        <CheckCircle2 className="w-6 h-6 text-green-500" />
+                      </div>
+                    )}
+                    {showFeedback && isSelected && !isCorrect && (
+                      <div className="absolute right-6 animate-in zoom-in-50 duration-300">
+                        <XCircle className="w-6 h-6 text-destructive" />
+                      </div>
+                    )}
                   </Label>
                 )
               })}

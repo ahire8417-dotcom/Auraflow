@@ -2,7 +2,7 @@
 "use client"
 
 import { useState } from "react"
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth"
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signInAnonymously } from "firebase/auth"
 import { useAuth } from "@/firebase"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -61,13 +61,26 @@ export default function LoginPage() {
     }
   }
 
-  const handleDemoAccess = () => {
-    setFormData({
-      email: "demo@auraflow.ai",
-      password: "password123"
-    })
-    // In a real app, the developer would create this account in the Firebase console.
-    // For now, it pre-fills the form for the user.
+  const handleDemoAccess = async () => {
+    if (!auth) return
+    setLoading(true)
+    setError("")
+    try {
+      // Attempt login with demo credentials
+      // Note: If the user hasn't created this account in Firebase Console, it will fail.
+      // We fall back to anonymous login to ensure "open app only" requirement is met.
+      try {
+        await signInWithEmailAndPassword(auth, "demo@auraflow.ai", "password123")
+      } catch (authErr) {
+        console.warn("Demo account login failed, attempting anonymous access...", authErr)
+        await signInAnonymously(auth)
+      }
+      router.push("/")
+    } catch (err: any) {
+      setError("Access failed. Ensure Anonymous Auth is enabled in Firebase Console.")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -113,10 +126,10 @@ export default function LoginPage() {
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <Label className="text-[10px] uppercase font-bold tracking-[0.2em] text-muted-foreground ml-1">Security Key</Label>
-                <Link href="/auth/forgot-password" className="text-[10px] text-primary font-black hover:underline uppercase tracking-widest">Recovery?</Link>
+                <Link href="/auth/forgot-password" px-0 className="text-[10px] text-primary font-bold hover:underline uppercase tracking-widest">Forgot?</Link>
               </div>
               <div className="relative">
-                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input 
                   type="password" 
                   placeholder="••••••••" 
@@ -143,8 +156,9 @@ export default function LoginPage() {
                 variant="ghost"
                 className="w-full h-12 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground hover:bg-white/5 hover:text-white"
                 onClick={handleDemoAccess}
+                disabled={loading}
               >
-                <UserCheck className="w-4 h-4 mr-2" />
+                {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <UserCheck className="w-4 h-4 mr-2" />}
                 Quick Demo Account
               </Button>
             </div>

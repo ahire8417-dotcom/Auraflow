@@ -1,8 +1,7 @@
-
 {
-  "name": "AuraFlow | AI Scholar Hub",
+  "name": "AuraFlow",
   "short_name": "AuraFlow",
-  "description": "Intelligent study hub for academic excellence and career growth.",
+  "description": "AI-Powered Student Productivity & Career Hub",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0A0714",
@@ -17,7 +16,8 @@
     {
       "src": "https://picsum.photos/seed/auraflow-icon/512/512",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

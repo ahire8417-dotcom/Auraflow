@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -8,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
-import { Loader2, Mail, Lock, Chrome, ArrowRight, Sparkles, AlertCircle } from "lucide-react"
+import { Loader2, Mail, Lock, Chrome, ArrowRight, Sparkles, AlertCircle, UserCheck } from "lucide-react"
 import Link from "next/link"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
@@ -46,8 +47,6 @@ export default function LoginPage() {
     setError("")
     try {
       const provider = new GoogleAuthProvider()
-      provider.addScope('profile')
-      provider.addScope('email')
       await signInWithPopup(auth, provider)
       router.push("/")
     } catch (err: any) {
@@ -60,6 +59,15 @@ export default function LoginPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleDemoAccess = () => {
+    setFormData({
+      email: "demo@auraflow.ai",
+      password: "password123"
+    })
+    // In a real app, the developer would create this account in the Firebase console.
+    // For now, it pre-fills the form for the user.
   }
 
   return (
@@ -119,13 +127,27 @@ export default function LoginPage() {
                 />
               </div>
             </div>
-            <Button 
-              className="w-full h-16 rounded-[2rem] text-xl font-headline bg-primary hover:bg-primary/90 shadow-2xl shadow-primary/30 transition-all active:scale-95 mt-4" 
-              disabled={loading}
-            >
-              {loading ? <Loader2 className="w-6 h-6 animate-spin mr-3" /> : <ArrowRight className="w-6 h-6 mr-3" />}
-              {loading ? "Authenticating..." : "Login to Command"}
-            </Button>
+
+            <div className="grid gap-3 pt-2">
+              <Button 
+                type="submit"
+                className="w-full h-16 rounded-[2rem] text-xl font-headline bg-primary hover:bg-primary/90 shadow-2xl shadow-primary/30 transition-all active:scale-95" 
+                disabled={loading}
+              >
+                {loading ? <Loader2 className="w-6 h-6 animate-spin mr-3" /> : <ArrowRight className="w-6 h-6 mr-3" />}
+                {loading ? "Authenticating..." : "Login to Command"}
+              </Button>
+              
+              <Button 
+                type="button"
+                variant="ghost"
+                className="w-full h-12 rounded-xl text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground hover:bg-white/5 hover:text-white"
+                onClick={handleDemoAccess}
+              >
+                <UserCheck className="w-4 h-4 mr-2" />
+                Quick Demo Account
+              </Button>
+            </div>
           </form>
 
           <div className="relative py-2">

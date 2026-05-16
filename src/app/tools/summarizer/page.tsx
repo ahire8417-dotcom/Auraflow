@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -49,10 +50,11 @@ export default function Summarizer() {
   }
 
   return (
-    <div className="min-h-screen p-4 pb-24 max-w-4xl mx-auto">
+    <div className="min-h-full p-4 md:p-8 max-w-4xl mx-auto pb-24">
       <HeaderNav 
         title="Smart Synthesizer" 
         subtitle="High-IQ Analysis" 
+        backHref="/tools"
         info="PDF to smart notes. Upload documents to instantly extract executive summaries, key exam points, and active recall flashcards."
       />
 

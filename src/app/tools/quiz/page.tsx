@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useMemo } from "react"
@@ -188,19 +189,20 @@ export default function QuizMaster() {
   }
 
   return (
-    <div className="min-h-full p-4 md:p-8 max-w-2xl mx-auto space-y-8">
-      <div className="flex items-center justify-between">
+    <div className="min-h-full p-4 md:p-8 max-w-2xl mx-auto pb-24">
+      <div className="flex items-center justify-between gap-4 mb-4">
         <HeaderNav 
           title="Quiz Master" 
           subtitle="Adaptive Arena" 
           showBack={true} 
+          backHref="/tools"
           className="mb-0 flex-1" 
           info="Adaptive arena. Quizzes get harder as you win. Earn XP and climb the global ranks by proving your mastery."
         />
-        <Link href="/tools/quiz/leaderboard" className="ml-4">
-          <Button variant="ghost" size="sm" className="rounded-xl glass-panel text-yellow-500 gap-2">
+        <Link href="/tools/quiz/leaderboard" className="shrink-0">
+          <Button variant="ghost" size="sm" className="rounded-xl glass-panel text-yellow-500 gap-2 h-10 px-4 hover:bg-white/10">
             <Medal className="w-4 h-4" />
-            <span className="text-[10px] font-bold uppercase tracking-widest">Global Ranks</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest hidden sm:inline">Leaderboard</span>
           </Button>
         </Link>
       </div>
@@ -237,7 +239,7 @@ export default function QuizMaster() {
                     <SelectTrigger className="h-14 rounded-2xl glass-panel border-white/10 bg-white/5">
                       <SelectValue placeholder="Select your grade/stream" />
                     </SelectTrigger>
-                    <SelectContent className="glass-panel border-white/10 rounded-2xl bg-[#0A0714]">
+                    <SelectContent className="glass-panel border-white/10 rounded-2xl bg-[#0A0714] z-[60]">
                       {EDUCATION_CATEGORIES.map(cat => (
                         <SelectItem key={cat.id} value={cat.id} className="rounded-xl">{cat.label}</SelectItem>
                       ))}
@@ -254,7 +256,7 @@ export default function QuizMaster() {
                       <button
                         key={i}
                         onClick={() => { setTopic(sub); handleGenerate(sub); }}
-                        className="px-4 py-2 rounded-xl text-xs font-semibold bg-white/5 border border-white/10 hover:border-primary/50 hover:bg-primary/10 transition-all"
+                        className="px-4 py-2 rounded-xl text-xs font-semibold bg-white/5 border border-white/10 hover:border-primary/50 hover:bg-primary/10 transition-all active:scale-95"
                       >
                         {sub}
                       </button>
@@ -269,7 +271,7 @@ export default function QuizMaster() {
                         onChange={(e) => setTopic(e.target.value)}
                         className="glass-panel h-12 rounded-xl"
                       />
-                      <Button onClick={() => handleGenerate()} disabled={loading || !topic.trim()} className="h-12 rounded-xl">
+                      <Button onClick={() => handleGenerate()} disabled={loading || !topic.trim()} className="h-12 w-12 shrink-0 rounded-xl bg-primary hover:bg-primary/90">
                         <Zap className="w-4 h-4" />
                       </Button>
                     </div>

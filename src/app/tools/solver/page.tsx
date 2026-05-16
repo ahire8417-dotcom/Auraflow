@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useRef, useEffect } from "react"
@@ -42,16 +43,17 @@ export default function DoubtSolver() {
   const clearChat = () => setMessages([])
 
   return (
-    <div className="flex flex-col h-[calc(100svh-64px)] md:h-screen bg-transparent">
-      <div className="p-4 bg-background/50 backdrop-blur-xl border-b border-white/5 sticky top-0 z-10 flex items-center justify-between">
+    <div className="flex flex-col h-screen bg-transparent">
+      <div className="p-4 bg-background/50 backdrop-blur-xl border-b border-white/5 sticky top-0 z-50 flex items-center justify-between">
         <HeaderNav 
           title="Aura AI Tutor" 
           subtitle="Adaptive Intellect" 
           className="mb-0" 
+          backHref="/tools"
           info="Expert AI tutoring. Adapts its response depth from direct answers to detailed academic breakthroughs based on your query."
         />
         {messages.length > 0 && (
-          <Button variant="ghost" size="icon" onClick={clearChat} className="text-muted-foreground hover:text-destructive">
+          <Button variant="ghost" size="icon" onClick={clearChat} className="text-muted-foreground hover:text-destructive rounded-xl">
             <Trash2 className="w-4 h-4" />
           </Button>
         )}
@@ -133,7 +135,7 @@ export default function DoubtSolver() {
         </div>
       </ScrollArea>
 
-      <div className="p-4 bg-background border-t border-white/5 sticky bottom-0 z-20">
+      <div className="p-4 bg-background border-t border-white/5 sticky bottom-20 z-20">
         <div className="max-w-3xl mx-auto relative">
           <Textarea 
             placeholder="Ask anything... (Shift+Enter for new line)"

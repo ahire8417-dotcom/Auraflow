@@ -1,7 +1,7 @@
+
 "use client"
 
 import { GraduationCap, FileText, Briefcase, TrendingUp } from "lucide-react"
-import { CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { HeaderNav } from "@/components/shared/header-nav"
@@ -9,7 +9,7 @@ import { HeaderNav } from "@/components/shared/header-nav"
 export default function CareerHub() {
   return (
     <div className="min-h-full p-4 md:p-8 max-w-4xl mx-auto space-y-8">
-      <HeaderNav title="Future Path" subtitle="Strategize your career leap" showBack={false} />
+      <HeaderNav title="Future Path" subtitle="Strategize your career leap" showBack={true} />
 
       <div className="grid gap-6">
         {/* Main Career Tools */}

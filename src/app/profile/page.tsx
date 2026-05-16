@@ -1,3 +1,4 @@
+
 "use client"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -5,16 +6,12 @@ import { Badge } from "@/components/ui/badge"
 import { Trophy, Settings, Shield, Bell, HelpCircle, LogOut, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { HeaderNav } from "@/components/shared/header-nav"
+import { cn } from "@/lib/utils"
 
 export default function Profile() {
   return (
     <div className="min-h-full p-4 md:p-8 max-w-4xl mx-auto space-y-8">
-      <header className="flex justify-between items-start pt-4">
-        <h1 className="text-3xl font-headline font-bold gradient-text">Profile</h1>
-        <Button variant="ghost" size="icon" className="glass-panel rounded-full hover:bg-white/10">
-          <Settings className="w-5 h-5" />
-        </Button>
-      </header>
+      <HeaderNav title="My Profile" subtitle="Student Journey" showBack={true} />
 
       <div className="flex flex-col items-center mb-10">
         <div className="relative mb-6">
@@ -63,6 +60,7 @@ export default function Profile() {
             { label: "Account Privacy", icon: Shield },
             { label: "Notifications", icon: Bell },
             { label: "Cloud Sync", icon: HelpCircle },
+            { label: "Settings", icon: Settings },
           ].map((item, i) => (
             <div key={i} className="flex items-center justify-between p-5 hover:bg-white/5 cursor-pointer border-b border-white/5 last:border-0 transition-colors">
               <div className="flex items-center gap-4">

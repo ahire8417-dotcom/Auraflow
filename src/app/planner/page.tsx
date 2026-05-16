@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -9,7 +10,6 @@ import { Label } from "@/components/ui/label"
 import { Loader2, Calendar as CalendarIcon, Clock, Plus, Trash2, GraduationCap, Sparkles, Bot, BookOpen, Zap, Target } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
-import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 
 const EDUCATION_CATEGORIES = [
@@ -99,7 +99,7 @@ export default function StudyPlanner() {
 
   return (
     <div className="min-h-full p-4 md:p-8 max-w-4xl mx-auto space-y-8">
-      <HeaderNav title="Dynamic Planner" subtitle="Strategic Study Allocation" showBack={false} />
+      <HeaderNav title="Dynamic Planner" subtitle="Strategic Study Allocation" showBack={true} />
 
       {!timetable ? (
         <div className="space-y-10 max-w-2xl mx-auto">

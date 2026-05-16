@@ -1,1 +1,8 @@
-// Flows will be imported for their side effects in this file.
+import { config } from 'dotenv';
+config();
+
+import '@/ai/flows/solve-academic-doubt-flow.ts';
+import '@/ai/flows/generate-career-roadmap.ts';
+import '@/ai/flows/generate-study-timetable.ts';
+import '@/ai/flows/suggest-resume-content.ts';
+import '@/ai/flows/summarize-study-document.ts';

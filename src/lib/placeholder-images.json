@@ -1,3 +1,16 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "avatar-user",
+      "description": "User profile avatar",
+      "imageUrl": "https://picsum.photos/seed/auraflow-user/150/150",
+      "imageHint": "student profile"
+    },
+    {
+      "id": "course-1",
+      "description": "Course thumbnail",
+      "imageUrl": "https://picsum.photos/seed/course1/400/300",
+      "imageHint": "online learning"
+    }
+  ]
 }

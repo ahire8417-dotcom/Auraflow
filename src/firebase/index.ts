@@ -11,7 +11,8 @@ let auth: Auth;
 
 /**
  * Initializes Firebase services as singletons.
- * Handles both client-side and server-side environments safely.
+ * This pattern ensures that the Firebase App is only initialized once
+ * on the client-side, preventing initialization errors.
  */
 export function initializeFirebase() {
   if (typeof window !== 'undefined') {
@@ -20,19 +21,19 @@ export function initializeFirebase() {
     } else {
       app = getApp();
     }
-  } else {
-    // Basic fallback for SSR environments
-    if (getApps().length === 0) {
-      app = initializeApp(firebaseConfig);
-    } else {
-      app = getApp();
-    }
+    
+    firestore = getFirestore(app);
+    auth = getAuth(app);
+    
+    return { app, firestore, auth };
   }
   
-  firestore = getFirestore(app);
-  auth = getAuth(app);
-  
-  return { app, firestore, auth };
+  // Fallback for SSR
+  return { 
+    app: null as unknown as FirebaseApp, 
+    firestore: null as unknown as Firestore, 
+    auth: null as unknown as Auth 
+  };
 }
 
 // Re-export core modules for easy access

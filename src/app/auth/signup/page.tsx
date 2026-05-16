@@ -64,7 +64,11 @@ export default function SignupPage() {
       await signInWithPopup(auth, provider)
       router.push("/")
     } catch (err: any) {
-      setError("Google sign-up failed. Please try again.")
+      if (err.code === 'auth/api-key-not-valid') {
+        setError("Firebase API Key is missing or invalid. Please update src/firebase/config.ts.")
+      } else {
+        setError("Google sign-up failed. Please try again.")
+      }
     } finally {
       setLoading(false)
     }

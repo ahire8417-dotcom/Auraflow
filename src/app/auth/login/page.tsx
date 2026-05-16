@@ -52,7 +52,11 @@ export default function LoginPage() {
       router.push("/")
     } catch (err: any) {
       console.error(err)
-      setError("Google authentication was interrupted. Please try again.")
+      if (err.code === 'auth/api-key-not-valid') {
+        setError("Firebase API Key is missing or invalid. Please update src/firebase/config.ts.")
+      } else {
+        setError("Google authentication was interrupted. Please try again.")
+      }
     } finally {
       setLoading(false)
     }
@@ -101,7 +105,7 @@ export default function LoginPage() {
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <Label className="text-[10px] uppercase font-bold tracking-[0.2em] text-muted-foreground ml-1">Security Key</Label>
-                <Link href="/auth/forgot-password" stroke-width="2" className="text-[10px] text-primary font-black hover:underline uppercase tracking-widest">Recovery?</Link>
+                <Link href="/auth/forgot-password" className="text-[10px] text-primary font-black hover:underline uppercase tracking-widest">Recovery?</Link>
               </div>
               <div className="relative">
                 <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />

@@ -3,18 +3,18 @@
 /**
  * AURAFLOW FIREBASE CONFIGURATION
  * 
- * To get your actual keys:
- * 1. Go to https://console.firebase.google.com/
- * 2. Select your project "auraflow-app"
- * 3. Go to Project Settings (Gear Icon) > General
- * 4. Scroll to "Your apps" and copy the "firebaseConfig" object
+ * IMPORTANT: To fix the "API Key Not Valid" error:
+ * 1. Visit https://console.firebase.google.com/
+ * 2. Select your project: "auraflow-app"
+ * 3. Go to Project Settings > General > Your apps
+ * 4. Copy the "firebaseConfig" object and replace the values below.
  */
 export const firebaseConfig = {
-  apiKey: "REPLACE_WITH_YOUR_FIREBASE_API_KEY",
+  apiKey: "AIzaSy_REPLACE_WITH_REAL_KEY", // Get this from Firebase Console
   authDomain: "auraflow-app.firebaseapp.com",
   projectId: "auraflow-app",
   storageBucket: "auraflow-app.appspot.com",
-  messagingSenderId: "REPLACE_WITH_YOUR_MESSAGING_SENDER_ID",
-  appId: "REPLACE_WITH_YOUR_APP_ID",
-  measurementId: "REPLACE_WITH_YOUR_MEASUREMENT_ID"
+  messagingSenderId: "123456789",
+  appId: "1:123456789:web:abcdef123456",
+  measurementId: "G-ABCDEF123"
 };

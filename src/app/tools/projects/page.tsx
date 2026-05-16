@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { generateProjectIdeas, type ProjectIdeasOutput } from "@/ai/flows/generate-project-ideas"
-import { BottomNav } from "@/components/shared/bottom-nav"
+import { HeaderNav } from "@/components/shared/header-nav"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -35,10 +35,7 @@ export default function ProjectIdeaGenerator() {
 
   return (
     <div className="min-h-screen p-4 pb-24 max-w-2xl mx-auto">
-      <header className="mb-8 mt-4">
-        <h1 className="text-3xl font-headline font-bold gradient-text">Project Spark</h1>
-        <p className="text-muted-foreground">Turn your skills into impressive portfolio pieces.</p>
-      </header>
+      <HeaderNav title="Project Spark" subtitle="Portfolio Generator" />
 
       {!result ? (
         <Card className="glass-panel border-0">
@@ -125,8 +122,6 @@ export default function ProjectIdeaGenerator() {
           </Button>
         </div>
       )}
-
-      <BottomNav />
     </div>
   )
 }

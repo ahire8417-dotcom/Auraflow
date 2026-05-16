@@ -1,7 +1,8 @@
 "use client"
 
 import { BottomNav } from "@/components/shared/bottom-nav"
-import { Bot, FileText, MessageSquare, Map, Pencil, Heart, Lightbulb, Plus } from "lucide-react"
+import { HeaderNav } from "@/components/shared/header-nav"
+import { Bot, FileText, MessageSquare, Map, Pencil, Heart, Lightbulb, Plus, BrainCircuit } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 
@@ -19,6 +20,13 @@ const tools = [
     icon: MessageSquare,
     href: "/tools/solver",
     color: "bg-purple-500"
+  },
+  {
+    title: "Quiz Master",
+    desc: "AI-generated study challenges",
+    icon: BrainCircuit,
+    href: "/tools/quiz",
+    color: "bg-indigo-500"
   },
   {
     title: "Project Spark",
@@ -52,17 +60,14 @@ const tools = [
 
 export default function AITools() {
   return (
-    <div className="min-h-screen p-4 pb-24">
-      <header className="mb-8 mt-4">
-        <h1 className="text-3xl font-headline font-bold gradient-text">AI Arsenal</h1>
-        <p className="text-muted-foreground">Supercharge your studies with intelligence.</p>
-      </header>
+    <div className="min-h-screen p-4 pb-24 md:p-8">
+      <HeaderNav title="AI Arsenal" subtitle="Supercharge your intellect" />
 
-      <div className="grid gap-4">
+      <div className="grid gap-4 max-w-4xl mx-auto">
         {tools.map((tool) => (
           <Link key={tool.title} href={tool.href}>
             <div className="glass-panel p-5 rounded-2xl flex items-center gap-5 hover:border-primary/50 transition-all group">
-              <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center text-white", tool.color)}>
+              <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center text-white shrink-0", tool.color)}>
                 <tool.icon className="w-7 h-7" />
               </div>
               <div className="flex-1">
@@ -76,8 +81,6 @@ export default function AITools() {
           </Link>
         ))}
       </div>
-
-      <BottomNav />
     </div>
   )
 }

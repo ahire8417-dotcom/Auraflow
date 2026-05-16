@@ -8,3 +8,4 @@ import '@/ai/flows/suggest-resume-content.ts';
 import '@/ai/flows/summarize-study-document.ts';
 import '@/ai/flows/motivation-companion.ts';
 import '@/ai/flows/generate-project-ideas.ts';
+import '@/ai/flows/generate-quiz-flow.ts';

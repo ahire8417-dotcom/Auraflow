@@ -1,9 +1,8 @@
-
 "use client"
 
 import { useState } from "react"
 import { generateCareerRoadmap, type GenerateCareerRoadmapOutput } from "@/ai/flows/generate-career-roadmap"
-import { BottomNav } from "@/components/shared/bottom-nav"
+import { HeaderNav } from "@/components/shared/header-nav"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -39,10 +38,7 @@ export default function CareerRoadmapPage() {
 
   return (
     <div className="min-h-screen p-4 pb-24 max-w-2xl mx-auto">
-      <header className="mb-8">
-        <h1 className="text-3xl font-headline font-bold gradient-text">Career Navigator</h1>
-        <p className="text-muted-foreground">AI-driven roadmap for your professional journey.</p>
-      </header>
+      <HeaderNav title="Career Navigator" subtitle="AI Pathways" />
 
       {!result ? (
         <div className="space-y-6">
@@ -144,8 +140,6 @@ export default function CareerRoadmapPage() {
           </Button>
         </div>
       )}
-
-      <BottomNav />
     </div>
   )
 }

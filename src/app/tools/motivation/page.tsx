@@ -1,9 +1,8 @@
-
 "use client"
 
 import { useState } from "react"
 import { getMotivation, type MotivationOutput } from "@/ai/flows/motivation-companion"
-import { BottomNav } from "@/components/shared/bottom-nav"
+import { HeaderNav } from "@/components/shared/header-nav"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -29,13 +28,7 @@ export default function MotivationCompanion() {
 
   return (
     <div className="min-h-screen p-4 pb-24 max-w-xl mx-auto">
-      <header className="text-center mb-10 mt-4">
-        <div className="inline-flex p-3 bg-pink-500/20 rounded-2xl mb-4">
-          <Heart className="w-8 h-8 text-pink-500" />
-        </div>
-        <h1 className="text-3xl font-headline font-bold gradient-text">Aura Companion</h1>
-        <p className="text-muted-foreground">Your emotional support for the academic grind.</p>
-      </header>
+      <HeaderNav title="Aura Companion" subtitle="Mental Wellness" />
 
       {!result ? (
         <div className="space-y-6">
@@ -118,8 +111,6 @@ export default function MotivationCompanion() {
           </Button>
         </div>
       )}
-
-      <BottomNav />
     </div>
   )
 }

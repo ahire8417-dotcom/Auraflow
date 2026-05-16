@@ -11,6 +11,7 @@ const GenerateQuizInputSchema = z.object({
   topic: z.string().describe('The subject or topic for the quiz.'),
   difficulty: z.enum(['easy', 'medium', 'hard', 'expert']).default('medium'),
   numQuestions: z.number().min(1).max(5).default(3),
+  academicLevel: z.string().optional().describe('The academic level of the student (e.g., "Class 10", "Engineering").'),
 });
 export type GenerateQuizInput = z.infer<typeof GenerateQuizInputSchema>;
 
@@ -35,20 +36,24 @@ const prompt = ai.definePrompt({
   name: 'generateQuizPrompt',
   input: { schema: GenerateQuizInputSchema },
   output: { schema: GenerateQuizOutputSchema },
-  prompt: `You are an elite academic educator. Generate a high-quality, high-accuracy multiple-choice quiz.
+  prompt: `You are an elite academic educator and subject matter expert. Generate a high-quality, high-accuracy multiple-choice quiz.
 
-Context:
+### Context:
 Topic: "{{{topic}}}"
+Academic Level: {{{academicLevel}}}
 Difficulty: {{{difficulty}}}
-Questions: {{{numQuestions}}}
+Target Questions: {{{numQuestions}}}
 
-Guidelines:
-- If difficulty is 'easy', focus on basic definitions and core facts.
-- If difficulty is 'medium', focus on application of concepts.
-- If difficulty is 'hard', focus on complex analysis and multi-step reasoning.
-- If difficulty is 'expert', create extremely challenging questions that require deep synthesis of the topic.
+### Guidelines:
+1. **Curriculum Alignment**: Ensure questions are relevant to the Indian Education System (NCERT/Board standards) if the academic level suggests it.
+2. **Complexity Logic**:
+   - If difficulty is 'easy', focus on fundamental definitions and core concepts.
+   - If difficulty is 'medium', focus on conceptual application and basic problem-solving.
+   - If difficulty is 'hard', focus on critical analysis and multi-concept synthesis.
+   - If difficulty is 'expert', focus on advanced derivation, nuanced edge cases, and high-level strategy.
+3. **Quality Control**: Distractors must be plausible but definitively wrong. Explanations must be educational and clear.
 
-Ensure distractors (wrong options) are plausible but clearly incorrect compared to the correct answer. Provide a helpful explanation for each answer.`,
+Generate a quiz that is challenging yet fair for a student at the specified level.`,
 });
 
 const generateQuizFlow = ai.defineFlow(

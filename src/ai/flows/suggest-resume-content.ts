@@ -1,26 +1,25 @@
 'use server';
 /**
- * @fileOverview An AI agent that provides content suggestions for resume sections.
+ * @fileOverview An elite AI resume strategist that crafts high-impact, ATS-optimized content.
  *
- * - suggestResumeContent - A function that handles the resume content suggestion process.
- * - SuggestResumeContentInput - The input type for the suggestResumeContent function.
- * - SuggestResumeContentOutput - The return type for the suggestResumeContent function.
+ * - suggestResumeContent - Generates professional bullet points and summaries with metric-driven focus.
  */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 
 const SuggestResumeContentInputSchema = z.object({
-  resumeSection: z.string().describe('The specific resume section (e.g., "Experience", "Skills", "Education", "Summary", "Projects") for which to suggest content.'),
-  studentSummary: z.string().describe('A summary of the student\'s academic background, skills, and career goals. This is crucial for personalizing suggestions.'),
-  jobDescription: z.string().optional().describe('Optional: The job description the student is applying for, to tailor suggestions for ATS compatibility.'),
-  existingSectionContent: z.string().optional().describe('Optional: Any existing content in the specified resume section that the AI should refine, expand, or improve.'),
+  resumeSection: z.string().describe('The resume section (e.g., "Experience", "Projects", "Summary").'),
+  studentSummary: z.string().describe('Student background and skills.'),
+  jobDescription: z.string().optional().describe('Target job requirements.'),
+  existingSectionContent: z.string().optional().describe('Existing content to refine.'),
 });
 export type SuggestResumeContentInput = z.infer<typeof SuggestResumeContentInputSchema>;
 
 const SuggestResumeContentOutputSchema = z.object({
-  suggestedContent: z.string().describe('The AI-generated content suggestions for the specified resume section, formatted professionally.'),
-  keyPhrases: z.array(z.string()).describe('Important keywords or phrases identified for ATS optimization, relevant to the job description or student summary.'),
+  suggestedContent: z.string().describe('The AI-generated content, formatted with high-impact bullet points.'),
+  keyPhrases: z.array(z.string()).describe('ATS keywords identified.'),
+  proTip: z.string().describe('A specific tip to make this section stand out further.'),
 });
 export type SuggestResumeContentOutput = z.infer<typeof SuggestResumeContentOutputSchema>;
 
@@ -32,28 +31,25 @@ const prompt = ai.definePrompt({
   name: 'suggestResumeContentPrompt',
   input: { schema: SuggestResumeContentInputSchema },
   output: { schema: SuggestResumeContentOutputSchema },
-  prompt: `You are an expert resume builder and career advisor. Your goal is to help a student create an ATS-friendly and professional resume by providing content suggestions for a specific section.
+  prompt: `You are an Elite Resume Strategist and Career Coach. Your goal is to transform student experiences into high-impact, professional narratives that pass both ATS filters and human recruiter scrutiny.
 
-Here is the student's general background and goals:
-Student Summary: {{{studentSummary}}}
+### The "Aura Strategy":
+1. **Action Verbs**: Start every bullet point with a powerful action verb (e.g., "Spearheaded", "Engineered", "Orchestrated").
+2. **Quantifiable Impact**: Whenever possible, include metrics or scale (e.g., "Increased efficiency by 20%", "Managed a team of 5", "Reduced latency by 150ms").
+3. **Keyword Density**: Integrate relevant keywords from the job description naturally.
+4. **Brevity & Punch**: Keep points concise but dense with meaning.
 
-{{#if jobDescription}}
-They are applying for the following job:
-Job Description: {{{jobDescription}}}
-{{/if}}
+### Student Profile:
+Summary: {{{studentSummary}}}
+Section to Build: {{{resumeSection}}}
+{{#if jobDescription}}Target Job: {{{jobDescription}}}{{/if}}
+{{#if existingSectionContent}}Current Draft: {{{existingSectionContent}}}{{/if}}
 
-{{#if existingSectionContent}}
-They currently have this content in the '{{{resumeSection}}}' section:
-Existing Content: {{{existingSectionContent}}}
-
-Improve upon this content to make it more professional and ATS-friendly, focusing on action verbs and measurable achievements.
-{{else}}
-Generate new content for the '{{{resumeSection}}}' section of their resume. Focus on making it ATS-friendly, professional, and tailored to the student's summary and the job description (if provided).
-{{/if}}
-
-Ensure the suggestions are concise, use strong action verbs, and highlight achievements. If appropriate for the section, use bullet points.
-
-Please provide the suggested content and a list of key phrases for ATS optimization.`,
+### Instructions:
+- Generate 3-5 high-impact bullet points or a 3-sentence powerful summary depending on the section.
+- Ensure the formatting is clean (using "•" for bullets).
+- Provide a "Pro Tip" specifically for this section.
+- Identify the top 5 ATS keywords used.`,
 });
 
 const suggestResumeContentFlow = ai.defineFlow(
@@ -64,6 +60,7 @@ const suggestResumeContentFlow = ai.defineFlow(
   },
   async (input) => {
     const { output } = await prompt(input);
-    return output!;
+    if (!output) throw new Error("Failed to strategize resume content.");
+    return output;
   }
 );

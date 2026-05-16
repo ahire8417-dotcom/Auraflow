@@ -1,8 +1,10 @@
+
 "use client"
 
 import { BottomNav } from "@/components/shared/bottom-nav"
-import { Bot, FileText, MessageSquare, Map, Pencil } from "lucide-react"
+import { Bot, FileText, MessageSquare, Map, Pencil, Heart, Plus } from "lucide-react"
 import Link from "next/link"
+import { cn } from "@/lib/utils"
 
 const tools = [
   {
@@ -20,6 +22,13 @@ const tools = [
     color: "bg-purple-500"
   },
   {
+    title: "Aura Companion",
+    desc: "Motivation & Wellness support",
+    icon: Heart,
+    href: "/tools/motivation",
+    color: "bg-pink-500"
+  },
+  {
     title: "Resume Builder",
     desc: "AI-powered professional resumes",
     icon: Pencil,
@@ -30,7 +39,7 @@ const tools = [
     title: "Career Roadmap",
     desc: "Pathways to your dream job",
     icon: Map,
-    href: "/career/roadmap",
+    href: "/tools/roadmap",
     color: "bg-orange-500"
   }
 ]
@@ -66,8 +75,3 @@ export default function AITools() {
     </div>
   )
 }
-
-function cn(...classes: any[]) {
-  return classes.filter(Boolean).join(" ")
-}
-import { Plus } from "lucide-react"

@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react"
@@ -7,9 +6,10 @@ import { HeaderNav } from "@/components/shared/header-nav"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Loader2, Calendar as CalendarIcon, Clock, Plus, Trash2, GraduationCap, Sparkles, Bot, BookOpen } from "lucide-react"
+import { Loader2, Calendar as CalendarIcon, Clock, Plus, Trash2, GraduationCap, Sparkles, Bot, BookOpen, Zap, Target } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
+import { Progress } from "@/components/ui/progress"
 
 const EDUCATION_CATEGORIES = [
   { 
@@ -84,7 +84,7 @@ export default function StudyPlanner() {
         examDates: [],
         startDate: today,
         endDate: nextWeek,
-        additionalNotes: `Student context: ${categoryLabel} in the Indian Education System. Optimize for deep conceptual understanding and performance.`
+        additionalNotes: `Student context: ${categoryLabel} in the Indian Education System. Use High-Performance Strategic study methods.`
       })
       setTimetable(result)
     } catch (err) {
@@ -223,43 +223,74 @@ export default function StudyPlanner() {
             disabled={loading || subjects.length === 0 || !selectedCategory}
           >
             {loading ? <Loader2 className="w-6 h-6 animate-spin mr-3" /> : <CalendarIcon className="w-6 h-6 mr-3" />}
-            {loading ? "Creating Study Plan..." : "Generate AI Strategy"}
+            {loading ? "Strategizing Study Plan..." : "Generate AI Strategy"}
           </Button>
         </div>
       ) : (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-          <div className="glass-panel p-6 rounded-[2.5rem] border-l-4 border-l-primary mb-4 bg-primary/5 relative overflow-hidden">
-            <Sparkles className="absolute -right-4 -top-4 w-24 h-24 text-primary/5 rotate-12" />
-            <h4 className="text-xs font-bold uppercase tracking-widest text-primary mb-2 flex items-center gap-2">
-               <Bot className="w-4 h-4" /> Curriculum Optimization
-            </h4>
-            <p className="text-sm text-muted-foreground leading-relaxed italic relative z-10">
-              {timetable.summary}
-            </p>
+          {/* Strategic Briefing Header */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="md:col-span-2 glass-panel p-6 rounded-[2.5rem] border-l-4 border-l-primary bg-primary/5 relative overflow-hidden">
+              <Sparkles className="absolute -right-4 -top-4 w-24 h-24 text-primary/5 rotate-12" />
+              <h4 className="text-xs font-bold uppercase tracking-widest text-primary mb-2 flex items-center gap-2">
+                 <Bot className="w-4 h-4" /> Strategic Briefing
+              </h4>
+              <p className="text-sm text-muted-foreground leading-relaxed italic relative z-10">
+                {timetable.strategicBriefing}
+              </p>
+            </div>
+            <div className="glass-panel p-6 rounded-[2.5rem] flex flex-col justify-center items-center text-center border-secondary/20 bg-secondary/5">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Efficiency Score</p>
+              <div className="relative w-24 h-24 flex items-center justify-center">
+                 <svg className="w-full h-full transform -rotate-90">
+                    <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-white/5" />
+                    <circle cx="48" cy="48" r="40" stroke="currentColor" strokeWidth="8" fill="transparent" strokeDasharray={251.2} strokeDashoffset={251.2 - (251.2 * timetable.optimizationScore) / 100} className="text-primary transition-all duration-1000" />
+                 </svg>
+                 <span className="absolute text-2xl font-headline font-bold">{timetable.optimizationScore}%</span>
+              </div>
+            </div>
           </div>
 
-          <div className="space-y-10">
+          {/* Daily Schedule */}
+          <div className="space-y-12">
             {timetable.timetable.map((day, idx) => (
-              <div key={idx} className="space-y-4">
-                <h3 className="text-xl font-bold flex items-center gap-3 px-2">
-                  <div className="w-1.5 h-6 bg-primary rounded-full shadow-[0_0_10px_rgba(140,106,255,0.5)]" />
-                  {new Date(day.date).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}
-                </h3>
-                <div className="grid gap-3">
+              <div key={idx} className="space-y-6">
+                <div className="flex items-center justify-between px-2">
+                  <h3 className="text-xl font-bold flex items-center gap-3">
+                    <div className="w-1.5 h-6 bg-primary rounded-full shadow-[0_0_10px_rgba(140,106,255,0.5)]" />
+                    {new Date(day.date).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}
+                  </h3>
+                  <Badge variant="secondary" className="bg-white/5 border-white/10 text-[10px] font-bold uppercase tracking-widest px-3 py-1">
+                    {day.dailyTheme}
+                  </Badge>
+                </div>
+                
+                <div className="grid gap-4">
                   {day.studyBlocks.map((block, bIdx) => (
-                    <div key={bIdx} className="glass-panel p-5 rounded-[2rem] flex items-center justify-between group hover:border-primary/40 transition-all cursor-default">
+                    <div key={bIdx} className="glass-panel p-6 rounded-[2rem] flex flex-col md:flex-row md:items-center justify-between group hover:border-primary/40 transition-all cursor-default gap-4">
                       <div className="flex gap-5 items-center">
-                        <div className="bg-white/5 p-4 rounded-2xl group-hover:bg-primary/10 transition-colors">
-                          <Clock className="w-6 h-6 text-primary" />
+                        <div className="bg-white/5 p-4 rounded-2xl group-hover:bg-primary/10 transition-colors shrink-0">
+                          <Target className="w-6 h-6 text-primary" />
                         </div>
                         <div>
-                          <h4 className="font-bold text-base">{block.subject}</h4>
-                          <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-bold mt-1">{block.topic || "Topic Focus"}</p>
+                          <div className="flex items-center gap-2">
+                             <h4 className="font-bold text-lg">{block.subject}</h4>
+                             <Badge className="bg-primary/10 text-primary border-primary/20 text-[9px] h-4 uppercase">{block.strategy}</Badge>
+                          </div>
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-bold mt-1">{block.topic || "Core Concept Mastery"}</p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm font-mono font-bold tracking-tighter bg-white/5 px-3 py-1 rounded-lg">{block.startTime} — {block.endTime}</p>
-                        <p className="text-[10px] text-muted-foreground font-bold mt-1">{block.durationMinutes} MINS</p>
+                      <div className="flex items-center justify-between md:text-right border-t md:border-t-0 border-white/5 pt-4 md:pt-0">
+                        <div className="md:hidden flex items-center gap-2 text-muted-foreground">
+                           <Clock className="w-3 h-3" />
+                           <span className="text-xs font-bold uppercase tracking-widest">Time Slot</span>
+                        </div>
+                        <div>
+                          <p className="text-lg font-mono font-bold tracking-tighter bg-white/5 px-4 py-1.5 rounded-xl border border-white/5">
+                            {block.startTime} — {block.endTime}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground font-bold mt-1.5 uppercase tracking-widest">{block.durationMinutes} MINUTES SESSION</p>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -268,9 +299,14 @@ export default function StudyPlanner() {
             ))}
           </div>
 
-          <Button variant="outline" className="w-full rounded-2xl h-14 border-white/10 hover:bg-white/5 font-bold mt-8" onClick={() => setTimetable(null)}>
-            Reset & Re-plan
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-4 mt-12 pb-10">
+            <Button variant="outline" className="flex-1 rounded-2xl h-14 border-white/10 hover:bg-white/5 font-bold" onClick={() => setTimetable(null)}>
+              Reset & Adjust Strategy
+            </Button>
+            <Button className="flex-1 rounded-2xl h-14 bg-primary hover:bg-primary/90 font-bold shadow-xl shadow-primary/20">
+              Export to Calendar
+            </Button>
+          </div>
         </div>
       )}
     </div>

@@ -60,9 +60,10 @@ export default function DoubtSolver() {
                 <Sparkles className="w-12 h-12 text-primary" />
               </div>
               <div className="space-y-3">
-                <h2 className="text-3xl font-headline font-bold">ChatGPT-Level Academic Support</h2>
+                <h2 className="text-3xl font-headline font-bold">Expert AI Academic Support</h2>
                 <p className="text-muted-foreground max-w-md mx-auto leading-relaxed">
-                  Ask easy questions for quick answers, or request detailed breakdowns for complex topics. I adapt to your needs instantly.
+                  Fast answers for quick checks, or detailed breakthroughs for complex doubts. 
+                  I adapt my response depth to exactly what you need.
                 </p>
               </div>
               <div className="flex flex-wrap gap-2 justify-center max-w-lg mx-auto">
@@ -119,7 +120,7 @@ export default function DoubtSolver() {
                   <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]" />
                   <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" />
                 </div>
-                <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Evaluating Complexity...</span>
+                <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Thinking...</span>
               </div>
             </div>
           )}

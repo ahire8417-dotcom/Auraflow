@@ -1,12 +1,12 @@
 
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import { useUser, useFirestore, useDoc } from "@/firebase"
 import { doc, setDoc, serverTimestamp } from "firebase/firestore"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Trophy, Settings, Sparkles, Map, Target, Pencil, Check, RefreshCcw, Book, Star, Activity } from "lucide-react"
+import { Trophy, Settings, Sparkles, Map, Target, Pencil, Check, RefreshCcw, Book, Star, Activity, Camera, Image as ImageIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -15,13 +15,17 @@ import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { toast } from "@/hooks/use-toast"
+import { errorEmitter } from "@/firebase/error-emitter"
+import { FirestorePermissionError } from "@/firebase/errors"
 
 export default function Profile() {
   const { user, loading: userLoading } = useUser()
   const firestore = useFirestore()
+  const fileInputRef = useRef<HTMLInputElement>(null)
   
   const [isEditing, setIsEditing] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
   
   const userStatsRef = useMemo(() => 
     user && firestore ? doc(firestore, "users", user.uid) : null, 
@@ -32,7 +36,8 @@ export default function Profile() {
   const [formData, setFormData] = useState({
     displayName: "",
     bio: "",
-    avatarSeed: "1"
+    avatarSeed: "1",
+    photoURL: ""
   })
 
   useEffect(() => {
@@ -40,33 +45,83 @@ export default function Profile() {
       setFormData({
         displayName: userStats.displayName || user?.displayName || "Scholar",
         bio: userStats.bio || "Optimizing cognitive velocity...",
-        avatarSeed: userStats.avatarSeed || user?.uid?.slice(0, 3) || "1"
+        avatarSeed: userStats.avatarSeed || user?.uid?.slice(0, 3) || "1",
+        photoURL: userStats.photoURL || ""
       })
     }
   }, [userStats, user])
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!userStatsRef) return
     setSaving(true)
-    try {
-      await setDoc(userStatsRef, {
-        displayName: formData.displayName,
-        bio: formData.bio,
-        avatarSeed: formData.avatarSeed,
-        lastActive: serverTimestamp(),
-      }, { merge: true })
-      setIsEditing(false)
-      toast({ title: "Profile Synced", description: "Your scholar identity has been updated." })
-    } catch (err) {
-      toast({ variant: "destructive", title: "Sync Failed", description: "Connection interrupted." })
-    } finally {
-      setSaving(false)
+    
+    const dataToSave = {
+      displayName: formData.displayName,
+      bio: formData.bio,
+      avatarSeed: formData.avatarSeed,
+      photoURL: formData.photoURL,
+      lastActive: serverTimestamp(),
     }
+
+    setDoc(userStatsRef, dataToSave, { merge: true })
+      .then(() => {
+        setIsEditing(false)
+        setSaving(false)
+        toast({ title: "Profile Synced", description: "Your scholar identity has been updated." })
+      })
+      .catch((err) => {
+        setSaving(false)
+        errorEmitter.emit('permission-error', new FirestorePermissionError({
+          path: userStatsRef.path,
+          operation: 'update',
+          requestResourceData: dataToSave
+        }))
+      })
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Limit size to roughly 1MB for Firestore field compatibility
+    if (file.size > 1024 * 1024) {
+      toast({ 
+        variant: "destructive", 
+        title: "File Too Large", 
+        description: "Please select an image smaller than 1MB for optimal performance." 
+      })
+      return
+    }
+
+    setUploading(true)
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      const base64String = reader.result as string
+      setFormData(prev => ({ ...prev, photoURL: base64String }))
+      setUploading(false)
+      
+      // Auto-save the photo change
+      if (userStatsRef) {
+        setDoc(userStatsRef, { photoURL: base64String, lastActive: serverTimestamp() }, { merge: true })
+          .catch(err => {
+             errorEmitter.emit('permission-error', new FirestorePermissionError({
+              path: userStatsRef.path,
+              operation: 'update'
+            }))
+          })
+      }
+      toast({ title: "Photo Updated", description: "Your profile picture has been synchronized." })
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const triggerFilePicker = () => {
+    fileInputRef.current?.click()
   }
 
   const cycleAvatar = () => {
     const nextSeed = Math.floor(Math.random() * 1000).toString()
-    setFormData(prev => ({ ...prev, avatarSeed: nextSeed }))
+    setFormData(prev => ({ ...prev, avatarSeed: nextSeed, photoURL: "" })) // Reset custom photo if cycling
   }
 
   const xp = userStats?.totalScore || 0
@@ -80,6 +135,8 @@ export default function Profile() {
     )
   }
 
+  const avatarUrl = formData.photoURL || `https://picsum.photos/seed/${formData.avatarSeed}/200`
+
   return (
     <div className="min-h-full p-4 md:p-8 max-w-4xl mx-auto space-y-10 animate-in fade-in duration-700">
       <HeaderNav 
@@ -89,30 +146,49 @@ export default function Profile() {
         info="Your centralized identity hub. Manage your scholar alias, track mastery levels, and customize your neural presence in the AuraFlow ecosystem."
       />
 
+      {/* Hidden File Input */}
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        className="hidden" 
+        accept="image/*" 
+        onChange={handleFileChange}
+      />
+
       {/* Hero Section */}
       <section className="flex flex-col items-center space-y-6">
         <div className="relative group">
           <div className="absolute inset-0 bg-primary/20 rounded-full blur-3xl group-hover:bg-primary/40 transition-all duration-700" />
           <Avatar className="w-40 h-40 border-4 border-primary/20 shadow-2xl relative z-10 transition-transform duration-500 group-hover:scale-105">
-            <AvatarImage src={`https://picsum.photos/seed/${formData.avatarSeed}/200`} />
+            <AvatarImage src={avatarUrl} className="object-cover" />
             <AvatarFallback className="bg-primary/10 text-primary font-bold text-4xl">
               {formData.displayName?.charAt(0) || "S"}
             </AvatarFallback>
           </Avatar>
           
-          <button 
-            onClick={cycleAvatar}
-            className="absolute bottom-1 right-1 bg-secondary text-white p-3 rounded-2xl shadow-xl z-20 hover:scale-110 active:scale-95 transition-all border-4 border-[#0A0714]"
-          >
-            <RefreshCcw className="w-5 h-5" />
-          </button>
+          <div className="absolute -bottom-2 right-1/2 translate-x-1/2 flex gap-2 z-20">
+            <button 
+              onClick={cycleAvatar}
+              title="Cycle Random Avatar"
+              className="bg-primary text-white p-3 rounded-2xl shadow-xl hover:scale-110 active:scale-95 transition-all border-4 border-[#0A0714]"
+            >
+              <RefreshCcw className={cn("w-5 h-5", uploading && "animate-spin")} />
+            </button>
+            <button 
+              onClick={triggerFilePicker}
+              title="Upload from Device"
+              className="bg-secondary text-white p-3 rounded-2xl shadow-xl hover:scale-110 active:scale-95 transition-all border-4 border-[#0A0714]"
+            >
+              <ImageIcon className="w-5 h-5" />
+            </button>
+          </div>
 
           <div className="absolute -top-2 -left-2 bg-primary text-white text-[10px] px-4 py-1.5 rounded-full font-black shadow-xl z-20 uppercase tracking-widest border-2 border-[#0A0714] animate-pulse">
             {rank}
           </div>
         </div>
 
-        <div className="text-center space-y-4 w-full max-w-sm">
+        <div className="text-center space-y-4 w-full max-w-sm pt-4">
           {isEditing ? (
             <div className="space-y-3 animate-in slide-in-from-top-2">
               <Input 
@@ -162,7 +238,7 @@ export default function Profile() {
           { label: "Mastery XP", value: xp, icon: Star, color: "text-yellow-500" },
           { label: "Quizzes", value: userStats?.quizzesCompleted || 0, icon: Target, color: "text-red-500" },
           { label: "Rank", value: rank, icon: Trophy, color: "text-primary" },
-          { label: "Activity", value: "3D Streak", icon: Activity, color: "text-secondary" },
+          { label: "Activity", value: "Current Streak", icon: Activity, color: "text-secondary" },
         ].map((stat, i) => (
           <Card key={i} className="glass-panel border-0 rounded-[2rem] p-6 text-center hover:bg-white/5 transition-all">
             <stat.icon className={cn("w-5 h-5 mx-auto mb-3", stat.color)} />
@@ -182,15 +258,15 @@ export default function Profile() {
             <h3 className="font-headline font-bold text-xl flex items-center gap-3">
               <Sparkles className="w-5 h-5 text-yellow-500" /> Milestone Hall
             </h3>
-            <Badge variant="outline" className="border-white/10 text-[9px]">1 / 12 Badges</Badge>
+            <Badge variant="outline" className="border-white/10 text-[9px]">Progression Unlocked</Badge>
           </div>
           <div className="grid grid-cols-4 gap-4 relative z-10">
             {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
               <div key={i} className={cn(
                 "aspect-square rounded-2xl flex items-center justify-center transition-all border",
-                i === 1 ? "bg-primary/20 border-primary/40 text-primary shadow-lg shadow-primary/20" : "bg-white/5 border-white/5 opacity-20"
+                xp > (i * 50) ? "bg-primary/20 border-primary/40 text-primary shadow-lg shadow-primary/20" : "bg-white/5 border-white/5 opacity-20"
               )}>
-                {i === 1 ? <Book className="w-6 h-6" /> : <Star className="w-4 h-4" />}
+                {xp > (i * 50) ? <Book className="w-6 h-6" /> : <Star className="w-4 h-4" />}
               </div>
             ))}
           </div>

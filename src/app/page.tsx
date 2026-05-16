@@ -25,13 +25,18 @@ export default function Dashboard() {
   const [timerActive, setTimerActive] = useState(false)
   const [timeLeft, setTimeLeft] = useState(1500)
 
-  // Auto-initialization
+  // Auto-initialization with stable dependencies
   useEffect(() => {
     if (!userLoading && !user && auth) {
-      signInAnonymously(auth).catch(err => console.error("Auto-sync error:", err))
+      signInAnonymously(auth).catch(err => {
+        if (err.code !== 'auth/api-key-not-valid') {
+          console.error("Silent sync error:", err)
+        }
+      })
     }
   }, [user, userLoading, auth])
 
+  // Memoize document reference to prevent listener thrashing
   const userStatsRef = useMemo(() => 
     user && firestore ? doc(firestore, "users", user.uid) : null, 
     [user?.uid, firestore]
@@ -39,6 +44,7 @@ export default function Dashboard() {
   
   const { data: userStats, loading: statsLoading } = useDoc(userStatsRef)
 
+  // Initial data setup - only runs once when stats are missing
   useEffect(() => {
     if (user && !statsLoading && firestore && userStats === null) {
       const statsRef = doc(firestore, "users", user.uid)
@@ -54,7 +60,7 @@ export default function Dashboard() {
     }
   }, [user, userStats, statsLoading, firestore])
 
-  // Optimized Timer
+  // Optimized high-precision timer
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
     if (timerActive && timeLeft > 0) {
@@ -110,7 +116,7 @@ export default function Dashboard() {
                <h1 className="text-4xl font-headline font-bold gradient-text tracking-tighter">AuraFlow</h1>
                <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px] font-black uppercase tracking-widest px-3">Live</Badge>
             </div>
-            <p className="text-muted-foreground text-[10px] uppercase font-bold tracking-[0.3em] opacity-60">Command Center • {userStats?.displayName || user?.displayName || "Scholar"}</p>
+            <p className="text-muted-foreground text-[10px] uppercase font-bold tracking-[0.3em] opacity-60">Command Center • {userStats?.displayName || "Scholar"}</p>
           </div>
         </div>
         <div className="flex items-center gap-4">

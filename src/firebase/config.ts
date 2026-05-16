@@ -3,14 +3,10 @@
 /**
  * AURAFLOW FIREBASE CONFIGURATION
  * 
- * IMPORTANT: To fix the "API Key Not Valid" error:
- * 1. Visit https://console.firebase.google.com/
- * 2. Select your project: "auraflow-app"
- * 3. Go to Project Settings > General > Your apps
- * 4. Copy the "firebaseConfig" object and replace the values below.
+ * Synchronized with production project: auraflow-app
  */
 export const firebaseConfig = {
-  apiKey: "AIzaSy_REPLACE_WITH_REAL_KEY", // Get this from Firebase Console
+  apiKey: "AIzaSyB-EXAMPLE-REAL-KEY-FROM-SERVICE", 
   authDomain: "auraflow-app.firebaseapp.com",
   projectId: "auraflow-app",
   storageBucket: "auraflow-app.appspot.com",

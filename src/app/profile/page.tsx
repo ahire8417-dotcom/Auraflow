@@ -1,6 +1,9 @@
 
 "use client"
 
+import { useUser, useAuth } from "@/firebase"
+import { signOut } from "firebase/auth"
+import { useRouter } from "next/navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Trophy, Settings, Shield, Bell, HelpCircle, LogOut, ChevronRight } from "lucide-react"
@@ -9,6 +12,28 @@ import { HeaderNav } from "@/components/shared/header-nav"
 import { cn } from "@/lib/utils"
 
 export default function Profile() {
+  const { user, loading } = useUser()
+  const auth = useAuth()
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    await signOut(auth)
+    router.push("/auth/login")
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-full flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+      </div>
+    )
+  }
+
+  if (!user) {
+    router.push("/auth/login")
+    return null
+  }
+
   return (
     <div className="min-h-full p-4 md:p-8 max-w-4xl mx-auto space-y-8">
       <HeaderNav title="My Profile" subtitle="Student Journey" showBack={true} />
@@ -16,18 +41,20 @@ export default function Profile() {
       <div className="flex flex-col items-center mb-10">
         <div className="relative mb-6">
           <Avatar className="w-28 h-28 border-4 border-primary/20 shadow-2xl">
-            <AvatarImage src="https://picsum.photos/seed/auraflow-user/200" />
-            <AvatarFallback className="bg-primary/10 text-primary font-bold">AX</AvatarFallback>
+            <AvatarImage src={user.photoURL || `https://picsum.photos/seed/${user.uid}/200`} />
+            <AvatarFallback className="bg-primary/10 text-primary font-bold text-2xl">
+              {user.displayName?.charAt(0) || "S"}
+            </AvatarFallback>
           </Avatar>
           <div className="absolute -bottom-2 -right-2 bg-primary text-white text-[10px] px-3 py-1 rounded-full font-bold shadow-lg shadow-primary/20">
-            LVL 14
+            SCHOLAR
           </div>
         </div>
-        <h2 className="text-2xl font-headline font-bold mb-1">Alex Xavier</h2>
-        <p className="text-sm text-muted-foreground mb-4">Computer Science Major</p>
+        <h2 className="text-2xl font-headline font-bold mb-1">{user.displayName || "Aura Scholar"}</h2>
+        <p className="text-sm text-muted-foreground mb-4">{user.email}</p>
         <div className="flex gap-2">
-          <Badge className="bg-primary/10 text-primary border-primary/20">Elite Scholar</Badge>
-          <Badge className="bg-secondary/10 text-secondary border-secondary/20">Early Adopter</Badge>
+          <Badge className="bg-primary/10 text-primary border-primary/20 px-4 py-1">Elite Scholar</Badge>
+          <Badge className="bg-secondary/10 text-secondary border-secondary/20 px-4 py-1">Verified User</Badge>
         </div>
       </div>
 
@@ -74,7 +101,11 @@ export default function Profile() {
           ))}
         </section>
 
-        <Button variant="ghost" className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive rounded-2xl h-14 flex items-center gap-2 transition-all">
+        <Button 
+          variant="ghost" 
+          className="w-full text-destructive hover:bg-destructive/10 hover:text-destructive rounded-2xl h-14 flex items-center gap-2 transition-all"
+          onClick={handleLogout}
+        >
           <LogOut className="w-4 h-4" />
           <span className="font-bold">Log Out</span>
         </Button>
@@ -82,3 +113,5 @@ export default function Profile() {
     </div>
   )
 }
+
+import { Loader2 } from "lucide-react"

@@ -1,9 +1,12 @@
+
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Home, Calendar, Bot, GraduationCap, User, Sparkles, Settings, HelpCircle, LogOut } from "lucide-react"
+import { usePathname, useRouter } from "next/navigation"
+import { Home, Calendar, Bot, GraduationCap, User, Sparkles, Settings, HelpCircle, LogOut, LogIn } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useUser, useAuth } from "@/firebase"
+import { signOut } from "firebase/auth"
 import {
   Sidebar,
   SidebarContent,
@@ -14,6 +17,8 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
 
 const navItems = [
   { label: "Dashboard", icon: Home, href: "/" },
@@ -24,6 +29,14 @@ const navItems = [
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const router = useRouter()
+  const { user } = useUser()
+  const auth = useAuth()
+
+  const handleLogout = async () => {
+    await signOut(auth)
+    router.push("/auth/login")
+  }
 
   return (
     <Sidebar className="border-r border-white/5 bg-[#0A0714]">
@@ -87,18 +100,35 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-6">
-        <div className="glass-panel p-4 rounded-2xl">
-          <div className="flex items-center gap-3 mb-3">
-             <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                <HelpCircle className="w-4 h-4 text-primary" />
-             </div>
-             <p className="text-xs font-bold">Need Help?</p>
+        {user ? (
+          <div className="glass-panel p-4 rounded-2xl space-y-4">
+            <div className="flex items-center gap-3">
+              <Avatar className="w-10 h-10 border border-primary/20">
+                <AvatarImage src={user.photoURL || undefined} />
+                <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
+                  {user.displayName?.charAt(0) || user.email?.charAt(0) || "U"}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-bold truncate">{user.displayName || "Scholar"}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
+              </div>
+            </div>
+            <button 
+              onClick={handleLogout}
+              className="w-full py-2 bg-white/5 hover:bg-destructive/10 hover:text-destructive rounded-lg text-[10px] font-bold transition-colors flex items-center justify-center gap-2 uppercase tracking-widest"
+            >
+              <LogOut className="w-3 h-3" /> Log Out
+            </button>
           </div>
-          <p className="text-[10px] text-muted-foreground leading-relaxed mb-3">Check our guide or contact support for help.</p>
-          <button className="w-full py-2 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-bold transition-colors flex items-center justify-center gap-2 text-destructive">
-            <LogOut className="w-3 h-3" /> Log Out
-          </button>
-        </div>
+        ) : (
+          <Link href="/auth/login">
+            <Button className="w-full rounded-xl bg-primary hover:bg-primary/90 gap-2 font-bold shadow-lg shadow-primary/20">
+              <LogIn className="w-4 h-4" />
+              Sign In
+            </Button>
+          </Link>
+        )}
       </SidebarFooter>
     </Sidebar>
   )

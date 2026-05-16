@@ -10,6 +10,7 @@ import { Loader2, Calendar as CalendarIcon, Clock, Plus, Trash2, GraduationCap, 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { Progress } from "@/components/ui/progress"
+import { Badge } from "@/components/ui/badge"
 
 const EDUCATION_CATEGORIES = [
   { 

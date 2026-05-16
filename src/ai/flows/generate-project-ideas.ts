@@ -2,7 +2,7 @@
 /**
  * @fileOverview An AI agent that generates project ideas for student portfolios.
  *
- * - generateProjectIdeas - A function that generates tailored project concepts.
+ * - generateProjectIdeas - A function that generates tailored project concepts with market analysis.
  */
 
 import { ai } from '@/ai/genkit';
@@ -22,7 +22,9 @@ const ProjectIdeasOutputSchema = z.object({
     keyFeatures: z.array(z.string()).describe('List of core features to implement.'),
     techStack: z.array(z.string()).describe('Suggested technologies.'),
     learningOutcome: z.string().describe('What the student will learn.'),
-  })).describe('A list of 3-4 creative project ideas.'),
+    marketImpact: z.string().describe('Why this project is impressive on a resume/portfolio.'),
+    uniqueSpark: z.string().describe('A creative twist or unique feature that makes it stand out.'),
+  })).describe('A list of 3 creative, high-impact project ideas.'),
 });
 export type ProjectIdeasOutput = z.infer<typeof ProjectIdeasOutputSchema>;
 
@@ -34,13 +36,21 @@ const prompt = ai.definePrompt({
   name: 'projectIdeasPrompt',
   input: { schema: ProjectIdeasInputSchema },
   output: { schema: ProjectIdeasOutputSchema },
-  prompt: `You are an industry mentor helping a student build a standout portfolio.
+  prompt: `You are an Industry Elite Mentor helping a high-potential student build a standout portfolio.
 Based on their skills: {{#each skills}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}
 And their interest in: {{{interestArea}}}
 At a {{{complexity}}} level.
 
-Generate 3 unique, high-impact project ideas that would impress recruiters. 
-Focus on solving real-world problems. Ensure the tech stack is modern and relevant.`,
+### Objectives:
+1. **Innovation**: Don't suggest generic "Todo" apps. Think of real-world problems.
+2. **Complexity Alignment**:
+   - Beginner: Focus on core logic and clean UI.
+   - Intermediate: Focus on integrations, data management, and state.
+   - Advanced: Focus on scale, performance, security, or complex algorithms.
+3. **The Spark**: Provide a unique twist that makes this project unlike any other on GitHub.
+4. **Marketability**: Explain the specific industry value of this project.
+
+Generate 3 unique, high-impact project ideas.`,
 });
 
 const projectIdeasFlow = ai.defineFlow(

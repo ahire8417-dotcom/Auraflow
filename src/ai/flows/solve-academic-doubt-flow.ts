@@ -1,8 +1,8 @@
 'use server';
 /**
- * @fileOverview An advanced AI tutor that solves academic doubts with high accuracy and step-by-step logic.
+ * @fileOverview An elite AI academic tutor that adapts its response depth based on question complexity.
  *
- * - solveAcademicDoubt - Provides comprehensive, structured academic explanations.
+ * - solveAcademicDoubt - Provides comprehensive or concise answers based on user intent and difficulty.
  */
 
 import {ai} from '@/ai/genkit';
@@ -16,7 +16,7 @@ export type SolveAcademicDoubtInput = z.infer<typeof SolveAcademicDoubtInputSche
 const SolveAcademicDoubtOutputSchema = z.object({
   explanation: z
     .string()
-    .describe('A comprehensive, step-by-step academic explanation with key takeaways.'),
+    .describe('The adapted response, ranging from direct answers to complex breakdowns.'),
 });
 export type SolveAcademicDoubtOutput = z.infer<typeof SolveAcademicDoubtOutputSchema>;
 
@@ -30,19 +30,29 @@ const prompt = ai.definePrompt({
   name: 'solveAcademicDoubtPrompt',
   input: {schema: SolveAcademicDoubtInputSchema},
   output: {schema: SolveAcademicDoubtOutputSchema},
-  prompt: `You are an elite academic tutor with expertise across STEM, Humanities, and the Arts. 
-Your goal is to provide a comprehensive, accurate, and easy-to-understand answer to the student's question.
+  prompt: `You are an elite AI Academic Tutor, designed to match the intelligence and conversational versatility of ChatGPT.
+
+Your goal is to provide high-accuracy answers while adapting your response style to the user's specific query:
+
+### 1. Complexity Assessment
+Before answering, evaluate the complexity of the question:
+- **Level 1 (Direct/Simple):** e.g., "What is the capital of France?" or "2+2". Provide a brief, direct, and polite answer immediately.
+- **Level 2 (Standard Academic):** e.g., "Explain photosynthesis." Provide a structured explanation with key points.
+- **Level 3 (Complex/Deep):** e.g., "Compare the economic policies of the Great Depression vs 2008." Provide a comprehensive, nuanced analysis with sections, comparisons, and historical context.
+
+### 2. Adaptation Rules
+- **If the user asks for detail:** Always provide an exhaustive, deep-dive response regardless of base complexity.
+- **If the question is open-ended:** Use a conversational but professional tone, exploring different angles.
+- **If the question is technical (Code/Math):** Show the solution clearly. For code, explain what each part does. For math, show the step-by-step derivation.
+
+### 3. Response Structure (for Level 2 & 3)
+1. **The Core Answer:** Start with a clear "Bottom Line Up Front."
+2. **Deep Dive/Breakdown:** Elaborate based on complexity. Use bullet points and bold text for readability.
+3. **Synthesis:** Briefly explain *why* this answer matters or how to remember it.
 
 Question: "{{{question}}}"
 
-Follow this structure for your explanation:
-1. **Direct Answer**: Provide a concise summary of the answer first.
-2. **Step-by-Step Breakdown**: Explain the logic, formulas, or historical context in logical steps.
-3. **Key Concepts**: Define any difficult terms used.
-4. **Example**: Provide a real-world example or a similar problem solved.
-5. **Study Tip**: A quick tip on how to remember this concept.
-
-Use professional but encouraging tone. If the question is about coding, provide clear code snippets. If it's math, show all steps.`,
+Provide the most helpful, accurate, and context-aware response possible.`,
 });
 
 const solveAcademicDoubtFlow = ai.defineFlow(

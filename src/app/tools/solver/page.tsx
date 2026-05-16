@@ -5,7 +5,7 @@ import { solveAcademicDoubt } from "@/ai/flows/solve-academic-doubt-flow"
 import { HeaderNav } from "@/components/shared/header-nav"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { Loader2, Send, Bot, User, Sparkles, Trash2 } from "lucide-react"
+import { Loader2, Send, Bot, User, Sparkles, Trash2, Zap } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 
@@ -19,7 +19,7 @@ export default function DoubtSolver() {
     if (scrollRef.current) {
       scrollRef.current.scrollIntoView({ behavior: 'smooth' })
     }
-  }, [messages])
+  }, [messages, loading])
 
   const handleSolve = async () => {
     if (!question.trim() || loading) return
@@ -44,7 +44,7 @@ export default function DoubtSolver() {
   return (
     <div className="flex flex-col h-[calc(100svh-64px)] md:h-screen bg-transparent">
       <div className="p-4 bg-background/50 backdrop-blur-xl border-b border-white/5 sticky top-0 z-10 flex items-center justify-between">
-        <HeaderNav title="Aura AI Tutor" subtitle="Expert Academic Support" className="mb-0" />
+        <HeaderNav title="Aura AI Tutor" subtitle="Adaptive Intellect" className="mb-0" />
         {messages.length > 0 && (
           <Button variant="ghost" size="icon" onClick={clearChat} className="text-muted-foreground hover:text-destructive">
             <Trash2 className="w-4 h-4" />
@@ -60,17 +60,17 @@ export default function DoubtSolver() {
                 <Sparkles className="w-12 h-12 text-primary" />
               </div>
               <div className="space-y-3">
-                <h2 className="text-3xl font-headline font-bold">What are we learning today?</h2>
+                <h2 className="text-3xl font-headline font-bold">ChatGPT-Level Academic Support</h2>
                 <p className="text-muted-foreground max-w-md mx-auto leading-relaxed">
-                  I can solve complex equations, explain historical events, or help you debug code with step-by-step logic.
+                  Ask easy questions for quick answers, or request detailed breakdowns for complex topics. I adapt to your needs instantly.
                 </p>
               </div>
               <div className="flex flex-wrap gap-2 justify-center max-w-lg mx-auto">
                 {[
-                  "Solve for x: 2x² - 4x + 2 = 0", 
-                  "Explain the 1st Law of Thermodynamics", 
-                  "Write a Python script for binary search",
-                  "Why did the Industrial Revolution start in Britain?"
+                  "Explain quantum entanglement simply", 
+                  "Compare capitalism and socialism in detail", 
+                  "Quick check: 15% of 250",
+                  "Why is the sky blue?"
                 ].map((s, i) => (
                   <Button 
                     key={i} 
@@ -98,7 +98,7 @@ export default function DoubtSolver() {
                 {msg.role === 'user' ? <User className="w-5 h-5 text-white" /> : <Bot className="w-5 h-5 text-white" />}
               </div>
               <div className={cn(
-                "p-5 md:p-6 rounded-[2rem] text-sm leading-relaxed shadow-2xl max-w-[85%] md:max-w-[75%]",
+                "p-5 md:p-6 rounded-[2rem] text-sm leading-relaxed shadow-2xl max-w-[90%] md:max-w-[80%]",
                 msg.role === 'user' 
                   ? "bg-secondary/20 border border-secondary/30 rounded-tr-none text-white ml-auto" 
                   : "glass-panel rounded-tl-none text-foreground border-white/5 mr-auto whitespace-pre-wrap"
@@ -115,11 +115,11 @@ export default function DoubtSolver() {
               </div>
               <div className="glass-panel p-6 rounded-[2rem] rounded-tl-none flex items-center gap-4 border-primary/20 bg-primary/5">
                 <div className="flex gap-1">
-                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]" />
-                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]" />
-                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]" />
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]" />
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" />
                 </div>
-                <span className="text-xs font-bold text-primary uppercase tracking-widest">Aura is thinking...</span>
+                <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Evaluating Complexity...</span>
               </div>
             </div>
           )}
@@ -131,7 +131,7 @@ export default function DoubtSolver() {
         <div className="max-w-3xl mx-auto relative">
           <Textarea 
             placeholder="Ask anything... (Shift+Enter for new line)"
-            className="min-h-[60px] max-h-[200px] pr-16 pl-6 rounded-3xl border-white/10 bg-white/5 focus:ring-primary focus:border-primary/50 transition-all text-sm py-5 resize-none shadow-inner"
+            className="min-h-[60px] max-h-[250px] pr-16 pl-6 rounded-3xl border-white/10 bg-white/5 focus:ring-primary focus:border-primary/50 transition-all text-sm py-5 resize-none shadow-inner"
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             onKeyDown={(e) => {
@@ -147,7 +147,7 @@ export default function DoubtSolver() {
             disabled={loading || !question.trim()}
             onClick={handleSolve}
           >
-            <Send className="w-5 h-5" />
+            <Zap className={cn("w-5 h-5", loading && "animate-pulse")} />
           </Button>
         </div>
       </div>

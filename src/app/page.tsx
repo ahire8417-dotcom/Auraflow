@@ -4,9 +4,8 @@
 import { useState, useEffect, useMemo } from "react"
 import { Progress } from "@/components/ui/progress"
 import { 
-  Flame, Bell, Plus, CheckCircle2, Bot, Sparkles, 
-  Map, Target, Sidebar as SidebarIcon, Zap, Loader2, 
-  Trophy, ArrowUpRight, Calendar, Users, BrainCircuit
+  Flame, Bell, Plus, Bot, Sparkles, 
+  Map, Trophy, ArrowUpRight, Users, BrainCircuit, Zap, Loader2, Sidebar as SidebarIcon
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -16,6 +15,7 @@ import { useUser, useFirestore, useDoc, useAuth } from "@/firebase"
 import { doc, setDoc, serverTimestamp } from "firebase/firestore"
 import { signInAnonymously } from "firebase/auth"
 import { Badge } from "@/components/ui/badge"
+import { toast } from "@/hooks/use-toast"
 
 export default function Dashboard() {
   const { user, loading: userLoading } = useUser()
@@ -25,10 +25,10 @@ export default function Dashboard() {
   const [timerActive, setTimerActive] = useState(false)
   const [timeLeft, setTimeLeft] = useState(1500)
 
-  // Auto-initialization: If no user, sign in anonymously for a seamless "open app only" experience
+  // Auto-initialization: Silent sync for a seamless experience
   useEffect(() => {
     if (!userLoading && !user && auth) {
-      signInAnonymously(auth).catch(err => console.error("Silent sync failed:", err))
+      signInAnonymously(auth).catch(err => console.error("Auto-sync error:", err))
     }
   }, [user, userLoading, auth])
 
@@ -39,17 +39,15 @@ export default function Dashboard() {
   const { data: userStats, loading: statsLoading } = useDoc(userStatsRef)
 
   useEffect(() => {
-    if (user && !statsLoading && firestore) {
+    if (user && !statsLoading && firestore && userStats === null) {
       const statsRef = doc(firestore, "users", user.uid)
       setDoc(statsRef, {
         uid: user.uid,
-        displayName: userStats?.displayName || user.displayName || "Elite Scholar",
+        displayName: user.displayName || "Elite Scholar",
         photoURL: user.photoURL || "",
-        ...(userStats === null && {
-          totalScore: 0,
-          level: "Beginner",
-          quizzesCompleted: 0,
-        }),
+        totalScore: 0,
+        level: "Beginner",
+        quizzesCompleted: 0,
         lastActive: serverTimestamp(),
       }, { merge: true })
     }
@@ -63,6 +61,7 @@ export default function Dashboard() {
       }, 1000)
     } else if (timeLeft === 0) {
       setTimerActive(false)
+      toast({ title: "Focus Complete", description: "Flow session ended. Excellent discipline." })
     }
     return () => clearInterval(interval)
   }, [timerActive, timeLeft])
@@ -86,17 +85,14 @@ export default function Dashboard() {
   if (userLoading) {
     return (
       <div className="h-full flex items-center justify-center bg-[#0A0714]">
-        <div className="relative">
-          <Loader2 className="w-12 h-12 text-primary animate-spin" />
-          <div className="absolute inset-0 bg-primary/20 blur-xl animate-pulse" />
-        </div>
+        <Loader2 className="w-12 h-12 text-primary animate-spin" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-full p-4 md:p-8 max-w-6xl mx-auto space-y-12 pb-20 md:pb-8">
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 animate-in fade-in slide-in-from-top-4 duration-500">
+    <div className="min-h-full p-4 md:p-8 max-w-6xl mx-auto space-y-12 pb-20 md:pb-8 animate-in fade-in duration-700">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={toggleSidebar} className="md:hidden glass-panel rounded-xl h-10 w-10">
             <SidebarIcon className="w-5 h-5" />
@@ -104,7 +100,7 @@ export default function Dashboard() {
           <div className="space-y-1">
             <div className="flex items-center gap-3">
                <h1 className="text-4xl font-headline font-bold gradient-text tracking-tighter">AuraFlow</h1>
-               <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px] font-black uppercase tracking-widest px-3">v2.1 Live</Badge>
+               <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px] font-black uppercase tracking-widest px-3">Live</Badge>
             </div>
             <p className="text-muted-foreground text-[10px] uppercase font-bold tracking-[0.3em] opacity-60">Command Center • {userStats?.displayName || user?.displayName || "Scholar"}</p>
           </div>
@@ -137,7 +133,7 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         <div className="lg:col-span-2 space-y-12">
-          <section className="animate-in fade-in slide-in-from-left-8 duration-700 [animation-delay:200ms]">
+          <section className="animate-in slide-in-from-left-8 duration-700">
             <div className="glass-panel p-10 rounded-[3.5rem] relative overflow-hidden group border-primary/20 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 shadow-2xl transition-all hover:border-primary/40">
               <div className="absolute -right-8 -top-8 w-64 h-64 bg-primary/10 rounded-full blur-[100px] group-hover:bg-primary/20 transition-all duration-700" />
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 relative z-10">
@@ -154,7 +150,7 @@ export default function Dashboard() {
                   </h2>
                   <p className="text-sm text-muted-foreground font-medium italic opacity-80">
                     {xp === 0 
-                      ? "System initialized. Complete your first training module to analyze velocity." 
+                      ? "System initialized. Complete a module to analyze your velocity." 
                       : "Optimal study velocity detected. Trajectory aims for Grandmaster tier."}
                   </p>
                 </div>
@@ -163,7 +159,7 @@ export default function Dashboard() {
                     <span>{xp} XP Earned</span>
                     <span>Goal: 500 XP</span>
                   </div>
-                  <Progress value={Math.min(100, (xp / 500) * 100)} className="h-4 bg-white/5 border border-white/5 shadow-inner" />
+                  <Progress value={Math.min(100, (xp / 500) * 100)} className="h-4 bg-white/5 border border-white/5" />
                   <div className="flex justify-between items-center px-1">
                     <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Efficiency: {Math.round((xp / 500) * 100)}%</p>
                     <Badge variant="outline" className="text-[8px] py-0 border-white/10 opacity-60">Exp. 4h</Badge>
@@ -173,7 +169,7 @@ export default function Dashboard() {
             </div>
           </section>
 
-          <section className="space-y-6">
+          <section className="space-y-6 animate-in slide-in-from-bottom-8 duration-700 delay-200">
             <div className="flex items-center justify-between px-4">
               <h3 className="text-xl font-headline font-bold flex items-center gap-3">
                 <BrainCircuit className="w-6 h-6 text-primary" /> Study Arsenal
@@ -182,19 +178,12 @@ export default function Dashboard() {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {quickActions.map((action, i) => (
-                <Link key={i} href={action.href} className={cn(
-                  "group animate-in fade-in zoom-in-95 duration-500",
-                  i === 0 && "[animation-delay:400ms]",
-                  i === 1 && "[animation-delay:500ms]",
-                  i === 2 && "[animation-delay:600ms]",
-                  i === 3 && "[animation-delay:700ms]"
-                )}>
+                <Link key={i} href={action.href} className="group">
                   <div className={cn(
                     "w-full p-8 rounded-[3rem] flex flex-col items-center justify-center text-center transition-all group-hover:translate-y-[-8px] group-active:scale-95 border-2 shadow-xl h-full relative overflow-hidden",
                     action.color
                   )}>
-                    <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <div className="bg-white/5 p-4 rounded-2xl mb-5 group-hover:bg-white/10 transition-all group-hover:scale-110 shadow-lg relative z-10">
+                    <div className="bg-white/5 p-4 rounded-2xl mb-5 group-hover:scale-110 transition-all shadow-lg relative z-10">
                        <action.icon className="w-8 h-8" />
                     </div>
                     <p className="text-[11px] font-black uppercase tracking-[0.2em] mb-2 relative z-10">{action.title}</p>
@@ -206,15 +195,11 @@ export default function Dashboard() {
           </section>
         </div>
 
-        <div className="space-y-10">
+        <div className="space-y-10 animate-in slide-in-from-right-8 duration-700 delay-300">
           <section className={cn(
-            "p-10 rounded-[4rem] relative overflow-hidden flex flex-col justify-between h-96 transition-all duration-1000 border shadow-[0_20px_50px_rgba(140,106,255,0.15)] group animate-in fade-in zoom-in-95 [animation-delay:400ms]",
-            timerActive ? "bg-primary/20 border-primary/50 shadow-primary/40" : "glass-panel border-white/10"
+            "p-10 rounded-[4rem] relative overflow-hidden flex flex-col justify-between h-96 transition-all duration-1000 border shadow-2xl group",
+            timerActive ? "bg-primary/20 border-primary/50" : "glass-panel border-white/10"
           )}>
-            <div className={cn(
-              "absolute inset-0 bg-gradient-to-b from-primary/20 to-transparent opacity-0 transition-opacity duration-1000",
-              timerActive && "opacity-100"
-            )} />
             <Zap className={cn("absolute -right-12 -top-12 w-56 h-56 rotate-12 transition-all duration-1000", timerActive ? "text-primary/30 scale-110 animate-pulse" : "text-white/5")} />
             
             <div className="relative z-10">
@@ -235,13 +220,10 @@ export default function Dashboard() {
             <div className="grid grid-cols-2 gap-4 relative z-10">
                <Button 
                 variant={timerActive ? "destructive" : "default"}
-                className={cn(
-                  "rounded-[1.5rem] font-bold h-16 shadow-2xl transition-all active:scale-95 text-xs uppercase tracking-widest",
-                  !timerActive && "bg-primary hover:bg-primary/90 text-white"
-                )}
+                className={cn("rounded-[1.5rem] font-bold h-16 shadow-2xl transition-all active:scale-95 text-xs uppercase tracking-widest", !timerActive && "bg-primary text-white")}
                 onClick={() => setTimerActive(!timerActive)}
               >
-                {timerActive ? "Abort Flow" : "Launch Sync"}
+                {timerActive ? "Abort Sync" : "Launch Sync"}
               </Button>
               <Button 
                 variant="outline"
@@ -253,30 +235,29 @@ export default function Dashboard() {
             </div>
           </section>
 
-          <section className="glass-panel p-10 rounded-[3.5rem] border border-white/5 bg-gradient-to-br from-secondary/10 via-transparent to-transparent relative overflow-hidden group shadow-2xl animate-in fade-in slide-in-from-right-8 duration-1000 [animation-delay:600ms]">
-             <div className="absolute -right-4 -bottom-4 w-48 h-48 bg-secondary/5 blur-[70px] group-hover:bg-secondary/10 transition-all duration-700" />
+          <section className="glass-panel p-10 rounded-[3.5rem] border border-white/5 bg-gradient-to-br from-secondary/10 via-transparent to-transparent relative overflow-hidden group shadow-2xl">
              <div className="space-y-8 relative z-10">
                <div className="flex items-center gap-4">
-                 <div className="bg-primary/20 p-3.5 rounded-2xl shadow-[0_0_30px_rgba(140,106,255,0.3)] group-hover:scale-110 transition-transform">
+                 <div className="bg-primary/20 p-3.5 rounded-2xl shadow-xl group-hover:scale-110 transition-transform">
                    <Bot className="w-6 h-6 text-primary" />
                  </div>
                  <div>
                    <h4 className="font-headline font-bold text-xl leading-none tracking-tight">Aura Intel</h4>
                    <p className="text-[9px] text-green-400 font-bold uppercase mt-2 flex items-center gap-2 tracking-widest">
-                     <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(74,222,128,0.5)]" /> Neural Live
+                     <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" /> Neural Live
                    </p>
                  </div>
                </div>
                <p className="text-sm text-muted-foreground leading-relaxed font-medium">
                  {xp === 0 ? (
-                    "Welcome back. System is at 0% calibration. Complete a <span class='text-primary font-bold'>Battle Arena session</span> to initialize your skill profile."
+                    "Welcome scholar. Your profile is at <span class='text-primary font-bold'>0% calibration</span>. Complete a quiz to define your trajectory."
                  ) : (
-                   "Cognitive peak detected. Your accuracy in the last module was <span class='text-white font-bold tracking-tighter'>92nd percentile</span>. Maintain momentum."
+                   "Cognitive peak detected. Your performance is in the <span class='text-white font-bold tracking-tighter'>92nd percentile</span>. Maintain momentum."
                  )}
                </p>
                <Link href="/tools/quiz" className="block">
-                 <Button className="w-full rounded-[1.5rem] h-14 font-black bg-white text-black hover:bg-white/90 gap-3 text-[10px] uppercase tracking-[0.2em] transition-all hover:translate-y-[-4px] shadow-xl">
-                   Calibrate Rank <ArrowUpRight className="w-5 h-5" />
+                 <Button className="w-full rounded-[1.5rem] h-14 font-black bg-white text-black hover:bg-white/90 gap-3 text-[10px] uppercase tracking-[0.2em] transition-all shadow-xl">
+                   Calibrate Mastery <ArrowUpRight className="w-5 h-5" />
                  </Button>
                </Link>
              </div>

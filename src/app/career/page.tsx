@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -11,17 +12,17 @@ import {
   ArrowUpRight, 
   Sparkles, 
   Globe, 
-  Code2, 
   Cpu, 
   Leaf, 
-  Coins 
+  Coins,
+  CheckCircle2
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { HeaderNav } from "@/components/shared/header-nav"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
+import { toast } from "@/hooks/use-toast"
 
 const CAREER_NICHES = [
   { 
@@ -55,7 +56,17 @@ const CAREER_NICHES = [
 ]
 
 export default function CareerHub() {
-  const [activeTab, setActiveTab] = useState('strategy')
+  const [trackedNiches, setTrackedNiches] = useState<string[]>([])
+
+  const toggleTrackNiche = (title: string) => {
+    if (trackedNiches.includes(title)) {
+      setTrackedNiches(prev => prev.filter(t => t !== title))
+      toast({ title: "Niche Removed", description: `Unfollowed ${title} trajectory.` })
+    } else {
+      setTrackedNiches(prev => [...prev, title])
+      toast({ title: "Niche Tracked", description: `Monitoring ${title} market shifts.` })
+    }
+  }
 
   return (
     <div className="min-h-full p-4 md:p-8 max-w-5xl mx-auto space-y-12 pb-24 animate-in fade-in duration-700">
@@ -70,7 +81,7 @@ export default function CareerHub() {
         {/* Left Column: Strategic Tools */}
         <div className="lg:col-span-2 space-y-8">
           <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Link href="/tools/roadmap" className="block group">
+            <Link href="/tools/roadmap" className="block group animate-in slide-in-from-left-4 duration-500">
               <div className="glass-panel p-8 rounded-[2.5rem] border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all cursor-pointer relative overflow-hidden h-full">
                 <Sparkles className="absolute -right-4 -top-4 w-24 h-24 text-primary/10 group-hover:rotate-12 transition-transform" />
                 <div className="bg-primary/20 w-14 h-14 rounded-2xl flex items-center justify-center mb-6 shadow-xl shadow-primary/20">
@@ -84,7 +95,7 @@ export default function CareerHub() {
               </div>
             </Link>
 
-            <Link href="/career/resume" className="block group">
+            <Link href="/career/resume" className="block group animate-in slide-in-from-left-4 duration-500 delay-100">
               <div className="glass-panel p-8 rounded-[2.5rem] border-secondary/20 bg-secondary/5 hover:bg-secondary/10 transition-all cursor-pointer relative overflow-hidden h-full">
                 <Sparkles className="absolute -right-4 -top-4 w-24 h-24 text-secondary/10 group-hover:rotate-12 transition-transform" />
                 <div className="bg-secondary/20 w-14 h-14 rounded-2xl flex items-center justify-center mb-6 shadow-xl shadow-secondary/20">
@@ -100,44 +111,55 @@ export default function CareerHub() {
           </section>
 
           {/* High Velocity Niches */}
-          <section className="space-y-6">
+          <section className="space-y-6 animate-in slide-in-from-bottom-4 duration-700">
             <div className="flex items-center justify-between px-2">
               <h3 className="text-lg font-headline font-bold flex items-center gap-3">
                 <Globe className="w-5 h-5 text-primary" /> High-Velocity Niches
               </h3>
-              <Badge variant="outline" className="border-primary/20 text-primary text-[9px] uppercase tracking-widest">Trending 2024</Badge>
+              <Badge variant="outline" className="border-primary/20 text-primary text-[9px] uppercase tracking-widest">Live Updates</Badge>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {CAREER_NICHES.map((niche, i) => (
-                <div key={i} className="glass-panel p-6 rounded-[2rem] border-white/5 bg-white/5 hover:bg-white/10 transition-all group flex items-start gap-5">
-                  <div className={cn("p-4 rounded-2xl shrink-0 transition-transform group-hover:scale-110", niche.color)}>
-                    <niche.icon className="w-6 h-6" />
-                  </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-bold text-sm">{niche.title}</h4>
-                      <Badge className="bg-white/10 text-[8px] font-bold uppercase tracking-tighter px-2 h-4">{niche.vibe}</Badge>
+              {CAREER_NICHES.map((niche, i) => {
+                const isTracked = trackedNiches.includes(niche.title)
+                return (
+                  <div 
+                    key={i} 
+                    onClick={() => toggleTrackNiche(niche.title)}
+                    className={cn(
+                      "glass-panel p-6 rounded-[2rem] border-white/5 bg-white/5 hover:bg-white/10 transition-all group flex items-start gap-5 cursor-pointer relative",
+                      isTracked && "border-primary/40 bg-primary/5"
+                    )}
+                  >
+                    <div className={cn("p-4 rounded-2xl shrink-0 transition-transform group-hover:scale-110", niche.color)}>
+                      <niche.icon className="w-6 h-6" />
                     </div>
-                    <p className="text-[10px] text-muted-foreground leading-tight">{niche.desc}</p>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-bold text-sm">{niche.title}</h4>
+                        <Badge className="bg-white/10 text-[8px] font-bold uppercase tracking-tighter px-2 h-4">{niche.vibe}</Badge>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground leading-tight">{niche.desc}</p>
+                    </div>
+                    {isTracked && <CheckCircle2 className="absolute top-4 right-4 w-4 h-4 text-primary" />}
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </section>
         </div>
 
         {/* Right Column: Tracking & Alerts */}
-        <div className="space-y-8">
+        <div className="space-y-8 animate-in slide-in-from-right-4 duration-700">
           {/* Tracker Card */}
           <section className="glass-panel p-8 rounded-[3rem] border-primary/10 relative overflow-hidden group">
             <div className="absolute -right-12 -top-12 w-48 h-48 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-all" />
             <h3 className="font-headline font-bold text-lg mb-6 flex items-center gap-3 relative z-10">
-              <Target className="w-5 h-5 text-primary" /> App Tracker
+              <Target className="w-5 h-5 text-primary" /> Strategy Tracker
             </h3>
             <div className="space-y-6 relative z-10">
               <div className="space-y-2">
                 <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                  <span>Portfolio Readiness</span>
+                  <span>Portfolio Calibration</span>
                   <span className="text-primary">85%</span>
                 </div>
                 <Progress value={85} className="h-2 bg-white/5" />

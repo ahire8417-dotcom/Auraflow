@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -11,6 +12,7 @@ import { Loader2, FileText, Sparkles, Copy, Check, Zap, Target, Briefcase, Award
 import { Badge } from "@/components/ui/badge"
 import { HeaderNav } from "@/components/shared/header-nav"
 import { cn } from "@/lib/utils"
+import { toast } from "@/hooks/use-toast"
 
 const QUICK_SECTIONS = [
   { label: "Experience", icon: Briefcase },
@@ -31,7 +33,10 @@ export default function ResumeBuilder() {
   })
 
   const handleGenerate = async () => {
-    if (!formData.summary) return
+    if (!formData.summary) {
+      toast({ variant: "destructive", title: "Missing Context", description: "Please provide your experience details." })
+      return
+    }
     setLoading(true)
     try {
       const output = await suggestResumeContent({
@@ -41,8 +46,10 @@ export default function ResumeBuilder() {
         existingSectionContent: formData.content
       })
       setResult(output)
+      toast({ title: "Strategy Generated", description: "ATS-optimized content is ready." })
     } catch (err) {
       console.error(err)
+      toast({ variant: "destructive", title: "Synthesis Error", description: "Failed to engineer resume content." })
     } finally {
       setLoading(false)
     }
@@ -52,21 +59,22 @@ export default function ResumeBuilder() {
     if (result) {
       navigator.clipboard.writeText(result.suggestedContent)
       setCopied(true)
+      toast({ title: "Copied!", description: "Content ready for your resume document." })
       setTimeout(() => setCopied(false), 2000)
     }
   }
 
   return (
-    <div className="min-h-full p-4 md:p-8 max-w-2xl mx-auto space-y-8">
+    <div className="min-h-full p-4 md:p-8 max-w-2xl mx-auto space-y-8 animate-in fade-in duration-700">
       <HeaderNav 
         title="Resume Optimizer" 
-        subtitle="High-Impact Strategist" 
+        subtitle="Identity Strategist" 
         showBack={true} 
         info="ATS-optimized professional strategist. Crafts powerful bullet points using high-impact action verbs and metric-driven results tailored to specific roles."
       />
 
       {!result ? (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
+        <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-500">
           {/* Quick Selection Grid */}
           <section className="space-y-3">
             <Label className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest px-1">Target Section</Label>
@@ -87,14 +95,6 @@ export default function ResumeBuilder() {
                 </button>
               ))}
             </div>
-            {formData.section === "" && (
-               <Input 
-                value={formData.section}
-                onChange={(e) => setFormData({...formData, section: e.target.value})}
-                placeholder="Custom Section Name..."
-                className="glass-panel h-12 rounded-xl mt-2"
-              />
-            )}
           </section>
 
           <div className="grid gap-6">
@@ -104,20 +104,20 @@ export default function ResumeBuilder() {
                 value={formData.summary}
                 onChange={(e) => setFormData({...formData, summary: e.target.value})}
                 placeholder="e.g., I built a React app for a local library that handles 100+ daily visitors..."
-                className="h-32 glass-panel rounded-[1.5rem] p-4 text-sm leading-relaxed"
+                className="h-32 glass-panel rounded-[1.5rem] p-4 text-sm leading-relaxed border-white/10"
               />
             </div>
             
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <Label className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest px-1">Target Job Description (Optional)</Label>
-                <Badge variant="outline" className="text-[9px] opacity-60">Boosts ATS</Badge>
+                <Badge variant="outline" className="text-[9px] opacity-60 border-primary/20">Boosts ATS</Badge>
               </div>
               <Textarea 
                 value={formData.jobDesc}
                 onChange={(e) => setFormData({...formData, jobDesc: e.target.value})}
                 placeholder="Paste the job requirements to tailor with high-impact keywords..."
-                className="h-32 glass-panel rounded-[1.5rem] p-4 text-sm leading-relaxed"
+                className="h-32 glass-panel rounded-[1.5rem] p-4 text-sm leading-relaxed border-white/10"
               />
             </div>
           </div>
@@ -128,13 +128,13 @@ export default function ResumeBuilder() {
             disabled={loading || !formData.summary}
           >
             {loading ? <Loader2 className="mr-3 animate-spin" /> : <Sparkles className="mr-3" />}
-            {loading ? "Strategizing Content..." : "Generate Pro Points"}
+            {loading ? "Engineering Strategy..." : "Generate Pro Points"}
           </Button>
         </div>
       ) : (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
+        <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-500">
           {/* Result Card */}
-          <Card className="glass-panel border-0 border-l-4 border-l-primary rounded-[2.5rem] overflow-hidden">
+          <Card className="glass-panel border-0 border-l-4 border-l-primary rounded-[2.5rem] overflow-hidden shadow-2xl">
             <CardHeader className="flex flex-row items-center justify-between pb-4 bg-primary/5">
               <div>
                 <CardTitle className="text-lg font-bold">Refined {formData.section}</CardTitle>
@@ -176,19 +176,19 @@ export default function ResumeBuilder() {
             </div>
           </section>
 
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 pb-12">
             <Button 
               variant="outline" 
               className="flex-1 rounded-2xl h-14 border-white/10 hover:bg-white/5 font-bold"
               onClick={() => setResult(null)}
             >
-              Adjust Parameters
+              Adjust Strategy
             </Button>
             <Button 
               className="flex-1 rounded-2xl h-14 bg-primary hover:bg-primary/90 font-bold shadow-xl shadow-primary/20"
               onClick={copyToClipboard}
             >
-              {copied ? "Copied to Clipboard!" : "Copy Content"}
+              {copied ? "Copied!" : "Copy Content"}
             </Button>
           </div>
         </div>

@@ -15,7 +15,7 @@ import Link from "next/link"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
 export default function SignupPage() {
-  const { auth } = useAuth()
+  const auth = useAuth()
   const firestore = useFirestore()
   const router = useRouter()
   const [loading, setLoading] = useState(false)

@@ -14,7 +14,7 @@ import Link from "next/link"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
 export default function LoginPage() {
-  const { auth } = useAuth()
+  const auth = useAuth()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -39,7 +39,6 @@ export default function LoginPage() {
     setError("")
     try {
       const provider = new GoogleAuthProvider()
-      // Adding standard scopes if needed
       provider.addScope('profile')
       provider.addScope('email')
       await signInWithPopup(auth, provider)
@@ -91,7 +90,7 @@ export default function LoginPage() {
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <Label className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground ml-1">Password</Label>
-                <Link href="/auth/forgot-password" size="sm" className="text-[10px] text-primary font-bold hover:underline uppercase tracking-widest">Forgot?</Link>
+                <Link href="/auth/forgot-password" px-0 className="text-[10px] text-primary font-bold hover:underline uppercase tracking-widest">Forgot?</Link>
               </div>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />

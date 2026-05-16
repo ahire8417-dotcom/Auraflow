@@ -13,7 +13,7 @@ import Link from "next/link"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
 export default function ForgotPasswordPage() {
-  const { auth } = useAuth()
+  const auth = useAuth()
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
   const [error, setError] = useState("")

@@ -3,7 +3,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Home, Calendar, Bot, GraduationCap, User, Sparkles, Settings, HelpCircle, LogOut, LogIn } from "lucide-react"
+import { Home, Calendar, Bot, GraduationCap, User, Sparkles, Settings, LogOut, LogIn } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useUser, useAuth } from "@/firebase"
 import { signOut } from "firebase/auth"
@@ -77,7 +77,7 @@ export function AppSidebar() {
         <SidebarSeparator className="my-6 bg-white/5" />
 
         <div className="px-4">
-          <p className="text-[10px] uppercase font-bold text-muted-foreground mb-4 tracking-widest">Personal</p>
+          <p className="text-[10px] uppercase font-bold text-muted-foreground mb-4 tracking-widest opacity-50 px-4">Workspace</p>
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton asChild isActive={pathname === "/profile"}>
@@ -88,10 +88,10 @@ export function AppSidebar() {
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <Link href="#" className="flex items-center gap-3 px-4 py-2 rounded-xl text-muted-foreground hover:text-white transition-colors">
+              <SidebarMenuButton asChild isActive={pathname === "/settings"}>
+                <Link href="/settings" className="flex items-center gap-3 px-4 py-2 rounded-xl text-muted-foreground hover:text-white transition-colors">
                   <Settings className="w-4 h-4" />
-                  <span className="text-sm">Settings</span>
+                  <span className="text-sm">Hub Settings</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -101,7 +101,7 @@ export function AppSidebar() {
 
       <SidebarFooter className="p-6">
         {user ? (
-          <div className="glass-panel p-4 rounded-2xl space-y-4">
+          <div className="glass-panel p-4 rounded-2xl space-y-4 border-white/5 bg-white/5">
             <div className="flex items-center gap-3">
               <Avatar className="w-10 h-10 border border-primary/20">
                 <AvatarImage src={user.photoURL || undefined} />
@@ -111,12 +111,12 @@ export function AppSidebar() {
               </Avatar>
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-bold truncate">{user.displayName || "Scholar"}</p>
-                <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
+                <p className="text-[10px] text-muted-foreground truncate opacity-60 font-medium">{user.email}</p>
               </div>
             </div>
             <button 
               onClick={handleLogout}
-              className="w-full py-2 bg-white/5 hover:bg-destructive/10 hover:text-destructive rounded-lg text-[10px] font-bold transition-colors flex items-center justify-center gap-2 uppercase tracking-widest"
+              className="w-full py-2 bg-white/5 hover:bg-destructive/10 hover:text-destructive rounded-lg text-[10px] font-bold transition-colors flex items-center justify-center gap-2 uppercase tracking-widest border border-white/5"
             >
               <LogOut className="w-3 h-3" /> Log Out
             </button>

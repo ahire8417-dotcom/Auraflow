@@ -29,16 +29,21 @@ export default function Dashboard() {
   )
   const { data: userStats, loading: statsLoading } = useDoc(userStatsRef)
 
+  // Auto-initialize or update user stats on dashboard load
   useEffect(() => {
-    if (user && !statsLoading && userStats === null && firestore) {
+    if (user && !statsLoading && firestore) {
       const statsRef = doc(firestore, "users", user.uid)
+      // We use setDoc with merge to either create or just update the last active timestamp
       setDoc(statsRef, {
         uid: user.uid,
         displayName: user.displayName || "Elite Scholar",
         photoURL: user.photoURL || "",
-        totalScore: 0,
-        level: "Beginner",
-        quizzesCompleted: 0,
+        // Only set these if they don't exist to avoid resetting score on every load
+        ...(userStats === null && {
+          totalScore: 0,
+          level: "Beginner",
+          quizzesCompleted: 0,
+        }),
         lastActive: serverTimestamp(),
       }, { merge: true })
     }
@@ -94,7 +99,7 @@ export default function Dashboard() {
           <div className="space-y-1">
             <div className="flex items-center gap-3">
                <h1 className="text-4xl font-headline font-bold gradient-text tracking-tighter">AuraFlow</h1>
-               <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px] font-black uppercase tracking-widest px-3">v2.1 Stable</Badge>
+               <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px] font-black uppercase tracking-widest px-3">v2.1 Live</Badge>
             </div>
             <p className="text-muted-foreground text-[10px] uppercase font-bold tracking-[0.3em] opacity-60">Command Center • {user?.displayName || "Scholar"}</p>
           </div>
@@ -105,7 +110,7 @@ export default function Dashboard() {
               <Users className="w-4 h-4 text-yellow-500 group-hover:scale-110 transition-transform" />
               <div className="text-left">
                 <p className="text-[8px] uppercase font-bold text-muted-foreground tracking-widest leading-none mb-1">Global Standing</p>
-                <p className="text-xs font-bold">Top 5% Elite</p>
+                <p className="text-xs font-bold">{xp > 0 ? "Top 5% Elite" : "Unranked"}</p>
               </div>
             </div>
           </Link>
@@ -113,13 +118,13 @@ export default function Dashboard() {
             <Flame className="w-4 h-4 text-orange-500" />
             <div className="text-left">
               <p className="text-[8px] uppercase font-bold text-muted-foreground tracking-widest leading-none mb-1">Scholar Streak</p>
-              <p className="text-xs font-bold">3 Days</p>
+              <p className="text-xs font-bold">{xp > 0 ? "3 Days" : "New Journey"}</p>
             </div>
           </div>
           <Link href="/settings">
             <Button variant="ghost" size="icon" className="rounded-2xl glass-panel relative h-12 w-12 hover:bg-primary/10">
               <Bell className="w-6 h-6" />
-              <span className="absolute top-3 right-3 w-2 h-2 bg-primary rounded-full ring-2 ring-background animate-pulse" />
+              {xp === 0 && <span className="absolute top-3 right-3 w-2 h-2 bg-primary rounded-full ring-2 ring-background animate-pulse" />}
             </Button>
           </Link>
         </div>
@@ -128,7 +133,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         {/* Main Progression & Actions */}
         <div className="lg:col-span-2 space-y-12">
-          {/* XP & Rank Card - Enhanced Animation */}
+          {/* XP & Rank Card */}
           <section className="animate-in fade-in slide-in-from-left-8 duration-700 [animation-delay:200ms]">
             <div className="glass-panel p-10 rounded-[3.5rem] relative overflow-hidden group border-primary/20 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 shadow-2xl transition-all hover:border-primary/40">
               <div className="absolute -right-8 -top-8 w-64 h-64 bg-primary/10 rounded-full blur-[100px] group-hover:bg-primary/20 transition-all duration-700" />
@@ -144,7 +149,11 @@ export default function Dashboard() {
                     {rank}
                     <ArrowUpRight className="w-8 h-8 text-primary animate-bounce-slow" />
                   </h2>
-                  <p className="text-sm text-muted-foreground font-medium italic opacity-80">"Optimal study velocity detected. Trajectory aims for Grandmaster tier."</p>
+                  <p className="text-sm text-muted-foreground font-medium italic opacity-80">
+                    {xp === 0 
+                      ? "System initialized. Complete your first training module to analyze velocity." 
+                      : "Optimal study velocity detected. Trajectory aims for Grandmaster tier."}
+                  </p>
                 </div>
                 <div className="w-full md:w-72 space-y-4">
                   <div className="flex justify-between text-[10px] font-black text-primary px-2 uppercase tracking-widest">
@@ -161,7 +170,7 @@ export default function Dashboard() {
             </div>
           </section>
 
-          {/* Quick Arsenal Grid - Staggered entrance */}
+          {/* Quick Arsenal Grid */}
           <section className="space-y-6">
             <div className="flex items-center justify-between px-4">
               <h3 className="text-xl font-headline font-bold flex items-center gap-3">
@@ -230,7 +239,7 @@ export default function Dashboard() {
 
         {/* Focus Zone & Insights */}
         <div className="space-y-10">
-          {/* Deep Focus Timer - Enhanced Visuals */}
+          {/* Deep Focus Timer */}
           <section className={cn(
             "p-10 rounded-[4rem] relative overflow-hidden flex flex-col justify-between h-96 transition-all duration-1000 border shadow-[0_20px_50px_rgba(140,106,255,0.15)] group animate-in fade-in zoom-in-95 [animation-delay:400ms]",
             timerActive ? "bg-primary/20 border-primary/50 shadow-primary/40" : "glass-panel border-white/10"
@@ -294,7 +303,7 @@ export default function Dashboard() {
                </div>
                <p className="text-sm text-muted-foreground leading-relaxed font-medium">
                  {xp === 0 ? (
-                    "Welcome back. To calibrate your scholar standing, I recommend a <span class='text-primary font-bold'>High-Yield Tactic session</span> in the Battle Arena."
+                    "Welcome back. System is at 0% calibration. Complete a <span class='text-primary font-bold'>Battle Arena session</span> to initialize your skill profile."
                  ) : (
                    "Cognitive peak detected. Your accuracy in the last module was <span class='text-white font-bold tracking-tighter'>92nd percentile</span>. Maintain momentum."
                  )}
@@ -314,11 +323,13 @@ export default function Dashboard() {
                  <Calendar className="w-5 h-5 text-muted-foreground opacity-60" />
                  <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground opacity-60">Operations Timeline</h4>
                </div>
-               <Badge variant="outline" className="text-[9px] h-5 border-white/10 opacity-40 font-black px-3">MAR 15</Badge>
+               <Badge variant="outline" className="text-[9px] h-5 border-white/10 opacity-40 font-black px-3">
+                 {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase()}
+               </Badge>
              </div>
              <div className="space-y-5">
                {[
-                 { label: "Deep Focus Sprint", status: "Completed", color: "bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.3)]" },
+                 { label: "Deep Focus Sprint", status: xp > 0 ? "Completed" : "Pending", color: xp > 0 ? "bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.3)]" : "bg-white/10" },
                  { label: "AI Intel Analysis", status: "Active", color: "bg-primary shadow-[0_0_10px_rgba(140,106,255,0.3)] animate-pulse" },
                  { label: "Strategic Grind", status: "Queue", color: "bg-white/10" },
                ].map((item, i) => (

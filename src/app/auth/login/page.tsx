@@ -66,18 +66,12 @@ export default function LoginPage() {
     setLoading(true)
     setError("")
     try {
-      // Attempt login with demo credentials
-      // Note: If the user hasn't created this account in Firebase Console, it will fail.
-      // We fall back to anonymous login to ensure "open app only" requirement is met.
-      try {
-        await signInWithEmailAndPassword(auth, "demo@auraflow.ai", "password123")
-      } catch (authErr) {
-        console.warn("Demo account login failed, attempting anonymous access...", authErr)
-        await signInAnonymously(auth)
-      }
+      // First attempt anonymous login as it's the fastest and most reliable for "open app only"
+      await signInAnonymously(auth)
       router.push("/")
     } catch (err: any) {
-      setError("Access failed. Ensure Anonymous Auth is enabled in Firebase Console.")
+      console.error("Demo access error:", err)
+      setError("Demo access failed. Ensure Anonymous Auth is enabled in Firebase Console.")
     } finally {
       setLoading(false)
     }
@@ -128,7 +122,7 @@ export default function LoginPage() {
                 <Label className="text-[10px] uppercase font-bold tracking-[0.2em] text-muted-foreground ml-1">Security Key</Label>
                 <Link 
                   href="/auth/forgot-password" 
-                  className="px-0 text-[10px] text-primary font-bold hover:underline uppercase tracking-widest"
+                  className="text-[10px] text-primary font-bold hover:underline uppercase tracking-widest px-0"
                 >
                   Forgot?
                 </Link>
@@ -164,7 +158,7 @@ export default function LoginPage() {
                 disabled={loading}
               >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <UserCheck className="w-4 h-4 mr-2" />}
-                Quick Demo Account
+                Quick Demo Access (One-Click)
               </Button>
             </div>
           </form>

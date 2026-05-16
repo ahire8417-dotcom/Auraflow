@@ -1,9 +1,9 @@
 
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useUser, useFirestore, useDoc } from "@/firebase"
-import { doc, setDoc } from "firebase/firestore"
+import { doc, setDoc, deleteDoc, collection, getDocs } from "firebase/firestore"
 import { HeaderNav } from "@/components/shared/header-nav"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -25,14 +25,19 @@ import {
   Smartphone,
   Mail,
   Eye,
-  Activity
+  Activity,
+  Trash2,
+  RefreshCcw
 } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
+import { useRouter } from "next/navigation"
 
 export default function SettingsPage() {
   const { user, loading: userLoading } = useUser()
   const firestore = useFirestore()
+  const router = useRouter()
   const [saving, setSaving] = useState(false)
+  const [resetting, setResetting] = useState(false)
 
   const userStatsRef = useMemo(() => 
     user && firestore ? doc(firestore, "users", user.uid) : null, 
@@ -42,13 +47,12 @@ export default function SettingsPage() {
 
   const [displayName, setDisplayName] = useState("")
   
-  // Local state for toggles (mocking for UI)
+  // Local state for toggles
   const [notifs, setNotifs] = useState({ push: true, email: false, streak: true })
   const [privacy, setPrivacy] = useState({ public: true, showRank: true })
   const [dailyHours, setDailyHours] = useState([4])
 
-  // Sync initial data
-  useMemo(() => {
+  useEffect(() => {
     if (userStats) {
       setDisplayName(userStats.displayName || "")
     }
@@ -71,6 +75,41 @@ export default function SettingsPage() {
       })
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleResetProgress = async () => {
+    if (!user || !firestore || !userStatsRef) return
+    if (!confirm("Are you sure you want to reset your progress? This will clear your XP and Rank back to Beginner.")) return
+    
+    setResetting(true)
+    try {
+      // 1. Reset main stats
+      await setDoc(userStatsRef, {
+        totalScore: 0,
+        level: "Beginner",
+        quizzesCompleted: 0,
+      }, { merge: true })
+
+      // 2. Clear quiz history subcollection (optional but thorough)
+      const historyRef = collection(firestore, "users", user.uid, "quizHistory")
+      const historySnap = await getDocs(historyRef)
+      const deletePromises = historySnap.docs.map(d => deleteDoc(d.ref))
+      await Promise.all(deletePromises)
+
+      toast({
+        title: "App Reset Complete",
+        description: "Your stats have been cleared to default. Ready for a new start.",
+      })
+      router.push("/")
+    } catch (err) {
+      toast({
+        variant: "destructive",
+        title: "Reset Failed",
+        description: "Could not wipe progress. Check your connection.",
+      })
+    } finally {
+      setResetting(false)
     }
   }
 
@@ -278,11 +317,21 @@ export default function SettingsPage() {
                 <Separator className="bg-white/5" />
                 
                 <div className="p-6 rounded-[2rem] bg-destructive/5 border border-destructive/20 space-y-4">
-                   <h4 className="text-xs font-bold text-destructive uppercase tracking-widest">Danger Zone</h4>
-                   <p className="text-[10px] text-muted-foreground leading-relaxed">Permanently delete your account and all study data. This action is irreversible.</p>
-                   <Button variant="destructive" className="rounded-xl h-10 text-[10px] font-bold uppercase tracking-widest">
-                     Request Data Deletion
-                   </Button>
+                   <h4 className="text-xs font-bold text-destructive uppercase tracking-widest flex items-center gap-2">
+                     <Trash2 className="w-3 h-3" /> Danger Zone
+                   </h4>
+                   <p className="text-[10px] text-muted-foreground leading-relaxed">Resetting will wipe all XP, history, and achievements back to "Newly Opened" state.</p>
+                   <div className="flex gap-2">
+                     <Button 
+                      variant="destructive" 
+                      className="rounded-xl h-10 text-[10px] font-bold uppercase tracking-widest gap-2"
+                      onClick={handleResetProgress}
+                      disabled={resetting}
+                     >
+                       {resetting ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCcw className="w-3 h-3" />}
+                       Reset App Data
+                     </Button>
+                   </div>
                 </div>
             </CardContent>
           </Card>
@@ -291,7 +340,7 @@ export default function SettingsPage() {
 
       <div className="text-center pb-12">
         <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-[0.3em] opacity-40">
-          AuraFlow OS v2.0.4 Build 882
+          AuraFlow OS v2.1.0 Build 904
         </p>
       </div>
     </div>

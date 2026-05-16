@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -13,23 +14,38 @@ import { cn } from "@/lib/utils"
 const EDUCATION_CATEGORIES = [
   { 
     id: "primary", 
-    label: "Primary School (Grade 1-5)", 
-    subjects: ["Mathematics", "English", "General Science", "Social Studies", "Environmental Studies", "Arts", "Physical Education"] 
+    label: "Primary (Class 1-5)", 
+    subjects: ["Mathematics", "English", "EVS (Environmental Studies)", "Hindi", "Computer Science", "General Knowledge", "Arts"] 
   },
   { 
     id: "middle", 
-    label: "Middle School (Grade 6-8)", 
-    subjects: ["Algebra", "Biology", "Geography", "History", "Civics", "Literature", "Physics", "Chemistry", "Computer Basics"] 
+    label: "Middle School (Class 6-8)", 
+    subjects: ["Mathematics", "Science", "Social Science", "English", "Hindi", "Sanskrit / Regional Language", "Computer Science"] 
   },
   { 
-    id: "high", 
-    label: "High School (Grade 9-12)", 
-    subjects: ["Calculus", "Physics", "Chemistry", "Biology", "Economics", "Computer Science", "Psychology", "Statistics", "World History", "Political Science"] 
+    id: "secondary", 
+    label: "Secondary (Class 9-10)", 
+    subjects: ["Mathematics", "Science", "Social Science (Hist/Geo/Civ)", "English", "Hindi", "Information Technology (IT)"] 
+  },
+  { 
+    id: "senior-science", 
+    label: "Senior Secondary - Science (Class 11-12)", 
+    subjects: ["Physics", "Chemistry", "Mathematics", "Biology", "English", "Computer Science", "Physical Education"] 
+  },
+  { 
+    id: "senior-commerce", 
+    label: "Senior Secondary - Commerce (Class 11-12)", 
+    subjects: ["Accountancy", "Business Studies", "Economics", "English", "Mathematics", "Informatics Practices (IP)"] 
+  },
+  { 
+    id: "senior-humanities", 
+    label: "Senior Secondary - Humanities (Class 11-12)", 
+    subjects: ["History", "Political Science", "Geography", "Sociology", "Psychology", "Economics", "English"] 
   },
   { 
     id: "higher", 
     label: "Graduation / Higher Ed", 
-    subjects: ["Data Structures", "Quantum Physics", "Marketing Management", "Corporate Law", "Anatomy", "Macroeconomics", "Software Engineering", "Organic Chemistry", "Financial Accounting"] 
+    subjects: ["B.Tech / Engineering Subjects", "Medical / MBBS Subjects", "Chartered Accountancy (CA)", "Law / Judiciary", "MBA / Management", "Civil Services / UPSC Prep"] 
   }
 ]
 
@@ -68,7 +84,7 @@ export default function StudyPlanner() {
         examDates: [],
         startDate: today,
         endDate: nextWeek,
-        additionalNotes: `Student level: ${categoryLabel}. Optimize for high academic performance at this specific level.`
+        additionalNotes: `Student context: ${categoryLabel} in the Indian Education System. Optimize for deep conceptual understanding and performance.`
       })
       setTimetable(result)
     } catch (err) {
@@ -90,11 +106,11 @@ export default function StudyPlanner() {
           <section className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
             <div className="flex items-center gap-2 px-1">
               <GraduationCap className="w-5 h-5 text-primary" />
-              <Label className="text-[10px] font-headline uppercase tracking-widest text-muted-foreground font-bold">1. Education Context</Label>
+              <Label className="text-[10px] font-headline uppercase tracking-widest text-muted-foreground font-bold">1. Select Class / Level</Label>
             </div>
             <Select onValueChange={setSelectedCategory} value={selectedCategory}>
               <SelectTrigger className="h-14 rounded-2xl glass-panel border-white/10 bg-white/5">
-                <SelectValue placeholder="What is your current level of study?" />
+                <SelectValue placeholder="Which class/stream are you in?" />
               </SelectTrigger>
               <SelectContent className="glass-panel border-white/10 rounded-2xl bg-[#0A0714]">
                 {EDUCATION_CATEGORIES.map(cat => (
@@ -114,14 +130,14 @@ export default function StudyPlanner() {
             <div className="flex items-center justify-between px-1">
               <div className="flex items-center gap-2">
                 <BookOpen className="w-5 h-5 text-primary" />
-                <Label className="text-[10px] font-headline uppercase tracking-widest text-muted-foreground font-bold">2. Your Curriculum</Label>
+                <Label className="text-[10px] font-headline uppercase tracking-widest text-muted-foreground font-bold">2. Add Subjects</Label>
               </div>
               <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">{subjects.length} Added</span>
             </div>
             
             <div className="flex gap-2">
               <Input 
-                placeholder="Add a custom subject..." 
+                placeholder="Type a subject and press enter..." 
                 value={newSubject}
                 onChange={(e) => setNewSubject(e.target.value)}
                 className="rounded-xl glass-panel h-12 border-white/5"
@@ -136,7 +152,7 @@ export default function StudyPlanner() {
             {selectedCategory && (
               <div className="space-y-3 pt-2">
                 <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest px-1 flex items-center gap-2">
-                   <Sparkles className="w-3 h-3 text-yellow-500" /> Common Subjects for {EDUCATION_CATEGORIES.find(c => c.id === selectedCategory)?.label}
+                   <Sparkles className="w-3 h-3 text-yellow-500" /> Curriculum Suggestions
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {suggestedSubjects.map((sub, i) => (
@@ -162,7 +178,7 @@ export default function StudyPlanner() {
             <div className="grid gap-2 mt-4">
               {subjects.length === 0 ? (
                 <div className="text-center py-8 rounded-[2rem] border border-dashed border-white/5 bg-black/10">
-                  <p className="text-xs text-muted-foreground font-medium">No subjects added to your plan yet.</p>
+                  <p className="text-xs text-muted-foreground font-medium">Select suggestions above or add your own subjects.</p>
                 </div>
               ) : (
                 <div className="flex flex-wrap gap-2 p-4 rounded-3xl bg-black/20 border border-white/5">
@@ -207,7 +223,7 @@ export default function StudyPlanner() {
             disabled={loading || subjects.length === 0 || !selectedCategory}
           >
             {loading ? <Loader2 className="w-6 h-6 animate-spin mr-3" /> : <CalendarIcon className="w-6 h-6 mr-3" />}
-            {loading ? "Optimizing Strategy..." : "Build My AI Strategy"}
+            {loading ? "Creating Study Plan..." : "Generate AI Strategy"}
           </Button>
         </div>
       ) : (
@@ -215,7 +231,7 @@ export default function StudyPlanner() {
           <div className="glass-panel p-6 rounded-[2.5rem] border-l-4 border-l-primary mb-4 bg-primary/5 relative overflow-hidden">
             <Sparkles className="absolute -right-4 -top-4 w-24 h-24 text-primary/5 rotate-12" />
             <h4 className="text-xs font-bold uppercase tracking-widest text-primary mb-2 flex items-center gap-2">
-               <Bot className="w-4 h-4" /> Strategic Context
+               <Bot className="w-4 h-4" /> Curriculum Optimization
             </h4>
             <p className="text-sm text-muted-foreground leading-relaxed italic relative z-10">
               {timetable.summary}
@@ -238,7 +254,7 @@ export default function StudyPlanner() {
                         </div>
                         <div>
                           <h4 className="font-bold text-base">{block.subject}</h4>
-                          <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-bold mt-1">{block.topic || "Topic Mastery"}</p>
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-bold mt-1">{block.topic || "Topic Focus"}</p>
                         </div>
                       </div>
                       <div className="text-right">
@@ -253,7 +269,7 @@ export default function StudyPlanner() {
           </div>
 
           <Button variant="outline" className="w-full rounded-2xl h-14 border-white/10 hover:bg-white/5 font-bold mt-8" onClick={() => setTimetable(null)}>
-            Reset & Build New Plan
+            Reset & Re-plan
           </Button>
         </div>
       )}

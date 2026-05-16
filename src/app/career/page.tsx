@@ -165,9 +165,9 @@ export default function CareerHub() {
             </div>
             <div className="grid gap-3">
               {[
-                { title: "Quantum Science Grant", amount: "₹15,00,000", deadline: "Mar 12" },
-                { title: "Open Source Fellowship", amount: "₹5,00,000", deadline: "Apr 05" },
-                { title: "Next-Gen Design Award", amount: "₹2,50,000", deadline: "May 20" },
+                { title: "Young Scientist Award", amount: "₹85,000", deadline: "Mar 12" },
+                { title: "Open Source Micro-Grant", amount: "₹45,000", deadline: "Apr 05" },
+                { title: "Next-Gen Design Bursary", amount: "₹25,000", deadline: "May 20" },
               ].map((item, i) => (
                 <div key={i} className="glass-panel p-4 rounded-2xl flex items-center justify-between border-white/5 hover:border-secondary/30 transition-all group">
                   <div className="flex items-center gap-4">

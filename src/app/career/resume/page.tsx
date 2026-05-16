@@ -1,9 +1,7 @@
-
 "use client"
 
 import { useState } from "react"
 import { suggestResumeContent, type SuggestResumeContentOutput } from "@/ai/flows/suggest-resume-content"
-import { BottomNav } from "@/components/shared/bottom-nav"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
@@ -11,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Loader2, FileText, Sparkles, Copy, Check } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { HeaderNav } from "@/components/shared/header-nav"
 
 export default function ResumeBuilder() {
   const [loading, setLoading] = useState(false)
@@ -50,83 +49,73 @@ export default function ResumeBuilder() {
   }
 
   return (
-    <div className="min-h-screen p-4 pb-24 max-w-2xl mx-auto">
-      <header className="mb-8">
-        <h1 className="text-3xl font-headline font-bold gradient-text">Resume Optimizer</h1>
-        <p className="text-muted-foreground">Craft ATS-friendly sections with AI precision.</p>
-      </header>
+    <div className="min-h-full p-4 md:p-8 max-w-2xl mx-auto space-y-8">
+      <HeaderNav title="Resume Optimizer" subtitle="ATS-friendly builder" showBack={true} />
 
       {!result ? (
-        <div className="space-y-6">
-          <div className="grid gap-4">
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+          <div className="grid gap-5">
             <div className="space-y-2">
-              <Label>Target Section</Label>
+              <Label className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest px-1">Target Section</Label>
               <Input 
                 value={formData.section}
                 onChange={(e) => setFormData({...formData, section: e.target.value})}
                 placeholder="e.g. Experience, Projects, Summary"
-                className="glass-panel"
+                className="glass-panel h-12 rounded-2xl"
               />
             </div>
             <div className="space-y-2">
-              <Label>Your Profile Summary</Label>
+              <Label className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest px-1">Your Profile Summary</Label>
               <Textarea 
                 value={formData.summary}
                 onChange={(e) => setFormData({...formData, summary: e.target.value})}
                 placeholder="Briefly describe your background, skills, and goals..."
-                className="h-24 glass-panel"
+                className="h-32 glass-panel rounded-2xl p-4"
               />
             </div>
             <div className="space-y-2">
-              <Label>Target Job Description (Optional)</Label>
+              <Label className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest px-1">Job Description (Optional)</Label>
               <Textarea 
                 value={formData.jobDesc}
                 onChange={(e) => setFormData({...formData, jobDesc: e.target.value})}
-                placeholder="Paste the job requirements to tailor your resume..."
-                className="h-24 glass-panel"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Existing Content (Optional)</Label>
-              <Textarea 
-                value={formData.content}
-                onChange={(e) => setFormData({...formData, content: e.target.value})}
-                placeholder="Any drafted text you want AI to refine..."
-                className="h-24 glass-panel"
+                placeholder="Paste the job requirements to tailor content..."
+                className="h-32 glass-panel rounded-2xl p-4"
               />
             </div>
           </div>
 
           <Button 
-            className="w-full h-12 rounded-xl text-lg"
+            className="w-full h-14 rounded-2xl text-lg font-headline shadow-lg shadow-primary/20"
             onClick={handleGenerate}
             disabled={loading || !formData.summary}
           >
             {loading ? <Loader2 className="mr-2 animate-spin" /> : <Sparkles className="mr-2" />}
-            Generate Professional Content
+            Generate Content
           </Button>
         </div>
       ) : (
-        <div className="space-y-6">
-          <Card className="glass-panel border-l-4 border-l-primary">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-lg">Suggested Content</CardTitle>
-              <Button variant="ghost" size="icon" onClick={copyToClipboard}>
-                {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
+          <Card className="glass-panel border-0 border-l-4 border-l-primary rounded-[2rem] overflow-hidden">
+            <CardHeader className="flex flex-row items-center justify-between pb-2 bg-white/5">
+              <CardTitle className="text-lg font-bold">Suggested Content</CardTitle>
+              <Button variant="ghost" size="icon" onClick={copyToClipboard} className="hover:bg-primary/20">
+                {copied ? <Check className="w-5 h-5 text-green-500" /> : <Copy className="w-5 h-5" />}
               </Button>
             </CardHeader>
-            <CardContent>
-              <div className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
+            <CardContent className="pt-6">
+              <div className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground bg-black/20 p-4 rounded-2xl border border-white/5">
                 {result.suggestedContent}
               </div>
             </CardContent>
           </Card>
 
-          <section className="space-y-3">
-            <h3 className="font-bold text-sm uppercase tracking-widest text-muted-foreground">ATS Key Phrases</h3>
+          <section className="space-y-4 px-2">
+            <h3 className="font-bold text-[10px] uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+              <FileText className="w-3 h-3" /> ATS Keywords
+            </h3>
             <div className="flex flex-wrap gap-2">
               {result.keyPhrases.map((phrase, i) => (
-                <Badge key={i} variant="secondary" className="bg-primary/10 text-primary border-primary/20">
+                <Badge key={i} variant="secondary" className="bg-primary/10 text-primary border-primary/20 px-3 py-1 rounded-full">
                   {phrase}
                 </Badge>
               ))}
@@ -135,15 +124,13 @@ export default function ResumeBuilder() {
 
           <Button 
             variant="outline" 
-            className="w-full rounded-xl"
+            className="w-full rounded-2xl h-12 border-white/10"
             onClick={() => setResult(null)}
           >
             Refine Another Section
           </Button>
         </div>
       )}
-
-      <BottomNav />
     </div>
   )
 }

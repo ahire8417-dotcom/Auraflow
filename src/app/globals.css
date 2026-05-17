@@ -67,6 +67,10 @@
     will-change: transform;
     backface-visibility: hidden;
   }
+  .gpu-layer {
+    transform: translateZ(0);
+    will-change: transform;
+  }
 }
 
 @keyframes pulse-glow {
@@ -80,6 +84,15 @@
     transform: scale(1.04);
     box-shadow: 0 0 35px rgba(140, 106, 255, 0.35);
   }
+}
+
+@keyframes bounce-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-bounce-slow {
+  animation: bounce-slow 3s ease-in-out infinite;
 }
 
 ::-webkit-scrollbar {

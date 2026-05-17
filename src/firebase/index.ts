@@ -15,22 +15,16 @@ let auth: Auth;
  */
 export function initializeFirebase() {
   if (typeof window !== 'undefined') {
-    try {
-      if (!getApps().length) {
-        app = initializeApp(firebaseConfig);
-      } else {
-        app = getApp();
-      }
-      
-      firestore = getFirestore(app);
-      auth = getAuth(app);
-      
-      return { app, firestore, auth };
-    } catch (error) {
-      console.error("Firebase Initialization Error:", error);
-      // Fallback or re-initialization if necessary
-      return { app: getApp(), firestore: getFirestore(), auth: getAuth() };
+    if (!getApps().length) {
+      app = initializeApp(firebaseConfig);
+    } else {
+      app = getApp();
     }
+    
+    firestore = getFirestore(app);
+    auth = getAuth(app);
+    
+    return { app, firestore, auth };
   }
   
   return { 

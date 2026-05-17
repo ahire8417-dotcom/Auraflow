@@ -40,11 +40,11 @@ export function BottomNav() {
 
   return (
     <nav className={cn(
-      "fixed bottom-0 left-0 right-0 z-[9999] transition-all duration-700 ease-in-out transform-gpu",
-      dndActive ? "opacity-70 brightness-[0.8]" : "opacity-100"
+      "fixed bottom-0 left-0 right-0 z-[9999] transition-all duration-700 ease-in-out transform-gpu safe-area-bottom",
+      dndActive ? "opacity-80 brightness-[0.8]" : "opacity-100"
     )}>
       <div className="mx-4 mb-8 md:mx-auto md:max-w-2xl">
-        <div className="glass-panel border-white/10 bg-black/90 backdrop-blur-3xl rounded-[2.5rem] shadow-[0_-20px_80px_-15px_rgba(140,106,255,0.15)] px-2 h-20 flex items-center justify-around relative overflow-hidden ring-1 ring-white/5">
+        <div className="glass-panel border-white/10 bg-black/90 backdrop-blur-3xl rounded-[2.5rem] shadow-[0_-20px_80px_-15px_rgba(140,106,255,0.15)] px-2 h-20 flex items-center justify-around relative overflow-hidden ring-1 ring-white/5 transform-gpu">
           
           <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary/40 to-transparent opacity-30" />
 
@@ -58,7 +58,7 @@ export function BottomNav() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-1.5 transition-all duration-500 relative py-2 px-1 rounded-2xl group/item min-w-[60px] active:scale-90",
+                  "flex flex-col items-center justify-center gap-1.5 transition-all duration-500 relative py-2 px-1 rounded-2xl group/item min-w-[60px] active:scale-90 transform-gpu",
                   isActive ? "text-primary" : "text-muted-foreground hover:text-white/80"
                 )}
               >
@@ -67,7 +67,7 @@ export function BottomNav() {
                 )}
 
                 <div className={cn(
-                  "relative z-10 transition-all duration-500",
+                  "relative z-10 transition-all duration-500 transform-gpu",
                   isActive ? "scale-125 -translate-y-1.5 drop-shadow-[0_0_15px_hsl(var(--primary))]" : "group-hover/item:scale-110"
                 )}>
                   <item.icon className={cn(

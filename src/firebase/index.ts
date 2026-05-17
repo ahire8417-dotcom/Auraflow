@@ -11,7 +11,7 @@ let auth: Auth;
 
 /**
  * Initializes Firebase services as singletons.
- * Fixed initialization pattern for Next.js 15 App Router.
+ * Robust initialization pattern for Next.js 15 App Router.
  */
 export function initializeFirebase() {
   if (typeof window !== 'undefined') {

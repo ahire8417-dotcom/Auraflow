@@ -17,8 +17,10 @@ export function Toaster() {
 
   useEffect(() => {
     const checkDnd = () => {
-      const active = localStorage.getItem('aura_dnd_active') === 'true'
-      setDndActive(active)
+      if (typeof window !== 'undefined') {
+        const active = localStorage.getItem('aura_dnd_active') === 'true'
+        setDndActive(active)
+      }
     }
     checkDnd()
     window.addEventListener('storage', checkDnd)
@@ -37,15 +39,15 @@ export function Toaster() {
         if (dndActive && !isCritical) return null
 
         return (
-          <Toast key={id} {...props} className="glass-panel border-white/10 shadow-2xl rounded-2xl">
+          <Toast key={id} {...props} className="glass-panel border-white/10 shadow-2xl rounded-2xl bg-black/80 backdrop-blur-xl">
             <div className="grid gap-1">
-              {title && <ToastTitle className="font-bold">{title}</ToastTitle>}
+              {title && <ToastTitle className="font-bold text-primary">{title}</ToastTitle>}
               {description && (
                 <ToastDescription className="text-xs opacity-80">{description}</ToastDescription>
               )}
             </div>
             {action}
-            <ToastClose />
+            <ToastClose className="text-white/50 hover:text-white" />
           </Toast>
         )
       })}

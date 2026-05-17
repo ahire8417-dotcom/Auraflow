@@ -5,8 +5,8 @@ import { Toaster } from "@/components/ui/toaster"
 import { FirebaseClientProvider } from "@/firebase/client-provider"
 
 export const metadata: Metadata = {
-  title: 'AuraFlow | Elite Student Hub',
-  description: 'High-velocity study ecosystem for academic excellence.',
+  title: 'AuraFlow | AI Study Hub',
+  description: 'High-velocity study ecosystem powered by adaptive AI.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
@@ -39,7 +39,7 @@ export default function RootLayout({
       <body className="font-body bg-[#040308] text-foreground antialiased min-h-svh overflow-x-hidden selection:bg-primary/20">
         <FirebaseClientProvider>
           <div className="flex flex-col min-h-svh w-full relative">
-            <main className="flex-1 pb-24 md:pb-32 overflow-y-auto safe-area-top">
+            <main className="flex-1 pb-32 md:pb-40 overflow-y-auto safe-area-top">
               {children}
             </main>
             <BottomNav />

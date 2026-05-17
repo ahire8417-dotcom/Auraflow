@@ -38,18 +38,20 @@ export default function Dashboard() {
     const savedDnd = localStorage.getItem('aura_dnd_active') === 'true'
     setDndActive(savedDnd)
     
-    if (!auth || !firestore) {
+    // Check Neural Link Status
+    if (!auth?.config?.apiKey) {
       setHealthStatus('degraded')
     } else {
       setHealthStatus('nominal')
     }
-  }, [auth, firestore])
+  }, [auth])
 
-  // Optimized Neural Sync
+  // Optimized Neural Sync - Prevents Auth Jitter
   useEffect(() => {
     if (isClient && !userLoading && !user && auth && !syncAttempted.current) {
       syncAttempted.current = true
-      signInAnonymously(auth).catch(() => {
+      signInAnonymously(auth).catch((err) => {
+        console.error("Neural Sync Failed:", err)
         setHealthStatus('degraded')
         syncAttempted.current = false
       })
@@ -84,8 +86,8 @@ export default function Dashboard() {
     window.dispatchEvent(new Event('storage'))
     
     toast({ 
-      title: active ? "Focus Mode Active" : "Alerts Restored", 
-      description: active ? "Distractions suppressed for deep work." : "Global link re-established.",
+      title: active ? "Deep Focus Engaged" : "Aura Restored", 
+      description: active ? "Neural notifications suppressed." : "System link active.",
     })
   }
 
@@ -101,7 +103,10 @@ export default function Dashboard() {
   if (userLoading || !isClient) {
     return (
       <div className="h-svh flex items-center justify-center bg-[#0A0714]">
-        <Loader2 className="w-10 h-10 text-primary animate-spin" />
+        <div className="relative">
+          <div className="absolute inset-0 blur-xl bg-primary/20 animate-pulse rounded-full" />
+          <Loader2 className="w-12 h-12 text-primary animate-spin relative z-10" />
+        </div>
       </div>
     )
   }
@@ -109,13 +114,13 @@ export default function Dashboard() {
   return (
     <div className={cn(
       "min-h-full p-4 md:p-8 lg:p-12 max-w-7xl mx-auto space-y-12 transition-all duration-700 gpu-layer pb-32",
-      dndActive ? "bg-[#05040a]" : "bg-transparent"
+      dndActive && "brightness-[0.8]"
     )}>
       {healthStatus === 'degraded' && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[1000] animate-in slide-in-from-top-4">
-          <Badge variant="destructive" className="px-4 py-2 rounded-full flex items-center gap-2 backdrop-blur-xl border-destructive/20 shadow-2xl">
-            <AlertCircle className="w-4 h-4" />
-            <span className="text-[10px] font-bold uppercase tracking-widest">Re-Syncing Neural Link...</span>
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[2000] animate-in slide-in-from-top-4">
+          <Badge variant="destructive" className="px-6 py-2.5 rounded-full flex items-center gap-3 backdrop-blur-2xl border-destructive/30 shadow-2xl animate-pulse">
+            <AlertCircle className="w-5 h-5" />
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Neural Link Destabilized</span>
           </Badge>
         </div>
       )}
@@ -124,7 +129,7 @@ export default function Dashboard() {
         <div className="space-y-2">
           <h1 className={cn(
             "text-4xl md:text-6xl font-headline font-bold transition-all tracking-tighter",
-            dndActive ? "text-primary/70 scale-95 origin-left" : "gradient-text"
+            dndActive ? "opacity-60 scale-95 origin-left" : "gradient-text"
           )}>AuraFlow</h1>
           <div className="flex items-center gap-3">
             <p className="text-muted-foreground text-[10px] uppercase font-black tracking-[0.25em] opacity-60">
@@ -141,7 +146,7 @@ export default function Dashboard() {
           )}>
             <div className="flex items-center gap-2 cursor-pointer" onClick={() => toggleDnd(!dndActive)}>
               {dndActive ? <Moon className="w-5 h-5 text-primary" /> : <Sun className="w-5 h-5 text-yellow-500" />}
-              <Label className="text-[10px] font-black uppercase tracking-widest cursor-pointer ml-1">Do Not Disturb</Label>
+              <Label className="text-[10px] font-black uppercase tracking-widest cursor-pointer ml-1">Deep Focus</Label>
             </div>
             <Switch checked={dndActive} onCheckedChange={toggleDnd} className="data-[state=checked]:bg-primary" />
           </div>
@@ -190,9 +195,9 @@ export default function Dashboard() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
               {[
                 { title: "Solver", icon: Bot, href: "/tools/solver", color: "text-purple-400 bg-purple-500/10" },
-                { title: "Summarizer", icon: Sparkles, href: "/tools/summarizer", color: "text-blue-400 bg-blue-500/10" },
-                { title: "Roadmap", icon: Map, href: "/tools/roadmap", color: "text-orange-400 bg-orange-500/10" },
-                { title: "Quiz", icon: Trophy, href: "/tools/quiz", color: "text-yellow-400 bg-yellow-500/10" },
+                { title: "Synthesizer", icon: Sparkles, href: "/tools/summarizer", color: "text-blue-400 bg-blue-500/10" },
+                { title: "Navigator", icon: Map, href: "/tools/roadmap", color: "text-orange-400 bg-orange-500/10" },
+                { title: "Arena", icon: Trophy, href: "/tools/quiz", color: "text-yellow-400 bg-yellow-500/10" },
               ].map((tool, i) => (
                 <Link key={i} href={tool.href} className="group">
                   <div className={cn(
@@ -260,10 +265,10 @@ export default function Dashboard() {
           <section className="glass-panel p-10 rounded-[3rem] border-white/5 space-y-6">
              <div className="flex items-center gap-4">
                 <ShieldCheck className="w-6 h-6 text-primary" />
-                <h4 className="text-[11px] font-black uppercase tracking-widest">Neural Link Nominal</h4>
+                <h4 className="text-[11px] font-black uppercase tracking-widest">Neural Sync Status</h4>
              </div>
              <p className="text-xs text-muted-foreground leading-relaxed font-medium">
-               Strategic study modules are fully synchronized. All database pathways are operating at maximum velocity.
+               All strategic intelligence modules are currently synchronized. Database latency is optimized for high-velocity operations.
              </p>
           </section>
         </div>

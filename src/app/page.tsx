@@ -31,7 +31,6 @@ export default function Dashboard() {
   const [customMinutes, setCustomMinutes] = useState("")
   const [healthStatus, setHealthStatus] = useState<'nominal' | 'degraded'>('nominal')
 
-  // Timer reference for cleanup
   const timerRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
@@ -39,13 +38,15 @@ export default function Dashboard() {
     const savedDnd = localStorage.getItem('aura_dnd_active') === 'true'
     setDndActive(savedDnd)
     
-    // Feature Health Check
     if (!auth || !firestore) setHealthStatus('degraded')
   }, [auth, firestore])
 
   useEffect(() => {
     if (isClient && !userLoading && !user && auth) {
-      signInAnonymously(auth).catch(() => {})
+      signInAnonymously(auth).catch((e) => {
+        console.error("Auth sync failed", e)
+        setHealthStatus('degraded')
+      })
     }
   }, [user, userLoading, auth, isClient])
 
@@ -56,7 +57,6 @@ export default function Dashboard() {
   
   const { data: userStats } = useDoc(userStatsRef)
 
-  // Timer Logic
   useEffect(() => {
     if (timerRunning && timeLeft > 0) {
       timerRef.current = setInterval(() => {
@@ -64,11 +64,10 @@ export default function Dashboard() {
       }, 1000)
     } else if (timeLeft === 0 && timerRunning) {
       setTimerRunning(false)
-      // Notifications are globally handled by Toaster.tsx now
       toast({ 
-        title: "Focus Session Complete", 
-        description: "Your neural sync was successful. Session logged.",
-        action: <Button variant="outline" size="sm" onClick={() => setTimeLeft(1500)}>Extend</Button>
+        title: "Session Complete", 
+        description: "Neural sync successful. Performance logged.",
+        variant: "default"
       })
     }
     return () => { if (timerRef.current) clearInterval(timerRef.current) }
@@ -77,15 +76,13 @@ export default function Dashboard() {
   const toggleDnd = (active: boolean) => {
     setDndActive(active)
     localStorage.setItem('aura_dnd_active', String(active))
-    // Trigger storage event for other components (like BottomNav)
     window.dispatchEvent(new Event('storage'))
     
-    if (active) {
-      toast({ 
-        title: "Deep Focus Engaged", 
-        description: "Study notifications suppressed. Study only mode active." 
-      })
-    }
+    toast({ 
+      title: active ? "Deep Focus Engaged" : "Neural Silence Lifted", 
+      description: active ? "Non-essential alerts suppressed." : "System broadacast restored.",
+      variant: active ? "default" : "secondary"
+    })
   }
 
   const formatTime = useCallback((seconds: number) => {
@@ -93,11 +90,6 @@ export default function Dashboard() {
     const secs = seconds % 60
     return `${mins}:${secs.toString().padStart(2, '0')}`
   }, [])
-
-  const setTimerPreset = (mins: number) => {
-    setTimeLeft(mins * 60)
-    setTimerRunning(false)
-  }
 
   const xp = userStats?.totalScore || 0
   const rank = useMemo(() => {
@@ -110,131 +102,112 @@ export default function Dashboard() {
 
   if (userLoading || !isClient) {
     return (
-      <div className="h-full flex items-center justify-center bg-[#0A0714]">
-        <Loader2 className="w-12 h-12 text-primary animate-spin" />
+      <div className="h-svh flex items-center justify-center bg-background">
+        <Loader2 className="w-10 h-10 text-primary animate-spin" />
       </div>
     )
   }
 
   return (
     <div className={cn(
-      "min-h-full p-4 md:p-8 max-w-6xl mx-auto space-y-12 pb-32 transition-all duration-1000",
-      dndActive ? "bg-[#05040a]" : "bg-[#0A0714]"
+      "min-h-full p-4 md:p-8 lg:p-12 max-w-7xl mx-auto space-y-8 md:space-y-12 transition-all duration-700 gpu-layer",
+      dndActive ? "bg-[#05040a]" : "bg-transparent"
     )}>
-      {/* Feature Health Checker Overlay */}
       {healthStatus === 'degraded' && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[200] animate-in slide-in-from-top-4">
-          <div className="bg-destructive/10 backdrop-blur-md border border-destructive/20 px-4 py-2 rounded-full flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-destructive" />
-            <span className="text-[10px] font-bold text-destructive uppercase tracking-widest">Neural Link Degraded • Reconnecting</span>
-          </div>
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[200] animate-in slide-in-from-top-4">
+          <Badge variant="destructive" className="px-4 py-2 rounded-full flex items-center gap-2 backdrop-blur-xl border-destructive/20 shadow-2xl">
+            <AlertCircle className="w-4 h-4" />
+            <span className="text-[10px] font-bold uppercase tracking-widest">Neural Link Syncing...</span>
+          </Badge>
         </div>
       )}
 
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="flex items-center gap-4">
-          <div className="space-y-1">
-            <h1 className={cn(
-              "text-4xl font-headline font-bold transition-all tracking-tighter",
-              dndActive ? "text-primary/70 scale-95" : "gradient-text"
-            )}>AuraFlow</h1>
-            <div className="flex items-center gap-2">
-              <p className="text-muted-foreground text-[10px] uppercase font-bold tracking-[0.3em] opacity-60">
-                Command Center • {userStats?.displayName || "Scholar"}
-              </p>
-              {dndActive && (
-                <Badge className="bg-primary/20 text-primary border-primary/30 text-[8px] h-4 uppercase px-2 animate-pulse">Deep Study Active</Badge>
-              )}
-            </div>
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+        <div className="space-y-1.5">
+          <h1 className={cn(
+            "text-3xl md:text-5xl font-headline font-bold transition-all tracking-tighter",
+            dndActive ? "text-primary/70 scale-95 origin-left" : "gradient-text"
+          )}>AuraFlow</h1>
+          <div className="flex items-center gap-2">
+            <p className="text-muted-foreground text-[10px] uppercase font-bold tracking-[0.2em] opacity-60">
+              {userStats?.displayName || "Elite Scholar"} • Neural Active
+            </p>
+            {dndActive && <Badge className="h-4 bg-primary/20 text-primary border-primary/30 text-[8px] uppercase px-2">Focus Mode</Badge>}
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          {/* DND Toggle Switch */}
+        <div className="flex items-center gap-3 md:gap-4 self-end sm:self-center">
           <div className={cn(
-            "rounded-2xl px-4 py-2 flex items-center gap-3 border transition-all",
-            dndActive ? "bg-primary/10 border-primary/30" : "glass-panel border-white/5 bg-white/5"
+            "rounded-2xl px-4 py-2 flex items-center gap-3 border transition-all glass-panel",
+            dndActive ? "border-primary/40 bg-primary/10" : "bg-white/5 border-white/5"
           )}>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 cursor-pointer" onClick={() => toggleDnd(!dndActive)}>
               {dndActive ? <Moon className="w-4 h-4 text-primary" /> : <Sun className="w-4 h-4 text-yellow-500" />}
-              <Label className="text-[10px] font-bold uppercase tracking-widest cursor-pointer" htmlFor="dnd-mode">DND</Label>
+              <Label className="text-[10px] font-bold uppercase tracking-widest cursor-pointer">DND</Label>
             </div>
-            <Switch 
-              id="dnd-mode" 
-              checked={dndActive} 
-              onCheckedChange={toggleDnd}
-              className="data-[state=checked]:bg-primary"
-            />
+            <Switch checked={dndActive} onCheckedChange={toggleDnd} className="data-[state=checked]:bg-primary" />
           </div>
 
-          <div className={cn(
-            "glass-panel rounded-2xl px-5 py-3 flex items-center gap-4 border transition-all",
-            dndActive ? "opacity-40 grayscale" : "border-orange-500/20 bg-orange-500/5"
-          )}>
+          <div className="glass-panel rounded-2xl px-5 py-3 flex items-center gap-4 border-orange-500/20 bg-orange-500/5 transition-opacity duration-500">
             <Flame className="w-4 h-4 text-orange-500" />
-            <div className="text-left">
-              <p className="text-[8px] uppercase font-bold text-muted-foreground tracking-widest leading-none mb-1">Scholar Streak</p>
-              <p className="text-xs font-bold">{xp > 0 ? "3 Days" : "New Journey"}</p>
+            <div className="text-left hidden sm:block">
+              <p className="text-[8px] uppercase font-bold text-muted-foreground tracking-widest leading-none mb-1">Streak</p>
+              <p className="text-xs font-bold">{xp > 0 ? "3 Days" : "Beginner"}</p>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        <div className="lg:col-span-2 space-y-12">
-          {/* Mastery Section */}
-          <section>
-            <div className={cn(
-              "p-10 rounded-[3.5rem] relative overflow-hidden group border transition-all duration-1000",
-              dndActive ? "border-primary/10 bg-black/40 shadow-none scale-[0.98]" : "glass-panel border-primary/20 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 shadow-2xl"
-            )}>
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 relative z-10">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <Trophy className="w-5 h-5 text-yellow-500" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Mastery Level</span>
-                  </div>
-                  <h2 className={cn(
-                    "text-5xl font-headline font-bold flex items-center gap-4 tracking-tighter transition-all",
-                    dndActive && "opacity-60"
-                  )}>
-                    {rank}
-                    {!dndActive && <ArrowUpRight className="w-8 h-8 text-primary animate-bounce-slow" />}
-                  </h2>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-10">
+        <div className="lg:col-span-8 space-y-8 md:space-y-12">
+          {/* Mastery Card */}
+          <section className={cn(
+            "p-8 md:p-12 rounded-[3rem] relative overflow-hidden group border transition-all duration-700 gpu-layer shadow-2xl",
+            dndActive ? "border-primary/10 bg-black/40" : "glass-panel border-primary/20 bg-gradient-to-br from-primary/10 via-transparent to-primary/5"
+          )}>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 relative z-10">
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <Trophy className="w-5 h-5 text-yellow-500" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Progression Hub</span>
                 </div>
-                <div className="w-full md:w-72 space-y-4">
-                  <div className="flex justify-between text-[10px] font-black text-primary px-2 uppercase tracking-widest">
-                    <span>{xp} XP Earned</span>
-                    <span>Goal: 500 XP</span>
-                  </div>
-                  <Progress value={Math.min(100, (xp / 500) * 100)} className={cn("h-4", dndActive ? "bg-white/5 opacity-50" : "bg-white/5")} />
+                <h2 className="text-4xl md:text-6xl font-headline font-bold flex items-center gap-4 tracking-tighter">
+                  {rank}
+                  <ArrowUpRight className={cn("w-8 h-8 text-primary transition-all", dndActive ? "opacity-20" : "animate-bounce-slow")} />
+                </h2>
+              </div>
+              <div className="w-full md:w-80 space-y-4">
+                <div className="flex justify-between text-[10px] font-black text-primary px-1 uppercase tracking-widest">
+                  <span>{xp} XP Active</span>
+                  <span>Next Rank: 500</span>
                 </div>
+                <Progress value={Math.min(100, (xp / 500) * 100)} className="h-3 bg-white/5" />
               </div>
             </div>
           </section>
 
-          {/* Quick Tools Grid */}
+          {/* Tools Grid */}
           <section className="space-y-6">
-            <div className="flex items-center justify-between px-4">
-              <h3 className="text-xl font-headline font-bold flex items-center gap-3">
-                <BrainCircuit className="w-6 h-6 text-primary" /> Study Arsenal
-              </h3>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <h3 className="text-xl font-headline font-bold px-2 flex items-center gap-3">
+              <BrainCircuit className="w-6 h-6 text-primary" /> Neural Arsenal
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {[
-                { title: "AI Solver", icon: Bot, href: "/tools/solver", color: "bg-purple-500/20 text-purple-400", desc: "Step-by-step help" },
-                { title: "Smart Notes", icon: Sparkles, href: "/tools/summarizer", color: "bg-blue-500/20 text-blue-400", desc: "PDF Synthesizer" },
-                { title: "Navigator", icon: Map, href: "/tools/roadmap", color: "bg-orange-500/20 text-orange-400", desc: "Career Strategy" },
-                { title: "Battle Arena", icon: Trophy, href: "/tools/quiz", color: "bg-yellow-500/20 text-yellow-400", desc: "XP Training" },
-              ].map((action, i) => (
-                <Link key={i} href={action.href} className="group">
+                { title: "Solver", icon: Bot, href: "/tools/solver", color: "text-purple-400 bg-purple-500/10" },
+                { title: "Notes", icon: Sparkles, href: "/tools/summarizer", color: "text-blue-400 bg-blue-500/10" },
+                { title: "Nav", icon: Map, href: "/tools/roadmap", color: "text-orange-400 bg-orange-500/10" },
+                { title: "Arena", icon: Trophy, href: "/tools/quiz", color: "text-yellow-400 bg-yellow-500/10" },
+              ].map((tool, i) => (
+                <Link key={i} href={tool.href} className="group">
                   <div className={cn(
-                    "w-full p-8 rounded-[3rem] flex flex-col items-center justify-center text-center transition-all border-2 shadow-xl h-full",
-                    dndActive ? "border-white/5 opacity-30 grayscale hover:opacity-100" : cn("group-hover:translate-y-[-8px]", action.color, "border-transparent hover:border-white/10")
+                    "glass-panel p-6 md:p-8 rounded-[2.5rem] flex flex-col items-center justify-center text-center transition-all border-2 border-transparent hover:border-white/10 h-full gpu-layer",
+                    dndActive ? "opacity-30 grayscale hover:opacity-100" : "group-hover:-translate-y-2"
                   )}>
-                    <action.icon className="w-8 h-8 mb-5" />
-                    <p className="text-[11px] font-black uppercase tracking-[0.2em] mb-2">{action.title}</p>
-                    <p className="text-[9px] opacity-60 font-bold uppercase tracking-widest">{action.desc}</p>
+                    <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center mb-4 shadow-xl", tool.color)}>
+                      <tool.icon className="w-7 h-7" />
+                    </div>
+                    <p className="text-[10px] font-black uppercase tracking-widest mb-1">{tool.title}</p>
+                    <p className="text-[8px] opacity-40 uppercase font-bold tracking-tighter">Neural Active</p>
                   </div>
                 </Link>
               ))}
@@ -242,90 +215,83 @@ export default function Dashboard() {
           </section>
         </div>
 
-        {/* Neural Sync / DND Timer Section */}
-        <div className="space-y-10">
+        {/* Focus Control Sidebar */}
+        <div className="lg:col-span-4 space-y-8">
           <section className={cn(
-            "p-10 rounded-[4rem] relative overflow-hidden flex flex-col justify-between h-[500px] transition-all duration-1000 border shadow-2xl",
-            timerRunning ? "bg-primary/20 border-primary/50" : "glass-panel border-white/10"
+            "p-8 md:p-10 rounded-[3.5rem] relative overflow-hidden flex flex-col justify-between min-h-[450px] transition-all duration-700 border shadow-2xl gpu-layer",
+            timerRunning ? "bg-primary/10 border-primary/40" : "glass-panel border-white/10"
           )}>
-            <div className="relative z-10 flex flex-col items-center justify-center h-full space-y-8">
+            <div className="relative z-10 flex flex-col items-center justify-center h-full space-y-10">
                <div className="text-center">
-                  <h2 className="text-7xl font-headline font-bold tracking-tighter tabular-nums mb-3">
+                  <h2 className="text-6xl md:text-7xl font-headline font-bold tracking-tighter tabular-nums mb-2">
                     {formatTime(timeLeft)}
                   </h2>
-                  <p className="text-[10px] font-black text-primary/80 uppercase tracking-[0.3em]">
-                    {timerRunning ? "Neural Sync Active" : "Initiate Flow State?"}
+                  <p className="text-[9px] font-black text-primary/80 uppercase tracking-[0.4em]">
+                    {timerRunning ? "Neural Flow Mode" : "Initiate Focus?"}
                   </p>
                </div>
 
-               {/* Timer Presets */}
-               <div className="grid grid-cols-3 gap-2 w-full max-w-xs">
+               <div className="grid grid-cols-3 gap-2 w-full">
                   {[25, 45, 60].map((m) => (
                     <Button 
                       key={m} 
                       variant="outline" 
-                      size="sm" 
-                      onClick={() => setTimerPreset(m)}
-                      className="rounded-xl border-white/10 text-[10px] h-10 font-black hover:bg-primary/20"
+                      onClick={() => { setTimeLeft(m * 60); setTimerRunning(false); }}
+                      className="rounded-xl border-white/5 h-11 text-[10px] font-black hover:bg-primary/20"
                     >
                       {m}M
                     </Button>
                   ))}
                </div>
 
-               {/* Custom Timer Input */}
-               <div className="flex gap-2 w-full max-w-xs">
+               <div className="flex gap-2 w-full">
                   <input 
                     type="number" 
-                    placeholder="Custom mins..."
+                    placeholder="Mins..."
                     value={customMinutes}
                     onChange={(e) => setCustomMinutes(e.target.value)}
-                    className="flex-1 rounded-xl bg-white/5 border border-white/10 px-4 text-xs font-bold outline-none focus:border-primary/40"
+                    className="flex-1 rounded-xl bg-white/5 border border-white/5 px-4 text-xs font-bold outline-none focus:border-primary/40 text-center"
                   />
                   <Button 
-                    size="sm" 
+                    size="icon" 
                     onClick={() => {
                       const m = parseInt(customMinutes)
-                      if (m > 0) setTimerPreset(m)
+                      if (m > 0) { setTimeLeft(m * 60); setTimerRunning(false); }
                     }}
-                    className="rounded-xl h-10 w-10 p-0"
+                    className="rounded-xl h-11 w-11 shrink-0"
                   >
                     <Clock className="w-4 h-4" />
                   </Button>
                </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 relative z-10 mt-auto">
+            <div className="grid grid-cols-2 gap-3 relative z-10 mt-8">
                <Button 
                 variant={timerRunning ? "destructive" : "default"}
-                className="rounded-[1.5rem] font-bold h-16 shadow-2xl text-xs uppercase tracking-widest"
+                className="rounded-2xl font-bold h-14 text-[10px] uppercase tracking-widest shadow-xl"
                 onClick={() => setTimerRunning(!timerRunning)}
               >
-                {timerRunning ? "Abort Sync" : "Launch Sync"}
+                {timerRunning ? "End Flow" : "Start Flow"}
               </Button>
               <Button 
                 variant="outline"
-                className="rounded-[1.5rem] font-bold h-16 border-white/10 hover:bg-white/5 text-xs uppercase tracking-widest"
+                className="rounded-2xl font-bold h-14 border-white/5 text-[10px] uppercase tracking-widest"
                 onClick={() => { setTimerRunning(false); setTimeLeft(1500); }}
               >
                 Reset
               </Button>
             </div>
 
-            {/* Background Focus Orb */}
-            {timerRunning && (
-              <div className="absolute inset-0 bg-primary/10 animate-pulse-glow z-0" />
-            )}
+            {timerRunning && <div className="absolute inset-0 bg-primary/5 animate-pulse-glow z-0" />}
           </section>
 
-          {/* Productivity Guard Card */}
-          <section className="glass-panel p-8 rounded-[3rem] border-white/5 space-y-4">
+          <section className="glass-panel p-8 rounded-[2.5rem] border-white/5 space-y-4">
              <div className="flex items-center gap-3">
-                <ShieldCheck className="w-5 h-5 text-green-500" />
-                <h4 className="text-[10px] font-black uppercase tracking-widest">Focus Shield</h4>
+                <ShieldCheck className="w-5 h-5 text-primary" />
+                <h4 className="text-[10px] font-black uppercase tracking-widest">Cognitive Guard</h4>
              </div>
-             <p className="text-xs text-muted-foreground leading-relaxed">
-               System is optimized for deep work. App notifications are silent to maximize cognitive throughput.
+             <p className="text-[11px] text-muted-foreground leading-relaxed">
+               Neural encryption active. All study data is synchronized to the private scholarship cloud.
              </p>
           </section>
         </div>

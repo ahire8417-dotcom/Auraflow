@@ -18,29 +18,25 @@ export function BottomNav() {
   const pathname = usePathname()
   const [dndActive, setDndActive] = useState(false)
 
-  // Listen for global DND state
   useEffect(() => {
-    const handleStorageChange = () => {
+    const checkDnd = () => {
       setDndActive(localStorage.getItem('aura_dnd_active') === 'true')
     }
-    handleStorageChange()
-    window.addEventListener('storage', handleStorageChange)
-    
-    // Check locally every second for seamless updates
-    const interval = setInterval(handleStorageChange, 1000)
-    
+    checkDnd()
+    window.addEventListener('storage', checkDnd)
+    const interval = setInterval(checkDnd, 1000)
     return () => {
-      window.removeEventListener('storage', handleStorageChange)
+      window.removeEventListener('storage', checkDnd)
       clearInterval(interval)
     }
   }, [])
 
   return (
     <nav className={cn(
-      "fixed bottom-0 left-0 right-0 z-[100] bottom-nav-blur safe-area-bottom transition-all duration-1000",
-      dndActive ? "bg-black/80 grayscale-[0.8] opacity-60 hover:opacity-100" : "opacity-100"
+      "fixed bottom-0 left-0 right-0 z-[100] bottom-nav-blur safe-area-bottom transition-all duration-700 gpu-layer",
+      dndActive ? "translate-y-[100%] opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
     )}>
-      <div className="flex items-center justify-around h-20 px-2 max-w-6xl mx-auto">
+      <div className="flex items-center justify-around h-16 md:h-20 px-2 max-w-5xl mx-auto">
         {navItems.map((item) => {
           const isActive = item.href === '/' 
             ? pathname === '/' 
@@ -51,23 +47,22 @@ export function BottomNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex flex-col items-center justify-center gap-1 transition-all duration-300 relative px-3 py-2 rounded-2xl min-w-[64px]",
-                isActive ? "text-primary scale-105 bg-primary/10" : "text-muted-foreground hover:text-white"
+                "flex flex-col items-center justify-center gap-1 transition-all duration-300 relative px-3 py-1.5 rounded-2xl min-w-[56px] md:min-w-[72px]",
+                isActive ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-white"
               )}
             >
               <item.icon className={cn(
-                "w-6 h-6 transition-all duration-300", 
-                isActive && "neon-glow drop-shadow-[0_0_8px_rgba(140,106,255,0.6)]",
-                dndActive && isActive && "text-primary/50"
+                "w-5 h-5 md:w-6 md:h-6 transition-transform duration-300", 
+                isActive && "scale-110"
               )} />
               <span className={cn(
-                "text-[9px] font-bold tracking-tight uppercase transition-all duration-300", 
-                isActive ? "opacity-100" : "opacity-60"
+                "text-[8px] md:text-[9px] font-bold tracking-tight uppercase transition-all duration-300", 
+                isActive ? "opacity-100" : "opacity-50"
               )}>
                 {item.label}
               </span>
               {isActive && (
-                <div className="absolute -bottom-1.5 w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_10px_rgba(140,106,255,0.8)]" />
+                <div className="absolute -bottom-1 w-1 h-1 rounded-full bg-primary shadow-[0_0_10px_hsl(var(--primary))]" />
               )}
             </Link>
           )

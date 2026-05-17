@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
-import { Query, onSnapshot, DocumentData, FirestoreError, query } from 'firebase/firestore';
+import { Query, onSnapshot, DocumentData, FirestoreError } from 'firebase/firestore';
 import { errorEmitter } from '../error-emitter';
 import { FirestorePermissionError } from '../errors';
 
@@ -13,8 +13,6 @@ export function useCollection<T = DocumentData>(q: Query<T> | null) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<FirestoreError | null>(null);
 
-  // Stabilize the subscription using a internal unique ID or hash
-  // For simplicity, we assume the caller memoizes 'q'.
   useEffect(() => {
     if (!q) {
       setLoading(false);
@@ -46,7 +44,7 @@ export function useCollection<T = DocumentData>(q: Query<T> | null) {
     );
 
     return () => unsubscribe();
-  }, [q]); 
+  }, [q]); // Expecting memoized query from caller
 
   return { data, loading, error };
 }

@@ -17,20 +17,17 @@ const navItems = [
 export function BottomNav() {
   const pathname = usePathname()
   const [dndActive, setDndActive] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
     const checkDnd = () => {
       const active = localStorage.getItem('aura_dnd_active') === 'true'
       setDndActive(active)
     }
     
-    // Initial check
     checkDnd()
-    
-    // Listen for storage changes from the toggle in page.tsx
     window.addEventListener('storage', checkDnd)
-    
-    // Polling as a safety fallback for internal state changes
     const interval = setInterval(checkDnd, 1000)
     
     return () => {
@@ -38,6 +35,8 @@ export function BottomNav() {
       clearInterval(interval)
     }
   }, [])
+
+  if (!mounted) return null
 
   return (
     <nav className={cn(
@@ -56,7 +55,7 @@ export function BottomNav() {
               href={item.href}
               className={cn(
                 "flex flex-col items-center justify-center gap-1 transition-all duration-300 relative px-3 py-1.5 rounded-2xl min-w-[60px] md:min-w-[80px]",
-                isActive ? "text-primary bg-primary/10 shadow-[0_0_20px_rgba(140,106,255,0.1)]" : "text-muted-foreground hover:text-white"
+                isActive ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-white"
               )}
             >
               <item.icon className={cn(

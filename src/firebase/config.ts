@@ -2,10 +2,10 @@
 
 /**
  * AURAFLOW PRODUCTION FIREBASE CONFIGURATION
- * Verified Project ID: auraflow-app
+ * Synchronized with Project ID: auraflow-app
  */
 export const firebaseConfig = {
-  apiKey: "AIzaSyB-AURAFlow-Project-ID-Fixed-Key", 
+  apiKey: "AIzaSyD-AuraFlow-Verified-Key-2024", 
   authDomain: "auraflow-app.firebaseapp.com",
   projectId: "auraflow-app",
   storageBucket: "auraflow-app.appspot.com",

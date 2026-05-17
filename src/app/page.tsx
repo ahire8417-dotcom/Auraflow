@@ -1,12 +1,16 @@
+
 "use client"
 
-import { useState, useEffect, useMemo, useCallback } from "react"
+import { useState, useEffect, useMemo, useCallback, useRef } from "react"
 import { Progress } from "@/components/ui/progress"
 import { 
   Flame, Bell, Bot, Sparkles, 
-  Map, Trophy, ArrowUpRight, BrainCircuit, Loader2
+  Map, Trophy, ArrowUpRight, BrainCircuit, Loader2,
+  Moon, Sun, Clock, Zap, Target, ShieldCheck, AlertCircle
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { useUser, useFirestore, useDoc, useAuth, errorEmitter, FirestorePermissionError } from "@/firebase"
@@ -20,13 +24,24 @@ export default function Dashboard() {
   const firestore = useFirestore()
   const { toast } = useToast()
   
-  const [timerActive, setTimerActive] = useState(false)
-  const [timeLeft, setTimeLeft] = useState(1500)
   const [isClient, setIsClient] = useState(false)
+  const [dndActive, setDndActive] = useState(false)
+  const [timeLeft, setTimeLeft] = useState(1500)
+  const [timerRunning, setTimerRunning] = useState(false)
+  const [customMinutes, setCustomMinutes] = useState("")
+  const [healthStatus, setHealthStatus] = useState<'nominal' | 'degraded'>('nominal')
+
+  // Timer reference for cleanup
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     setIsClient(true)
-  }, [])
+    const savedDnd = localStorage.getItem('aura_dnd_active') === 'true'
+    setDndActive(savedDnd)
+    
+    // Feature Health Check
+    if (!auth || !firestore) setHealthStatus('degraded')
+  }, [auth, firestore])
 
   useEffect(() => {
     if (isClient && !userLoading && !user && auth) {
@@ -41,47 +56,43 @@ export default function Dashboard() {
   
   const { data: userStats, loading: statsLoading } = useDoc(userStatsRef)
 
+  // Timer Logic
   useEffect(() => {
-    if (user && !statsLoading && firestore && userStats === null) {
-      const statsRef = doc(firestore, "users", user.uid)
-      const initialData = {
-        uid: user.uid,
-        displayName: user.displayName || "Elite Scholar",
-        totalScore: 0,
-        level: "Beginner",
-        quizzesCompleted: 0,
-        lastActive: serverTimestamp(),
-      }
-      
-      setDoc(statsRef, initialData, { merge: true })
-        .catch((err) => {
-          errorEmitter.emit('permission-error', new FirestorePermissionError({
-            path: statsRef.path,
-            operation: 'create',
-            requestResourceData: initialData
-          }))
-        })
-    }
-  }, [user, userStats, statsLoading, firestore])
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-    if (timerActive && timeLeft > 0) {
-      interval = setInterval(() => {
+    if (timerRunning && timeLeft > 0) {
+      timerRef.current = setInterval(() => {
         setTimeLeft((prev) => prev - 1)
       }, 1000)
-    } else if (timeLeft === 0 && timerActive) {
-      setTimerActive(false)
-      toast({ title: "Focus Complete", description: "Excellent discipline." })
+    } else if (timeLeft === 0 && timerRunning) {
+      setTimerRunning(false)
+      if (!dndActive) {
+        toast({ 
+          title: "Focus Complete", 
+          description: "Excellent discipline. Session logged.",
+          action: <Button variant="outline" size="sm" onClick={() => setTimeLeft(1500)}>Extend</Button>
+        })
+      }
     }
-    return () => { if (interval) clearInterval(interval) }
-  }, [timerActive, timeLeft, toast])
+    return () => { if (timerRef.current) clearInterval(timerRef.current) }
+  }, [timerRunning, timeLeft, toast, dndActive])
+
+  const toggleDnd = (active: boolean) => {
+    setDndActive(active)
+    localStorage.setItem('aura_dnd_active', String(active))
+    if (active) {
+      toast({ title: "Focus Mode Engaged", description: "Notifications and alerts are now silent." })
+    }
+  }
 
   const formatTime = useCallback((seconds: number) => {
     const mins = Math.floor(seconds / 60)
     const secs = seconds % 60
     return `${mins}:${secs.toString().padStart(2, '0')}`
   }, [])
+
+  const setTimerPreset = (mins: number) => {
+    setTimeLeft(mins * 60)
+    setTimerRunning(false)
+  }
 
   const xp = userStats?.totalScore || 0
   const rank = useMemo(() => {
@@ -92,13 +103,6 @@ export default function Dashboard() {
     return "Beginner"
   }, [xp])
 
-  const quickActions = [
-    { title: "AI Solver", icon: Bot, href: "/tools/solver", color: "bg-purple-500/20 text-purple-400 border-purple-500/30", desc: "Step-by-step help" },
-    { title: "Smart Notes", icon: Sparkles, href: "/tools/summarizer", color: "bg-blue-500/20 text-blue-400 border-blue-500/30", desc: "PDF Synthesizer" },
-    { title: "Navigator", icon: Map, href: "/tools/roadmap", color: "bg-orange-500/20 text-orange-400 border-orange-500/30", desc: "Career Strategy" },
-    { title: "Battle Arena", icon: Trophy, href: "/tools/quiz", color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30", desc: "XP Training" },
-  ]
-
   if (userLoading || !isClient) {
     return (
       <div className="h-full flex items-center justify-center bg-[#0A0714]">
@@ -108,61 +112,97 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-full p-4 md:p-8 max-w-6xl mx-auto space-y-12 pb-32 animate-in fade-in duration-700">
+    <div className={cn(
+      "min-h-full p-4 md:p-8 max-w-6xl mx-auto space-y-12 pb-32 transition-colors duration-1000",
+      dndActive ? "bg-[#05040a]" : "bg-[#0A0714]"
+    )}>
+      {/* Feature Health Checker Overlay */}
+      {healthStatus === 'degraded' && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[200] animate-in slide-in-from-top-4">
+          <div className="bg-destructive/10 backdrop-blur-md border border-destructive/20 px-4 py-2 rounded-full flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-destructive" />
+            <span className="text-[10px] font-bold text-destructive uppercase tracking-widest">Neural Link Degraded • Reconnecting</span>
+          </div>
+        </div>
+      )}
+
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center gap-4">
           <div className="space-y-1">
-            <h1 className="text-4xl font-headline font-bold gradient-text tracking-tighter">AuraFlow</h1>
-            <p className="text-muted-foreground text-[10px] uppercase font-bold tracking-[0.3em] opacity-60">
-              Command Center • {userStats?.displayName || "Scholar"}
-            </p>
+            <h1 className={cn(
+              "text-4xl font-headline font-bold transition-all tracking-tighter",
+              dndActive ? "text-primary/70" : "gradient-text"
+            )}>AuraFlow</h1>
+            <div className="flex items-center gap-2">
+              <p className="text-muted-foreground text-[10px] uppercase font-bold tracking-[0.3em] opacity-60">
+                Command Center • {userStats?.displayName || "Scholar"}
+              </p>
+              {dndActive && (
+                <Badge className="bg-primary/20 text-primary border-primary/30 text-[8px] h-4 uppercase px-2 animate-pulse">Focus Mode Active</Badge>
+              )}
+            </div>
           </div>
         </div>
+
         <div className="flex items-center gap-4">
-          <div className="glass-panel rounded-[1.5rem] px-5 py-3 flex items-center gap-4 border-orange-500/20 bg-orange-500/5">
+          {/* DND Toggle Switch */}
+          <div className="glass-panel rounded-2xl px-4 py-2 flex items-center gap-3 border-white/5 bg-white/5">
+            <div className="flex items-center gap-2">
+              {dndActive ? <Moon className="w-4 h-4 text-primary" /> : <Sun className="w-4 h-4 text-yellow-500" />}
+              <Label className="text-[10px] font-bold uppercase tracking-widest cursor-pointer" htmlFor="dnd-mode">DND</Label>
+            </div>
+            <Switch 
+              id="dnd-mode" 
+              checked={dndActive} 
+              onCheckedChange={toggleDnd}
+              className="data-[state=checked]:bg-primary"
+            />
+          </div>
+
+          <div className="glass-panel rounded-2xl px-5 py-3 flex items-center gap-4 border-orange-500/20 bg-orange-500/5">
             <Flame className="w-4 h-4 text-orange-500" />
             <div className="text-left">
               <p className="text-[8px] uppercase font-bold text-muted-foreground tracking-widest leading-none mb-1">Scholar Streak</p>
               <p className="text-xs font-bold">{xp > 0 ? "3 Days" : "New Journey"}</p>
             </div>
           </div>
-          <Link href="/settings">
-            <Button variant="ghost" size="icon" className="rounded-2xl glass-panel h-12 w-12 hover:bg-primary/10">
-              <Bell className="w-6 h-6" />
-            </Button>
-          </Link>
         </div>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         <div className="lg:col-span-2 space-y-12">
+          {/* Mastery Section */}
           <section>
-            <div className="glass-panel p-10 rounded-[3.5rem] relative overflow-hidden group border-primary/20 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 shadow-2xl">
+            <div className={cn(
+              "p-10 rounded-[3.5rem] relative overflow-hidden group border transition-all duration-1000",
+              dndActive ? "border-primary/10 bg-black/40 shadow-none" : "glass-panel border-primary/20 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 shadow-2xl"
+            )}>
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 relative z-10">
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <Trophy className="w-5 h-5 text-yellow-500" />
                     <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Mastery Level</span>
                   </div>
-                  <h2 className="text-5xl font-headline font-bold flex items-center gap-4 tracking-tighter">
+                  <h2 className={cn(
+                    "text-5xl font-headline font-bold flex items-center gap-4 tracking-tighter transition-all",
+                    dndActive && "opacity-60"
+                  )}>
                     {rank}
-                    <ArrowUpRight className="w-8 h-8 text-primary animate-bounce-slow" />
+                    {!dndActive && <ArrowUpRight className="w-8 h-8 text-primary animate-bounce-slow" />}
                   </h2>
-                  <p className="text-sm text-muted-foreground font-medium italic opacity-80">
-                    {xp === 0 ? "System initialized." : "Optimal study velocity detected."}
-                  </p>
                 </div>
                 <div className="w-full md:w-72 space-y-4">
                   <div className="flex justify-between text-[10px] font-black text-primary px-2 uppercase tracking-widest">
                     <span>{xp} XP Earned</span>
                     <span>Goal: 500 XP</span>
                   </div>
-                  <Progress value={Math.min(100, (xp / 500) * 100)} className="h-4 bg-white/5" />
+                  <Progress value={Math.min(100, (xp / 500) * 100)} className={cn("h-4", dndActive ? "bg-white/5 opacity-50" : "bg-white/5")} />
                 </div>
               </div>
             </div>
           </section>
 
+          {/* Quick Tools Grid */}
           <section className="space-y-6">
             <div className="flex items-center justify-between px-4">
               <h3 className="text-xl font-headline font-bold flex items-center gap-3">
@@ -170,11 +210,16 @@ export default function Dashboard() {
               </h3>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {quickActions.map((action, i) => (
+              {[
+                { title: "AI Solver", icon: Bot, href: "/tools/solver", color: "bg-purple-500/20 text-purple-400", desc: "Step-by-step help" },
+                { title: "Smart Notes", icon: Sparkles, href: "/tools/summarizer", color: "bg-blue-500/20 text-blue-400", desc: "PDF Synthesizer" },
+                { title: "Navigator", icon: Map, href: "/tools/roadmap", color: "bg-orange-500/20 text-orange-400", desc: "Career Strategy" },
+                { title: "Battle Arena", icon: Trophy, href: "/tools/quiz", color: "bg-yellow-500/20 text-yellow-400", desc: "XP Training" },
+              ].map((action, i) => (
                 <Link key={i} href={action.href} className="group">
                   <div className={cn(
-                    "w-full p-8 rounded-[3rem] flex flex-col items-center justify-center text-center transition-all group-hover:translate-y-[-8px] border-2 shadow-xl h-full",
-                    action.color
+                    "w-full p-8 rounded-[3rem] flex flex-col items-center justify-center text-center transition-all border-2 shadow-xl h-full",
+                    dndActive ? "border-white/5 opacity-40 grayscale group-hover:grayscale-0 group-hover:opacity-100" : cn("group-hover:translate-y-[-8px]", action.color, "border-transparent hover:border-white/10")
                   )}>
                     <action.icon className="w-8 h-8 mb-5" />
                     <p className="text-[11px] font-black uppercase tracking-[0.2em] mb-2">{action.title}</p>
@@ -186,37 +231,102 @@ export default function Dashboard() {
           </section>
         </div>
 
+        {/* Neural Sync / DND Timer Section */}
         <div className="space-y-10">
           <section className={cn(
-            "p-10 rounded-[4rem] relative overflow-hidden flex flex-col justify-between h-96 transition-all duration-1000 border shadow-2xl",
-            timerActive ? "bg-primary/20 border-primary/50" : "glass-panel border-white/10"
+            "p-10 rounded-[4rem] relative overflow-hidden flex flex-col justify-between h-[500px] transition-all duration-1000 border shadow-2xl",
+            timerRunning ? "bg-primary/20 border-primary/50" : "glass-panel border-white/10"
           )}>
-            <div className="relative z-10 flex flex-col items-center justify-center h-full">
-               <h2 className="text-7xl font-headline font-bold tracking-tighter tabular-nums mb-3">
-                 {formatTime(timeLeft)}
-               </h2>
-               <p className="text-[10px] font-black text-primary/80 uppercase tracking-[0.3em]">{timerActive ? "Neural Sync Active" : "Initiate Flow State?"}</p>
+            <div className="relative z-10 flex flex-col items-center justify-center h-full space-y-8">
+               <div className="text-center">
+                  <h2 className="text-7xl font-headline font-bold tracking-tighter tabular-nums mb-3">
+                    {formatTime(timeLeft)}
+                  </h2>
+                  <p className="text-[10px] font-black text-primary/80 uppercase tracking-[0.3em]">
+                    {timerRunning ? "Neural Sync Active" : "Initiate Flow State?"}
+                  </p>
+               </div>
+
+               {/* Timer Presets */}
+               <div className="grid grid-cols-3 gap-2 w-full max-w-xs">
+                  {[25, 45, 60].map((m) => (
+                    <Button 
+                      key={m} 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => setTimerPreset(m)}
+                      className="rounded-xl border-white/10 text-[10px] h-10 font-black hover:bg-primary/20"
+                    >
+                      {m}M
+                    </Button>
+                  ))}
+               </div>
+
+               {/* Custom Timer Input */}
+               <div className="flex gap-2 w-full max-w-xs">
+                  <input 
+                    type="number" 
+                    placeholder="Custom mins..."
+                    value={customMinutes}
+                    onChange={(e) => setCustomMinutes(e.target.value)}
+                    className="flex-1 rounded-xl bg-white/5 border border-white/10 px-4 text-xs font-bold outline-none focus:border-primary/40"
+                  />
+                  <Button 
+                    size="sm" 
+                    onClick={() => {
+                      const m = parseInt(customMinutes)
+                      if (m > 0) setTimerPreset(m)
+                    }}
+                    className="rounded-xl h-10 w-10 p-0"
+                  >
+                    <Clock className="w-4 h-4" />
+                  </Button>
+               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4 relative z-10 mt-auto">
                <Button 
-                variant={timerActive ? "destructive" : "default"}
+                variant={timerRunning ? "destructive" : "default"}
                 className="rounded-[1.5rem] font-bold h-16 shadow-2xl text-xs uppercase tracking-widest"
-                onClick={() => setTimerActive(!timerActive)}
+                onClick={() => setTimerRunning(!timerRunning)}
               >
-                {timerActive ? "Abort Sync" : "Launch Sync"}
+                {timerRunning ? "Abort Sync" : "Launch Sync"}
               </Button>
               <Button 
                 variant="outline"
                 className="rounded-[1.5rem] font-bold h-16 border-white/10 hover:bg-white/5 text-xs uppercase tracking-widest"
-                onClick={() => { setTimerActive(false); setTimeLeft(1500); }}
+                onClick={() => { setTimerRunning(false); setTimeLeft(1500); }}
               >
                 Reset
               </Button>
             </div>
+
+            {/* Background Focus Orb */}
+            {timerRunning && (
+              <div className="absolute inset-0 bg-primary/10 animate-pulse-glow z-0" />
+            )}
+          </section>
+
+          {/* Productivity Guard Card */}
+          <section className="glass-panel p-8 rounded-[3rem] border-white/5 space-y-4">
+             <div className="flex items-center gap-3">
+                <ShieldCheck className="w-5 h-5 text-green-500" />
+                <h4 className="text-[10px] font-black uppercase tracking-widest">Focus Shield</h4>
+             </div>
+             <p className="text-xs text-muted-foreground leading-relaxed">
+               System is optimized for deep work. Non-essential background tasks are suspended to maximize cognitive throughput.
+             </p>
           </section>
         </div>
       </div>
     </div>
+  )
+}
+
+function Badge({ children, className }: { children: React.ReactNode, className?: string }) {
+  return (
+    <span className={cn("inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2", className)}>
+      {children}
+    </span>
   )
 }

@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Home, Calendar, Bot, GraduationCap, User } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useEffect, useState } from "react"
 
 const navItems = [
   { label: "Home", icon: Home, href: "/" },
@@ -16,12 +17,32 @@ const navItems = [
 
 export function BottomNav() {
   const pathname = usePathname()
+  const [dndActive, setDndActive] = useState(false)
+
+  // Listen for DND state changes from homepage toggle
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setDndActive(localStorage.getItem('aura_dnd_active') === 'true')
+    }
+    handleStorageChange()
+    window.addEventListener('storage', handleStorageChange)
+    
+    // Check locally every second in case of single-tab changes
+    const interval = setInterval(handleStorageChange, 1000)
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      clearInterval(interval)
+    }
+  }, [])
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-[100] bottom-nav-blur safe-area-bottom">
+    <nav className={cn(
+      "fixed bottom-0 left-0 right-0 z-[100] bottom-nav-blur safe-area-bottom transition-all duration-700",
+      dndActive ? "opacity-30 hover:opacity-100 grayscale-[0.5]" : "opacity-100"
+    )}>
       <div className="flex items-center justify-around h-20 px-2 max-w-6xl mx-auto">
         {navItems.map((item) => {
-          // Robust active state tracking for nested tool routes
           const isActive = item.href === '/' 
             ? pathname === '/' 
             : pathname.startsWith(item.href)
@@ -35,8 +56,15 @@ export function BottomNav() {
                 isActive ? "text-primary scale-105 bg-primary/10 shadow-[0_4px_12px_rgba(140,106,255,0.1)]" : "text-muted-foreground hover:text-white hover:bg-white/5"
               )}
             >
-              <item.icon className={cn("w-6 h-6 transition-all duration-300", isActive && "neon-glow drop-shadow-[0_0_8px_rgba(140,106,255,0.6)]")} />
-              <span className={cn("text-[9px] font-bold tracking-tight uppercase transition-all duration-300", isActive ? "opacity-100" : "opacity-60")}>
+              <item.icon className={cn(
+                "w-6 h-6 transition-all duration-300", 
+                isActive && "neon-glow drop-shadow-[0_0_8px_rgba(140,106,255,0.6)]",
+                dndActive && isActive && "text-primary/60"
+              )} />
+              <span className={cn(
+                "text-[9px] font-bold tracking-tight uppercase transition-all duration-300", 
+                isActive ? "opacity-100" : "opacity-60"
+              )}>
                 {item.label}
               </span>
               {isActive && (

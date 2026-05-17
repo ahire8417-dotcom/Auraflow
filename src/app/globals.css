@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -33,14 +34,14 @@
   }
   body {
     @apply bg-background text-foreground;
-    /* Prevent rubber banding on mobile */
     overscroll-behavior-y: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
 .glass-panel {
   @apply bg-card/60 backdrop-blur-md border border-white/10 shadow-xl;
-  /* GPU acceleration for blur transitions */
   transform: translateZ(0);
   will-change: transform, backdrop-filter;
 }
@@ -81,6 +82,12 @@
     transform: translateZ(0);
     will-change: transform;
   }
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
 }
 
 @keyframes pulse-glow {
@@ -94,4 +101,15 @@
     transform: scale(1.02);
     box-shadow: 0 0 20px rgba(140, 106, 255, 0.3);
   }
+}
+
+/* Scrollbar Customization for modern look */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors;
 }

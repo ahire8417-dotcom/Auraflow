@@ -45,7 +45,7 @@ export default function Dashboard() {
     }
   }, [auth, firestore])
 
-  // Optimized Neural Sync - Prevents Auth Spasm
+  // Optimized Neural Sync
   useEffect(() => {
     if (isClient && !userLoading && !user && auth && !syncAttempted.current) {
       syncAttempted.current = true
@@ -64,7 +64,6 @@ export default function Dashboard() {
   const { data: userStats } = useDoc(userStatsRef)
 
   useEffect(() => {
-    localStorage.setItem('aura_timer_running', String(timerRunning))
     if (timerRunning && timeLeft > 0) {
       timerRef.current = setInterval(() => {
         setTimeLeft((prev) => prev - 1)
@@ -72,8 +71,8 @@ export default function Dashboard() {
     } else if (timeLeft === 0 && timerRunning) {
       setTimerRunning(false)
       toast({ 
-        title: "Session Complete", 
-        description: "Focus objectives achieved. Performance logged.",
+        title: "Focus Achieved", 
+        description: "Your session objective has been synchronized.",
       })
     }
     return () => { if (timerRef.current) clearInterval(timerRef.current) }
@@ -85,8 +84,8 @@ export default function Dashboard() {
     window.dispatchEvent(new Event('storage'))
     
     toast({ 
-      title: active ? "Focus Mode Active" : "Neural Alerts Restored", 
-      description: active ? "Background UI noise suppressed." : "Global synchronization resumed.",
+      title: active ? "Focus Mode Active" : "Alerts Restored", 
+      description: active ? "Distractions suppressed for deep work." : "Global link re-established.",
     })
   }
 
@@ -129,9 +128,9 @@ export default function Dashboard() {
           )}>AuraFlow</h1>
           <div className="flex items-center gap-3">
             <p className="text-muted-foreground text-[10px] uppercase font-black tracking-[0.25em] opacity-60">
-              {userStats?.displayName || "Elite Scholar"} • Command Center
+              {userStats?.displayName || "Elite Scholar"} • Dashboard
             </p>
-            {dndActive && <Badge className="h-4 bg-primary/20 text-primary border-primary/30 text-[8px] uppercase font-black px-2">DND Active</Badge>}
+            {dndActive && <Badge className="h-4 bg-primary/20 text-primary border-primary/30 text-[8px] uppercase font-black px-2">Focus Mode</Badge>}
           </div>
         </div>
 
@@ -150,8 +149,8 @@ export default function Dashboard() {
           <div className="glass-panel rounded-2xl px-6 py-4 flex items-center gap-4 border-orange-500/20 bg-orange-500/5">
             <Flame className="w-5 h-5 text-orange-500" />
             <div className="text-left hidden md:block">
-              <p className="text-[9px] uppercase font-black text-muted-foreground tracking-widest leading-none mb-1">Status</p>
-              <p className="text-xs font-bold">{xp > 0 ? "Daily Active" : "Beginner"}</p>
+              <p className="text-[9px] uppercase font-black text-muted-foreground tracking-widest leading-none mb-1">XP Level</p>
+              <p className="text-xs font-bold">{rank}</p>
             </div>
           </div>
         </div>
@@ -167,16 +166,16 @@ export default function Dashboard() {
               <div className="space-y-6">
                 <div className="flex items-center gap-4">
                   <Trophy className="w-6 h-6 text-yellow-500" />
-                  <span className="text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground opacity-60">Mastery Rank</span>
+                  <span className="text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground opacity-60">Mastery Progression</span>
                 </div>
                 <h2 className="text-5xl md:text-7xl font-headline font-bold flex items-center gap-6 tracking-tighter">
-                  {rank}
+                  {xp} XP
                   <ArrowUpRight className={cn("w-10 h-10 text-primary transition-all", dndActive ? "opacity-20" : "animate-bounce-slow")} />
                 </h2>
               </div>
               <div className="w-full md:w-96 space-y-5">
                 <div className="flex justify-between text-[11px] font-black text-primary px-1 uppercase tracking-widest">
-                  <span>{xp} Mastery XP</span>
+                  <span>Level Rank: {rank}</span>
                   <span>Target 500</span>
                 </div>
                 <Progress value={Math.min(100, (xp / 500) * 100)} className="h-4 bg-white/5" />
@@ -186,14 +185,14 @@ export default function Dashboard() {
 
           <section className="space-y-8">
             <h3 className="text-2xl font-headline font-bold px-2 flex items-center gap-4">
-              <BrainCircuit className="w-7 h-7 text-primary" /> Neural Tools
+              <BrainCircuit className="w-7 h-7 text-primary" /> Arsenal Modules
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
               {[
                 { title: "Solver", icon: Bot, href: "/tools/solver", color: "text-purple-400 bg-purple-500/10" },
-                { title: "Notes", icon: Sparkles, href: "/tools/summarizer", color: "text-blue-400 bg-blue-500/10" },
+                { title: "Summarizer", icon: Sparkles, href: "/tools/summarizer", color: "text-blue-400 bg-blue-500/10" },
                 { title: "Roadmap", icon: Map, href: "/tools/roadmap", color: "text-orange-400 bg-orange-500/10" },
-                { title: "Arena", icon: Trophy, href: "/tools/quiz", color: "text-yellow-400 bg-yellow-500/10" },
+                { title: "Quiz", icon: Trophy, href: "/tools/quiz", color: "text-yellow-400 bg-yellow-500/10" },
               ].map((tool, i) => (
                 <Link key={i} href={tool.href} className="group">
                   <div className={cn(
@@ -261,10 +260,10 @@ export default function Dashboard() {
           <section className="glass-panel p-10 rounded-[3rem] border-white/5 space-y-6">
              <div className="flex items-center gap-4">
                 <ShieldCheck className="w-6 h-6 text-primary" />
-                <h4 className="text-[11px] font-black uppercase tracking-widest">System Health</h4>
+                <h4 className="text-[11px] font-black uppercase tracking-widest">Neural Link Nominal</h4>
              </div>
              <p className="text-xs text-muted-foreground leading-relaxed font-medium">
-               Neural synchronization optimal. All strategic study modules are ready for deployment.
+               Strategic study modules are fully synchronized. All database pathways are operating at maximum velocity.
              </p>
           </section>
         </div>

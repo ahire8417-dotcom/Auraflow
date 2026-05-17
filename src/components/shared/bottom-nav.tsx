@@ -17,27 +17,19 @@ const navItems = [
 export function BottomNav() {
   const pathname = usePathname()
   const [mounted, setMounted] = useState(false)
-  const [shouldHide, setShouldHide] = useState(false)
+  const [dndActive, setDndActive] = useState(false)
 
   useEffect(() => {
     setMounted(true)
-    
-    // Check DND status with high reliability
-    const checkVisibility = () => {
-      const isTimerRunning = localStorage.getItem('aura_timer_running') === 'true'
-      const isDndActive = localStorage.getItem('aura_dnd_active') === 'true'
-      // Only hide if BOTH are true - creating a strict focus mode
-      setShouldHide(isTimerRunning && isDndActive)
+    const checkDnd = () => {
+      const active = localStorage.getItem('aura_dnd_active') === 'true'
+      setDndActive(active)
     }
-    
-    checkVisibility()
-    // Event listener for cross-tab or cross-component storage changes
-    window.addEventListener('storage', checkVisibility)
-    // Frequent poll for local state changes within the same tab
-    const interval = setInterval(checkVisibility, 500)
-    
+    checkDnd()
+    window.addEventListener('storage', checkDnd)
+    const interval = setInterval(checkDnd, 1000)
     return () => {
-      window.removeEventListener('storage', checkVisibility)
+      window.removeEventListener('storage', checkDnd)
       clearInterval(interval)
     }
   }, [])
@@ -46,11 +38,11 @@ export function BottomNav() {
 
   return (
     <nav className={cn(
-      "fixed bottom-0 left-0 right-0 z-[100] transition-all duration-700 ease-in-out transform-gpu",
-      shouldHide ? "translate-y-full opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
+      "fixed bottom-0 left-0 right-0 z-[999] transition-all duration-700 ease-in-out transform-gpu",
+      dndActive ? "opacity-40 grayscale pointer-events-none translate-y-2" : "opacity-100 translate-y-0"
     )}>
       <div className="mx-4 mb-6 md:mx-auto md:max-w-2xl">
-        <div className="glass-panel border-white/10 bg-black/60 backdrop-blur-3xl rounded-[2.5rem] shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.8)] px-2 h-20 flex items-center justify-around relative overflow-hidden group">
+        <div className="glass-panel border-white/10 bg-black/80 backdrop-blur-3xl rounded-[2.5rem] shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.8)] px-2 h-20 flex items-center justify-around relative overflow-hidden group">
           
           <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
 

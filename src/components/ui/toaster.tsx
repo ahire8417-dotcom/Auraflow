@@ -32,6 +32,7 @@ export function Toaster() {
   return (
     <ToastProvider>
       {toasts.map(function ({ id, title, description, action, ...props }) {
+        // Strict Blackout: Suppress non-critical notifications during DND
         const isCritical = props.variant === "destructive"
         if (dndActive && !isCritical) return null
 

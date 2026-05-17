@@ -2,12 +2,10 @@
 
 /**
  * AURAFLOW PRODUCTION FIREBASE CONFIGURATION
- * Verified for Project: auraflow-app
+ * Verified with User Key: AIzaSyAfHPg5DCAbtvyjL7VFnCkcMhP1zKm_B40
  */
 export const firebaseConfig = {
-  // Synchronized with production project ID: auraflow-app
-  // Corrected format to pass Firebase SDK validation
-  apiKey: "AIzaSyB_AuraFlow_Secure_Key_v1_9876543210",
+  apiKey: "AIzaSyAfHPg5DCAbtvyjL7VFnCkcMhP1zKm_B40",
   authDomain: "auraflow-app.firebaseapp.com",
   projectId: "auraflow-app",
   storageBucket: "auraflow-app.appspot.com",

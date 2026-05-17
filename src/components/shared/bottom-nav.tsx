@@ -1,4 +1,3 @@
-
 "use client"
 
 import Link from "next/link"
@@ -19,7 +18,7 @@ export function BottomNav() {
   const pathname = usePathname()
   const [dndActive, setDndActive] = useState(false)
 
-  // Listen for DND state changes from homepage toggle
+  // Listen for global DND state
   useEffect(() => {
     const handleStorageChange = () => {
       setDndActive(localStorage.getItem('aura_dnd_active') === 'true')
@@ -27,7 +26,7 @@ export function BottomNav() {
     handleStorageChange()
     window.addEventListener('storage', handleStorageChange)
     
-    // Check locally every second in case of single-tab changes
+    // Check locally every second for seamless updates
     const interval = setInterval(handleStorageChange, 1000)
     
     return () => {
@@ -38,8 +37,8 @@ export function BottomNav() {
 
   return (
     <nav className={cn(
-      "fixed bottom-0 left-0 right-0 z-[100] bottom-nav-blur safe-area-bottom transition-all duration-700",
-      dndActive ? "opacity-30 hover:opacity-100 grayscale-[0.5]" : "opacity-100"
+      "fixed bottom-0 left-0 right-0 z-[100] bottom-nav-blur safe-area-bottom transition-all duration-1000",
+      dndActive ? "bg-black/80 grayscale-[0.8] opacity-60 hover:opacity-100" : "opacity-100"
     )}>
       <div className="flex items-center justify-around h-20 px-2 max-w-6xl mx-auto">
         {navItems.map((item) => {
@@ -53,13 +52,13 @@ export function BottomNav() {
               href={item.href}
               className={cn(
                 "flex flex-col items-center justify-center gap-1 transition-all duration-300 relative px-3 py-2 rounded-2xl min-w-[64px]",
-                isActive ? "text-primary scale-105 bg-primary/10 shadow-[0_4px_12px_rgba(140,106,255,0.1)]" : "text-muted-foreground hover:text-white hover:bg-white/5"
+                isActive ? "text-primary scale-105 bg-primary/10" : "text-muted-foreground hover:text-white"
               )}
             >
               <item.icon className={cn(
                 "w-6 h-6 transition-all duration-300", 
                 isActive && "neon-glow drop-shadow-[0_0_8px_rgba(140,106,255,0.6)]",
-                dndActive && isActive && "text-primary/60"
+                dndActive && isActive && "text-primary/50"
               )} />
               <span className={cn(
                 "text-[9px] font-bold tracking-tight uppercase transition-all duration-300", 
@@ -68,7 +67,7 @@ export function BottomNav() {
                 {item.label}
               </span>
               {isActive && (
-                <div className="absolute -bottom-1.5 w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_10px_rgba(140,106,255,0.8)] animate-in fade-in zoom-in-50 duration-500" />
+                <div className="absolute -bottom-1.5 w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_10px_rgba(140,106,255,0.8)]" />
               )}
             </Link>
           )

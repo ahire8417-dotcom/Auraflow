@@ -1,22 +1,22 @@
-
 "use client"
 
 import { useState, useEffect, useMemo, useCallback, useRef } from "react"
 import { Progress } from "@/components/ui/progress"
 import { 
-  Flame, Bell, Bot, Sparkles, 
+  Flame, Bot, Sparkles, 
   Map, Trophy, ArrowUpRight, BrainCircuit, Loader2,
-  Moon, Sun, Clock, Zap, Target, ShieldCheck, AlertCircle
+  Moon, Sun, Clock, Zap, ShieldCheck, AlertCircle
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
-import { useUser, useFirestore, useDoc, useAuth, errorEmitter, FirestorePermissionError } from "@/firebase"
-import { doc, setDoc, serverTimestamp } from "firebase/firestore"
+import { useUser, useFirestore, useDoc, useAuth } from "@/firebase"
+import { doc } from "firebase/firestore"
 import { signInAnonymously } from "firebase/auth"
 import { useToast } from "@/hooks/use-toast"
+import { Badge } from "@/components/ui/badge"
 
 export default function Dashboard() {
   const { user, loading: userLoading } = useUser()
@@ -54,7 +54,7 @@ export default function Dashboard() {
     [user?.uid, firestore]
   )
   
-  const { data: userStats, loading: statsLoading } = useDoc(userStatsRef)
+  const { data: userStats } = useDoc(userStatsRef)
 
   // Timer Logic
   useEffect(() => {
@@ -64,22 +64,27 @@ export default function Dashboard() {
       }, 1000)
     } else if (timeLeft === 0 && timerRunning) {
       setTimerRunning(false)
-      if (!dndActive) {
-        toast({ 
-          title: "Focus Complete", 
-          description: "Excellent discipline. Session logged.",
-          action: <Button variant="outline" size="sm" onClick={() => setTimeLeft(1500)}>Extend</Button>
-        })
-      }
+      // Notifications are globally handled by Toaster.tsx now
+      toast({ 
+        title: "Focus Session Complete", 
+        description: "Your neural sync was successful. Session logged.",
+        action: <Button variant="outline" size="sm" onClick={() => setTimeLeft(1500)}>Extend</Button>
+      })
     }
     return () => { if (timerRef.current) clearInterval(timerRef.current) }
-  }, [timerRunning, timeLeft, toast, dndActive])
+  }, [timerRunning, timeLeft, toast])
 
   const toggleDnd = (active: boolean) => {
     setDndActive(active)
     localStorage.setItem('aura_dnd_active', String(active))
+    // Trigger storage event for other components (like BottomNav)
+    window.dispatchEvent(new Event('storage'))
+    
     if (active) {
-      toast({ title: "Focus Mode Engaged", description: "Notifications and alerts are now silent." })
+      toast({ 
+        title: "Deep Focus Engaged", 
+        description: "Study notifications suppressed. Study only mode active." 
+      })
     }
   }
 
@@ -113,7 +118,7 @@ export default function Dashboard() {
 
   return (
     <div className={cn(
-      "min-h-full p-4 md:p-8 max-w-6xl mx-auto space-y-12 pb-32 transition-colors duration-1000",
+      "min-h-full p-4 md:p-8 max-w-6xl mx-auto space-y-12 pb-32 transition-all duration-1000",
       dndActive ? "bg-[#05040a]" : "bg-[#0A0714]"
     )}>
       {/* Feature Health Checker Overlay */}
@@ -131,14 +136,14 @@ export default function Dashboard() {
           <div className="space-y-1">
             <h1 className={cn(
               "text-4xl font-headline font-bold transition-all tracking-tighter",
-              dndActive ? "text-primary/70" : "gradient-text"
+              dndActive ? "text-primary/70 scale-95" : "gradient-text"
             )}>AuraFlow</h1>
             <div className="flex items-center gap-2">
               <p className="text-muted-foreground text-[10px] uppercase font-bold tracking-[0.3em] opacity-60">
                 Command Center • {userStats?.displayName || "Scholar"}
               </p>
               {dndActive && (
-                <Badge className="bg-primary/20 text-primary border-primary/30 text-[8px] h-4 uppercase px-2 animate-pulse">Focus Mode Active</Badge>
+                <Badge className="bg-primary/20 text-primary border-primary/30 text-[8px] h-4 uppercase px-2 animate-pulse">Deep Study Active</Badge>
               )}
             </div>
           </div>
@@ -146,7 +151,10 @@ export default function Dashboard() {
 
         <div className="flex items-center gap-4">
           {/* DND Toggle Switch */}
-          <div className="glass-panel rounded-2xl px-4 py-2 flex items-center gap-3 border-white/5 bg-white/5">
+          <div className={cn(
+            "rounded-2xl px-4 py-2 flex items-center gap-3 border transition-all",
+            dndActive ? "bg-primary/10 border-primary/30" : "glass-panel border-white/5 bg-white/5"
+          )}>
             <div className="flex items-center gap-2">
               {dndActive ? <Moon className="w-4 h-4 text-primary" /> : <Sun className="w-4 h-4 text-yellow-500" />}
               <Label className="text-[10px] font-bold uppercase tracking-widest cursor-pointer" htmlFor="dnd-mode">DND</Label>
@@ -159,7 +167,10 @@ export default function Dashboard() {
             />
           </div>
 
-          <div className="glass-panel rounded-2xl px-5 py-3 flex items-center gap-4 border-orange-500/20 bg-orange-500/5">
+          <div className={cn(
+            "glass-panel rounded-2xl px-5 py-3 flex items-center gap-4 border transition-all",
+            dndActive ? "opacity-40 grayscale" : "border-orange-500/20 bg-orange-500/5"
+          )}>
             <Flame className="w-4 h-4 text-orange-500" />
             <div className="text-left">
               <p className="text-[8px] uppercase font-bold text-muted-foreground tracking-widest leading-none mb-1">Scholar Streak</p>
@@ -175,7 +186,7 @@ export default function Dashboard() {
           <section>
             <div className={cn(
               "p-10 rounded-[3.5rem] relative overflow-hidden group border transition-all duration-1000",
-              dndActive ? "border-primary/10 bg-black/40 shadow-none" : "glass-panel border-primary/20 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 shadow-2xl"
+              dndActive ? "border-primary/10 bg-black/40 shadow-none scale-[0.98]" : "glass-panel border-primary/20 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 shadow-2xl"
             )}>
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 relative z-10">
                 <div className="space-y-3">
@@ -219,7 +230,7 @@ export default function Dashboard() {
                 <Link key={i} href={action.href} className="group">
                   <div className={cn(
                     "w-full p-8 rounded-[3rem] flex flex-col items-center justify-center text-center transition-all border-2 shadow-xl h-full",
-                    dndActive ? "border-white/5 opacity-40 grayscale group-hover:grayscale-0 group-hover:opacity-100" : cn("group-hover:translate-y-[-8px]", action.color, "border-transparent hover:border-white/10")
+                    dndActive ? "border-white/5 opacity-30 grayscale hover:opacity-100" : cn("group-hover:translate-y-[-8px]", action.color, "border-transparent hover:border-white/10")
                   )}>
                     <action.icon className="w-8 h-8 mb-5" />
                     <p className="text-[11px] font-black uppercase tracking-[0.2em] mb-2">{action.title}</p>
@@ -314,19 +325,11 @@ export default function Dashboard() {
                 <h4 className="text-[10px] font-black uppercase tracking-widest">Focus Shield</h4>
              </div>
              <p className="text-xs text-muted-foreground leading-relaxed">
-               System is optimized for deep work. Non-essential background tasks are suspended to maximize cognitive throughput.
+               System is optimized for deep work. App notifications are silent to maximize cognitive throughput.
              </p>
           </section>
         </div>
       </div>
     </div>
-  )
-}
-
-function Badge({ children, className }: { children: React.ReactNode, className?: string }) {
-  return (
-    <span className={cn("inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2", className)}>
-      {children}
-    </span>
   )
 }

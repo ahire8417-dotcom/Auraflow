@@ -20,11 +20,19 @@ export function BottomNav() {
 
   useEffect(() => {
     const checkDnd = () => {
-      setDndActive(localStorage.getItem('aura_dnd_active') === 'true')
+      const active = localStorage.getItem('aura_dnd_active') === 'true'
+      setDndActive(active)
     }
+    
+    // Initial check
     checkDnd()
+    
+    // Listen for storage changes from the toggle in page.tsx
     window.addEventListener('storage', checkDnd)
+    
+    // Polling as a safety fallback for internal state changes
     const interval = setInterval(checkDnd, 1000)
+    
     return () => {
       window.removeEventListener('storage', checkDnd)
       clearInterval(interval)
@@ -33,10 +41,10 @@ export function BottomNav() {
 
   return (
     <nav className={cn(
-      "fixed bottom-0 left-0 right-0 z-[100] bottom-nav-blur safe-area-bottom transition-all duration-700 gpu-layer",
-      dndActive ? "translate-y-[100%] opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
+      "fixed bottom-0 left-0 right-0 z-[100] bottom-nav-blur safe-area-bottom transition-all duration-500 ease-in-out transform-gpu",
+      dndActive ? "translate-y-full opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
     )}>
-      <div className="flex items-center justify-around h-16 md:h-20 px-2 max-w-5xl mx-auto">
+      <div className="flex items-center justify-around h-16 md:h-20 px-4 max-w-5xl mx-auto">
         {navItems.map((item) => {
           const isActive = item.href === '/' 
             ? pathname === '/' 
@@ -47,8 +55,8 @@ export function BottomNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex flex-col items-center justify-center gap-1 transition-all duration-300 relative px-3 py-1.5 rounded-2xl min-w-[56px] md:min-w-[72px]",
-                isActive ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-white"
+                "flex flex-col items-center justify-center gap-1 transition-all duration-300 relative px-3 py-1.5 rounded-2xl min-w-[60px] md:min-w-[80px]",
+                isActive ? "text-primary bg-primary/10 shadow-[0_0_20px_rgba(140,106,255,0.1)]" : "text-muted-foreground hover:text-white"
               )}
             >
               <item.icon className={cn(
@@ -56,13 +64,13 @@ export function BottomNav() {
                 isActive && "scale-110"
               )} />
               <span className={cn(
-                "text-[8px] md:text-[9px] font-bold tracking-tight uppercase transition-all duration-300", 
+                "text-[8px] md:text-[9px] font-black tracking-tight uppercase transition-all duration-300", 
                 isActive ? "opacity-100" : "opacity-50"
               )}>
                 {item.label}
               </span>
               {isActive && (
-                <div className="absolute -bottom-1 w-1 h-1 rounded-full bg-primary shadow-[0_0_10px_hsl(var(--primary))]" />
+                <div className="absolute -bottom-1 w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_10px_hsl(var(--primary))]" />
               )}
             </Link>
           )

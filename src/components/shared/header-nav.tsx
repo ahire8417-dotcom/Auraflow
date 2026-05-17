@@ -33,33 +33,33 @@ export function HeaderNav({ title, subtitle, showBack = true, backHref, info, cl
   }
 
   return (
-    <header className={cn("flex items-center gap-4 mb-8 sticky top-0 z-40 bg-background/50 backdrop-blur-xl py-2 md:py-4 -mx-4 px-4 md:-mx-8 md:px-8", className)}>
+    <header className={cn("flex items-center gap-4 mb-8 sticky top-0 z-40 bg-background/50 backdrop-blur-xl py-4 -mx-4 px-4 md:-mx-8 md:px-8", className)}>
       {showBack && (
         <Button 
           variant="ghost" 
           size="icon" 
           onClick={handleBack}
-          className="rounded-xl glass-panel h-10 w-10 shrink-0 hover:bg-white/10 active:scale-90 transition-all"
+          className="rounded-xl glass-panel h-11 w-11 shrink-0 hover:bg-white/10 active:scale-90 transition-all border-white/5"
         >
-          <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
+          <ChevronLeft className="w-6 h-6" />
         </Button>
       )}
       <div className="flex-1 min-w-0">
         <h1 className="text-xl md:text-2xl font-headline font-bold gradient-text truncate">{title}</h1>
-        {subtitle && <p className="text-[10px] text-muted-foreground truncate uppercase tracking-[0.2em] font-bold opacity-60">{subtitle}</p>}
+        {subtitle && <p className="text-[10px] text-muted-foreground truncate uppercase tracking-[0.25em] font-black opacity-60">{subtitle}</p>}
       </div>
       
       {info && (
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost" size="icon" className="rounded-xl glass-panel h-10 w-10 shrink-0 hover:text-primary hover:bg-white/10">
+            <Button variant="ghost" size="icon" className="rounded-xl glass-panel h-11 w-11 shrink-0 hover:text-primary hover:bg-white/10 border-white/5">
               <Info className="w-5 h-5" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="glass-panel border-primary/20 bg-background rounded-2xl w-72 p-5 shadow-2xl z-[100]">
-            <div className="space-y-2">
+          <PopoverContent className="glass-panel border-primary/20 bg-[#0A0714] rounded-2xl w-80 p-6 shadow-2xl z-[100] outline-none">
+            <div className="space-y-3">
               <h4 className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2">
-                <Info className="w-3 h-3" /> Technical Briefing
+                <Info className="w-4 h-4" /> Strategic Intelligence
               </h4>
               <p className="text-xs text-muted-foreground leading-relaxed font-medium">
                 {info}

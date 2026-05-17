@@ -28,11 +28,14 @@ export function BottomNav() {
       }
     }
     checkDnd()
+    
+    // Use a custom event for faster response than polling
     window.addEventListener('storage', checkDnd)
-    const interval = setInterval(checkDnd, 1500)
+    window.addEventListener('aura_dnd_update', checkDnd)
+    
     return () => {
       window.removeEventListener('storage', checkDnd)
-      clearInterval(interval)
+      window.removeEventListener('aura_dnd_update', checkDnd)
     }
   }, [])
 
@@ -41,7 +44,7 @@ export function BottomNav() {
   return (
     <nav className={cn(
       "fixed bottom-0 left-0 right-0 z-[9999] transition-all duration-700 ease-in-out transform-gpu safe-area-bottom",
-      dndActive ? "opacity-80 brightness-[0.8]" : "opacity-100"
+      dndActive ? "opacity-60 brightness-[0.7]" : "opacity-100"
     )}>
       <div className="mx-4 mb-8 md:mx-auto md:max-w-2xl">
         <div className="glass-panel border-white/10 bg-black/90 backdrop-blur-3xl rounded-[2.5rem] shadow-[0_-20px_80px_-15px_rgba(140,106,255,0.15)] px-2 h-20 flex items-center justify-around relative overflow-hidden ring-1 ring-white/5 transform-gpu">

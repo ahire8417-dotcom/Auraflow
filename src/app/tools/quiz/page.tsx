@@ -176,6 +176,7 @@ export default function QuizMaster() {
     const statsRef = doc(firestore, "users", user.uid)
     const historyRef = doc(collection(firestore, "users", user.uid, "quizHistory"))
 
+    // Non-blocking mutation pattern
     setDoc(statsRef, {
       uid: user.uid,
       displayName: user.displayName || "Anonymous Scholar",
@@ -183,13 +184,13 @@ export default function QuizMaster() {
       totalScore: increment(pointsEarned),
       quizzesCompleted: increment(1),
       lastActive: serverTimestamp(),
-    }, { merge: true }).catch(err => {
+    }, { merge: true }).catch(async (err) => {
       errorEmitter.emit('permission-error', new FirestorePermissionError({
         path: statsRef.path,
         operation: 'update',
         requestResourceData: { totalScore: pointsEarned }
-      }))
-    })
+      }));
+    });
 
     setDoc(historyRef, {
       userId: user.uid,
@@ -199,7 +200,12 @@ export default function QuizMaster() {
       totalQuestions: quiz?.questions.length || 0,
       difficulty: currentDifficulty,
       timestamp: serverTimestamp(),
-    })
+    }).catch(async (err) => {
+      errorEmitter.emit('permission-error', new FirestorePermissionError({
+        path: historyRef.path,
+        operation: 'create'
+      }));
+    });
   }
 
   return (

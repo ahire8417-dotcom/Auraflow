@@ -38,8 +38,8 @@ export default function Dashboard() {
     const savedDnd = localStorage.getItem('aura_dnd_active') === 'true'
     setDndActive(savedDnd)
     
-    // Check Neural Link Status
-    if (!auth?.config?.apiKey) {
+    // Check Neural Link Status based on config availability
+    if (!auth || !auth.config) {
       setHealthStatus('degraded')
     } else {
       setHealthStatus('nominal')
@@ -52,7 +52,6 @@ export default function Dashboard() {
       signInAnonymously(auth).catch((err) => {
         console.error("Neural Sync Failed:", err)
         setHealthStatus('degraded')
-        syncAttempted.current = false
       })
     }
   }, [user, userLoading, auth, isClient])
@@ -82,7 +81,7 @@ export default function Dashboard() {
   const toggleDnd = (active: boolean) => {
     setDndActive(active)
     localStorage.setItem('aura_dnd_active', String(active))
-    window.dispatchEvent(new Event('storage'))
+    window.dispatchEvent(new Event('aura_dnd_update'))
     
     toast({ 
       title: active ? "Deep Focus Engaged" : "Aura Restored", 

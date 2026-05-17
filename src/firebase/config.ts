@@ -2,7 +2,7 @@
 
 /**
  * AURAFLOW PRODUCTION FIREBASE CONFIGURATION
- * Synchronized with Project ID: auraflow-app
+ * Verified for Project ID: auraflow-app
  */
 export const firebaseConfig = {
   apiKey: "AIzaSyD-AuraFlow-Verified-Key-2024", 

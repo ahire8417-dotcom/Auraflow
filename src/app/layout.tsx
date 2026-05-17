@@ -37,10 +37,10 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
-      <body className="font-body bg-[#0A0714] text-foreground antialiased min-h-svh overflow-x-hidden selection:bg-primary/20">
+      <body className="font-body bg-[#040308] text-foreground antialiased min-h-svh overflow-x-hidden selection:bg-primary/20">
         <FirebaseClientProvider>
           <div className="flex flex-col min-h-svh w-full relative">
-            <main className="flex-1 pb-24 md:pb-32 overflow-y-auto safe-area-top">
+            <main className="flex-1 pb-32 md:pb-40 overflow-y-auto safe-area-top">
               {children}
             </main>
             <BottomNav />

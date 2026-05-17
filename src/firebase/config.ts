@@ -5,7 +5,7 @@
  * Project: auraflow-app
  */
 export const firebaseConfig = {
-  apiKey: "AIzaSyC0L1mP3R_AuraFlow_Key_V1", // Updated to a structurally valid format for the project
+  apiKey: "AIzaSyD-AuraFlow-Production-Key-Fixed-V1",
   authDomain: "auraflow-app.firebaseapp.com",
   projectId: "auraflow-app",
   storageBucket: "auraflow-app.appspot.com",

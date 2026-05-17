@@ -28,7 +28,6 @@ export default function Dashboard() {
   const [dndActive, setDndActive] = useState(false)
   const [timeLeft, setTimeLeft] = useState(1500)
   const [timerRunning, setTimerRunning] = useState(false)
-  const [customMinutes, setCustomMinutes] = useState("")
   const [healthStatus, setHealthStatus] = useState<'nominal' | 'degraded'>('nominal')
 
   const timerRef = useRef<NodeJS.Timeout | null>(null)
@@ -38,15 +37,14 @@ export default function Dashboard() {
     const savedDnd = localStorage.getItem('aura_dnd_active') === 'true'
     setDndActive(savedDnd)
     
-    if (!auth || !firestore) setHealthStatus('degraded')
+    if (!auth || !firestore) {
+      setHealthStatus('degraded')
+    }
   }, [auth, firestore])
 
   useEffect(() => {
     if (isClient && !userLoading && !user && auth) {
-      signInAnonymously(auth).catch((e) => {
-        console.error("Auth sync failed", e)
-        setHealthStatus('degraded')
-      })
+      signInAnonymously(auth).catch(() => setHealthStatus('degraded'))
     }
   }, [user, userLoading, auth, isClient])
 
@@ -66,7 +64,7 @@ export default function Dashboard() {
       setTimerRunning(false)
       toast({ 
         title: "Session Complete", 
-        description: "Neural sync successful. Performance logged.",
+        description: "Focus objectives achieved. Performance logged.",
       })
     }
     return () => { if (timerRef.current) clearInterval(timerRef.current) }
@@ -78,8 +76,8 @@ export default function Dashboard() {
     window.dispatchEvent(new Event('storage'))
     
     toast({ 
-      title: active ? "Deep Focus Engaged" : "Neural Silence Lifted", 
-      description: active ? "Non-essential alerts suppressed." : "System broadcast restored.",
+      title: active ? "DND Active" : "DND Disabled", 
+      description: active ? "Study blackout initiated." : "Global alerts restored.",
       variant: active ? "default" : "secondary"
     })
   }
@@ -107,10 +105,10 @@ export default function Dashboard() {
       dndActive ? "bg-[#05040a]" : "bg-transparent"
     )}>
       {healthStatus === 'degraded' && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[200] animate-in slide-in-from-top-4">
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[10000] animate-in slide-in-from-top-4">
           <Badge variant="destructive" className="px-4 py-2 rounded-full flex items-center gap-2 backdrop-blur-xl border-destructive/20 shadow-2xl">
             <AlertCircle className="w-4 h-4" />
-            <span className="text-[10px] font-bold uppercase tracking-widest">Neural Link Syncing...</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest">Neural Sync Required</span>
           </Badge>
         </div>
       )}
@@ -123,20 +121,20 @@ export default function Dashboard() {
           )}>AuraFlow</h1>
           <div className="flex items-center gap-3">
             <p className="text-muted-foreground text-[10px] uppercase font-black tracking-[0.25em] opacity-60">
-              {userStats?.displayName || "Elite Scholar"} • Neural Active
+              {userStats?.displayName || "Elite Scholar"} • Core Hub Active
             </p>
-            {dndActive && <Badge className="h-4 bg-primary/20 text-primary border-primary/30 text-[8px] uppercase font-black px-2">Focus Mode</Badge>}
+            {dndActive && <Badge className="h-4 bg-primary/20 text-primary border-primary/30 text-[8px] uppercase font-black px-2">Focus Active</Badge>}
           </div>
         </div>
 
         <div className="flex items-center gap-4 self-end sm:self-center">
           <div className={cn(
             "rounded-2xl px-5 py-3 flex items-center gap-4 border transition-all glass-panel",
-            dndActive ? "border-primary/40 bg-primary/10 shadow-[0_0_20px_rgba(140,106,255,0.1)]" : "bg-white/5 border-white/5"
+            dndActive ? "border-primary/40 bg-primary/10" : "bg-white/5 border-white/5"
           )}>
             <div className="flex items-center gap-2 cursor-pointer" onClick={() => toggleDnd(!dndActive)}>
               {dndActive ? <Moon className="w-5 h-5 text-primary" /> : <Sun className="w-5 h-5 text-yellow-500" />}
-              <Label className="text-[10px] font-black uppercase tracking-widest cursor-pointer ml-1">DND</Label>
+              <Label className="text-[10px] font-black uppercase tracking-widest cursor-pointer ml-1">Focus</Label>
             </div>
             <Switch checked={dndActive} onCheckedChange={toggleDnd} className="data-[state=checked]:bg-primary" />
           </div>
@@ -153,7 +151,6 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
         <div className="lg:col-span-8 space-y-12">
-          {/* Mastery Card */}
           <section className={cn(
             "p-10 md:p-14 rounded-[4rem] relative overflow-hidden group border transition-all duration-700 gpu-layer shadow-2xl",
             dndActive ? "border-primary/10 bg-black/40" : "glass-panel border-primary/20 bg-gradient-to-br from-primary/10 via-transparent to-primary/5"
@@ -162,7 +159,7 @@ export default function Dashboard() {
               <div className="space-y-6">
                 <div className="flex items-center gap-4">
                   <Trophy className="w-6 h-6 text-yellow-500" />
-                  <span className="text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground opacity-60">Progression Hub</span>
+                  <span className="text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground opacity-60">Status Overview</span>
                 </div>
                 <h2 className="text-5xl md:text-7xl font-headline font-bold flex items-center gap-6 tracking-tighter">
                   {rank}
@@ -171,7 +168,7 @@ export default function Dashboard() {
               </div>
               <div className="w-full md:w-96 space-y-5">
                 <div className="flex justify-between text-[11px] font-black text-primary px-1 uppercase tracking-widest">
-                  <span>{xp} XP Active</span>
+                  <span>{xp} Mastery XP</span>
                   <span>Next: 500</span>
                 </div>
                 <Progress value={Math.min(100, (xp / 500) * 100)} className="h-4 bg-white/5" />
@@ -179,16 +176,15 @@ export default function Dashboard() {
             </div>
           </section>
 
-          {/* Tools Grid */}
           <section className="space-y-8">
             <h3 className="text-2xl font-headline font-bold px-2 flex items-center gap-4">
-              <BrainCircuit className="w-7 h-7 text-primary" /> Neural Arsenal
+              <BrainCircuit className="w-7 h-7 text-primary" /> Strategic Tools
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
               {[
                 { title: "Solver", icon: Bot, href: "/tools/solver", color: "text-purple-400 bg-purple-500/10" },
                 { title: "Notes", icon: Sparkles, href: "/tools/summarizer", color: "text-blue-400 bg-blue-500/10" },
-                { title: "Nav", icon: Map, href: "/tools/roadmap", color: "/tools/roadmap", color: "text-orange-400 bg-orange-500/10" },
+                { title: "Nav", icon: Map, href: "/tools/roadmap", color: "text-orange-400 bg-orange-500/10" },
                 { title: "Arena", icon: Trophy, href: "/tools/quiz", color: "text-yellow-400 bg-yellow-500/10" },
               ].map((tool, i) => (
                 <Link key={i} href={tool.href} className="group">
@@ -200,7 +196,7 @@ export default function Dashboard() {
                       <tool.icon className="w-8 h-8" />
                     </div>
                     <p className="text-[11px] font-black uppercase tracking-widest mb-1.5">{tool.title}</p>
-                    <p className="text-[9px] opacity-40 uppercase font-black tracking-tighter">Active Protocol</p>
+                    <p className="text-[9px] opacity-40 uppercase font-black tracking-tighter">Access Tool</p>
                   </div>
                 </Link>
               ))}
@@ -208,11 +204,10 @@ export default function Dashboard() {
           </section>
         </div>
 
-        {/* Focus Control Sidebar */}
         <div className="lg:col-span-4 space-y-10">
           <section className={cn(
             "p-10 md:p-12 rounded-[4rem] relative overflow-hidden flex flex-col justify-between min-h-[480px] transition-all duration-700 border shadow-2xl gpu-layer",
-            timerRunning ? "bg-primary/10 border-primary/40 shadow-primary/20" : "glass-panel border-white/5"
+            timerRunning ? "bg-primary/10 border-primary/40" : "glass-panel border-white/5"
           )}>
             <div className="relative z-10 flex flex-col items-center justify-center h-full space-y-12">
                <div className="text-center">
@@ -220,7 +215,7 @@ export default function Dashboard() {
                     {formatTime(timeLeft)}
                   </h2>
                   <p className="text-[10px] font-black text-primary/80 uppercase tracking-[0.4em]">
-                    {timerRunning ? "Neural Flow Mode" : "Initiate Focus?"}
+                    {timerRunning ? "Focus Blackout" : "Start Session"}
                   </p>
                </div>
 
@@ -235,26 +230,6 @@ export default function Dashboard() {
                     </button>
                   ))}
                </div>
-
-               <div className="flex gap-2 w-full">
-                  <input 
-                    type="number" 
-                    placeholder="Custom Mins"
-                    value={customMinutes}
-                    onChange={(e) => setCustomMinutes(e.target.value)}
-                    className="flex-1 rounded-2xl bg-white/5 border border-white/5 px-6 text-xs font-bold outline-none focus:border-primary/50 text-center h-12"
-                  />
-                  <Button 
-                    size="icon" 
-                    onClick={() => {
-                      const m = parseInt(customMinutes)
-                      if (m > 0) { setTimeLeft(m * 60); setTimerRunning(false); }
-                    }}
-                    className="rounded-2xl h-12 w-12 shrink-0 bg-primary hover:bg-primary/90"
-                  >
-                    <Clock className="w-5 h-5" />
-                  </Button>
-               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4 relative z-10 mt-10">
@@ -263,7 +238,7 @@ export default function Dashboard() {
                 className="rounded-[2rem] font-black h-16 text-[11px] uppercase tracking-widest shadow-2xl"
                 onClick={() => setTimerRunning(!timerRunning)}
               >
-                {timerRunning ? "End Flow" : "Start Flow"}
+                {timerRunning ? "End" : "Start"}
               </Button>
               <Button 
                 variant="outline"
@@ -273,17 +248,15 @@ export default function Dashboard() {
                 Reset
               </Button>
             </div>
-
-            {timerRunning && <div className="absolute inset-0 bg-primary/5 animate-pulse-glow z-0" />}
           </section>
 
           <section className="glass-panel p-10 rounded-[3rem] border-white/5 space-y-6">
              <div className="flex items-center gap-4">
                 <ShieldCheck className="w-6 h-6 text-primary" />
-                <h4 className="text-[11px] font-black uppercase tracking-widest">Cognitive Guard</h4>
+                <h4 className="text-[11px] font-black uppercase tracking-widest">Aura Health</h4>
              </div>
              <p className="text-xs text-muted-foreground leading-relaxed font-medium">
-               Neural encryption active. All strategic study data is synchronized to the private scholarship cloud. System integrity: Optimal.
+               Neural synchronization optimal. All strategic data is protected by core encryption protocols.
              </p>
           </section>
         </div>

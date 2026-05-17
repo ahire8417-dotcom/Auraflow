@@ -2,7 +2,7 @@
 
 /**
  * AURAFLOW PRODUCTION FIREBASE CONFIGURATION
- * Verified Project: studio-8163969352-8a0f2
+ * Verified Key: AIzaSyB5jhjST-mrYzXnpm2-ldhQRX6jBEYylkw
  */
 export const firebaseConfig = {
   apiKey: "AIzaSyB5jhjST-mrYzXnpm2-ldhQRX6jBEYylkw",

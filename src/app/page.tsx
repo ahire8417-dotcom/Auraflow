@@ -5,7 +5,7 @@ import { Progress } from "@/components/ui/progress"
 import { 
   Flame, Bot, Sparkles, 
   Map, Trophy, ArrowUpRight, BrainCircuit, Loader2,
-  Moon, Sun, Clock, Zap, ShieldCheck, AlertCircle
+  Moon, Sun, Clock, Zap, ShieldCheck, AlertCircle, Share2
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
@@ -56,6 +56,7 @@ export default function Dashboard() {
     }
   }, [user, userLoading, auth, isClient])
 
+  // Stabilized path-memoized reference
   const userStatsRef = useMemo(() => 
     user && firestore ? doc(firestore, "users", user.uid) : null, 
     [user?.uid, firestore]
@@ -175,6 +176,9 @@ export default function Dashboard() {
                   {xp} XP
                   <ArrowUpRight className={cn("w-10 h-10 text-primary transition-all", dndActive ? "opacity-20" : "animate-bounce-slow")} />
                 </h2>
+                <Button className="rounded-full bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-[0.3em] h-10 px-6 gap-2 hover:bg-primary hover:text-white transition-all">
+                  <Share2 className="w-3 h-3" /> Publish Achievements
+                </Button>
               </div>
               <div className="w-full md:w-96 space-y-5">
                 <div className="flex justify-between text-[11px] font-black text-primary px-1 uppercase tracking-widest">

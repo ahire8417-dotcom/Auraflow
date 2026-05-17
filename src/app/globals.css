@@ -38,11 +38,14 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-feature-settings: "cv02", "cv03", "cv04", "ss01";
+    /* Hardware acceleration for global smoothness */
+    transform: translate3d(0, 0, 0);
   }
 }
 
 .glass-panel {
   @apply bg-card/65 backdrop-blur-3xl border border-white/10 shadow-2xl;
+  /* Force GPU rendering to eliminate lag */
   transform: translateZ(0);
   will-change: transform, backdrop-filter;
   backface-visibility: hidden;
@@ -66,10 +69,6 @@
     transform: translate3d(0, 0, 0);
     will-change: transform;
     backface-visibility: hidden;
-  }
-  .gpu-layer {
-    transform: translateZ(0);
-    will-change: transform;
   }
 }
 

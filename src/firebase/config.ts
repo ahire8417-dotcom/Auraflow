@@ -2,14 +2,13 @@
 
 /**
  * AURAFLOW PRODUCTION FIREBASE CONFIGURATION
- * Verified Web API Key: AIzaSyAfHPg5DCAbtvyjL7VFnCkcMhP1zKm_B40
- * VAPID (Messaging) Key: BK3FFRIsWAOhlk_xBVQ5hphH9b9-PPjzIcKwmKL-m5e-s4XNH32xaMbXE3Ikuyd-muXN2avdzqEwfpxzETlKuTA
+ * Verified Project: studio-8163969352-8a0f2
  */
 export const firebaseConfig = {
-  apiKey: "AIzaSyAfHPg5DCAbtvyjL7VFnCkcMhP1zKm_B40",
-  authDomain: "auraflow-app.firebaseapp.com",
-  projectId: "auraflow-app",
-  storageBucket: "auraflow-app.appspot.com",
-  messagingSenderId: "123456789012",
-  appId: "1:123456789012:web:a1b2c3d4e5f6g7h8i9j0"
+  apiKey: "AIzaSyB5jhjST-mrYzXnpm2-ldhQRX6jBEYylkw",
+  authDomain: "studio-8163969352-8a0f2.firebaseapp.com",
+  projectId: "studio-8163969352-8a0f2",
+  storageBucket: "studio-8163969352-8a0f2.firebasestorage.app",
+  messagingSenderId: "937662683844",
+  appId: "1:937662683844:web:fa9b596c665c758ceb0791"
 };

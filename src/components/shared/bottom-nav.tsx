@@ -38,16 +38,15 @@ export function BottomNav() {
 
   if (!mounted) return null
 
+  // Ensure high-priority visibility for the command bar
   return (
     <nav className={cn(
-      "fixed bottom-0 left-0 right-0 z-[1000] transition-all duration-700 ease-in-out transform-gpu",
-      // Only slightly dim the nav in DND to prevent "invisible" bug while reducing distraction
+      "fixed bottom-0 left-0 right-0 z-[5000] transition-all duration-700 ease-in-out transform-gpu",
       dndActive ? "opacity-60 scale-[0.98] translate-y-1" : "opacity-100 translate-y-0"
     )}>
       <div className="mx-4 mb-8 md:mx-auto md:max-w-2xl">
-        <div className="glass-panel border-white/10 bg-black/90 backdrop-blur-3xl rounded-[2.5rem] shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.9)] px-2 h-20 flex items-center justify-around relative overflow-hidden group">
+        <div className="glass-panel border-white/10 bg-black/95 backdrop-blur-3xl rounded-[2.5rem] shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.9)] px-2 h-20 flex items-center justify-around relative overflow-hidden group ring-1 ring-white/5">
           
-          {/* Neon Active Track */}
           <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-50" />
 
           {navItems.map((item) => {
@@ -69,7 +68,7 @@ export function BottomNav() {
                 )}
 
                 <div className={cn(
-                  "relative z-10 transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1)",
+                  "relative z-10 transition-all duration-500",
                   isActive ? "scale-125 -translate-y-1.5 drop-shadow-[0_0_12px_hsl(var(--primary))]" : "group-hover/item:scale-110"
                 )}>
                   <item.icon className={cn(
@@ -86,7 +85,7 @@ export function BottomNav() {
                 </span>
 
                 {isActive && (
-                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-primary shadow-[0_0_15px_hsl(var(--primary))] animate-in zoom-in duration-500" />
+                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-primary shadow-[0_0_15px_hsl(var(--primary))]" />
                 )}
               </Link>
             )

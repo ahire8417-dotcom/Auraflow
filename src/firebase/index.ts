@@ -10,20 +10,27 @@ let firestore: Firestore;
 let auth: Auth;
 
 /**
- * Initializes Firebase services as singletons with high-reliability checks.
+ * Initializes Firebase services as singletons.
+ * Fixed initialization pattern for Next.js 15 App Router.
  */
 export function initializeFirebase() {
   if (typeof window !== 'undefined') {
-    if (!getApps().length) {
-      app = initializeApp(firebaseConfig);
-    } else {
-      app = getApp();
+    try {
+      if (!getApps().length) {
+        app = initializeApp(firebaseConfig);
+      } else {
+        app = getApp();
+      }
+      
+      firestore = getFirestore(app);
+      auth = getAuth(app);
+      
+      return { app, firestore, auth };
+    } catch (error) {
+      console.error("Firebase Initialization Error:", error);
+      // Fallback or re-initialization if necessary
+      return { app: getApp(), firestore: getFirestore(), auth: getAuth() };
     }
-    
-    firestore = getFirestore(app);
-    auth = getAuth(app);
-    
-    return { app, firestore, auth };
   }
   
   return { 

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'default',
+    statusBarStyle: 'black-translucent',
     title: 'AuraFlow',
   },
   formatDetection: {
@@ -24,6 +24,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({
@@ -42,7 +43,7 @@ export default function RootLayout({
       <body className="font-body bg-[#0A0714] text-foreground antialiased min-h-screen overflow-x-hidden">
         <FirebaseClientProvider>
           <div className="flex flex-col min-h-screen w-full relative">
-            <main className="flex-1 pb-24 overflow-y-auto">
+            <main className="flex-1 pb-32 overflow-y-auto safe-area-inset-top">
               {children}
             </main>
             <BottomNav />

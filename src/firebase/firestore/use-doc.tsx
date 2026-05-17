@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { DocumentReference, onSnapshot, DocumentData, FirestoreError } from 'firebase/firestore';
 import { errorEmitter } from '../error-emitter';
 import { FirestorePermissionError } from '../errors';
@@ -10,9 +10,13 @@ export function useDoc<T = DocumentData>(ref: DocumentReference<T> | null) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<FirestoreError | null>(null);
 
+  // Stabilize the reference by path to prevent infinite loops
+  const memoPath = useMemo(() => ref?.path || null, [ref?.path]);
+
   useEffect(() => {
-    if (!ref) {
+    if (!ref || !memoPath) {
       setLoading(false);
+      setData(null);
       return;
     }
 
@@ -24,7 +28,7 @@ export function useDoc<T = DocumentData>(ref: DocumentReference<T> | null) {
       },
       async (err) => {
         const permissionError = new FirestorePermissionError({
-          path: ref.path,
+          path: memoPath,
           operation: 'get',
         });
         errorEmitter.emit('permission-error', permissionError);
@@ -35,7 +39,7 @@ export function useDoc<T = DocumentData>(ref: DocumentReference<T> | null) {
     );
 
     return () => unsubscribe();
-  }, [ref?.path]);
+  }, [memoPath]);
 
   return { data, loading, error };
 }

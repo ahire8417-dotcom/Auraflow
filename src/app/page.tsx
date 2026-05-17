@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
-import { useUser, useFirestore, useDoc, useAuth } from "@/firebase"
+import { useUser, useFirestore, useDoc, useAuth, errorEmitter, FirestorePermissionError } from "@/firebase"
 import { doc, setDoc, serverTimestamp } from "firebase/firestore"
 import { signInAnonymously } from "firebase/auth"
 import { Badge } from "@/components/ui/badge"
@@ -22,19 +22,21 @@ export default function Dashboard() {
   
   const [timerActive, setTimerActive] = useState(false)
   const [timeLeft, setTimeLeft] = useState(1500)
+  const [isClient, setIsClient] = useState(false)
 
-  // Auto-initialization with stable dependencies
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  // Robust auto-initialization
   useEffect(() => {
     if (!userLoading && !user && auth) {
       signInAnonymously(auth).catch(err => {
-        if (err.code !== 'auth/api-key-not-valid') {
-          console.error("Silent sync error:", err)
-        }
+        // Silent catch for dev/key issues
       })
     }
   }, [user, userLoading, auth])
 
-  // Memoize document reference to prevent listener thrashing
   const userStatsRef = useMemo(() => 
     user && firestore ? doc(firestore, "users", user.uid) : null, 
     [user?.uid, firestore]
@@ -42,11 +44,10 @@ export default function Dashboard() {
   
   const { data: userStats, loading: statsLoading } = useDoc(userStatsRef)
 
-  // Initial data setup - only runs once when stats are missing
   useEffect(() => {
     if (user && !statsLoading && firestore && userStats === null) {
       const statsRef = doc(firestore, "users", user.uid)
-      setDoc(statsRef, {
+      const initialData = {
         uid: user.uid,
         displayName: user.displayName || "Elite Scholar",
         photoURL: user.photoURL || "",
@@ -54,18 +55,26 @@ export default function Dashboard() {
         level: "Beginner",
         quizzesCompleted: 0,
         lastActive: serverTimestamp(),
-      }, { merge: true })
+      }
+      
+      setDoc(statsRef, initialData, { merge: true })
+        .catch((err) => {
+          errorEmitter.emit('permission-error', new FirestorePermissionError({
+            path: statsRef.path,
+            operation: 'create',
+            requestResourceData: initialData
+          }))
+        })
     }
   }, [user, userStats, statsLoading, firestore])
 
-  // Optimized high-precision timer
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
     if (timerActive && timeLeft > 0) {
       interval = setInterval(() => {
         setTimeLeft((prev) => prev - 1)
       }, 1000)
-    } else if (timeLeft === 0) {
+    } else if (timeLeft === 0 && timerActive) {
       setTimerActive(false)
       toast({ title: "Focus Complete", description: "Flow session ended. Excellent discipline." })
     }
@@ -94,7 +103,7 @@ export default function Dashboard() {
     { title: "Battle Arena", icon: Trophy, href: "/tools/quiz", color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30", desc: "XP Training" },
   ]
 
-  if (userLoading) {
+  if (userLoading || !isClient) {
     return (
       <div className="h-full flex items-center justify-center bg-[#0A0714]">
         <Loader2 className="w-12 h-12 text-primary animate-spin" />
@@ -103,8 +112,8 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-full p-4 md:p-8 max-w-6xl mx-auto space-y-12 pb-24 animate-in fade-in duration-700">
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 gpu-layer">
+    <div className="min-h-full p-4 md:p-8 max-w-6xl mx-auto space-y-12 pb-32 animate-in fade-in duration-700">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-3">
@@ -142,7 +151,7 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         <div className="lg:col-span-2 space-y-12">
-          <section className="animate-in slide-in-from-left-8 duration-700 gpu-layer">
+          <section className="animate-in slide-in-from-left-8 duration-700">
             <div className="glass-panel p-10 rounded-[3.5rem] relative overflow-hidden group border-primary/20 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 shadow-2xl transition-all hover:border-primary/40">
               <div className="absolute -right-8 -top-8 w-64 h-64 bg-primary/10 rounded-full blur-[100px] group-hover:bg-primary/20 transition-all duration-700" />
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 relative z-10">
@@ -178,7 +187,7 @@ export default function Dashboard() {
             </div>
           </section>
 
-          <section className="space-y-6 animate-in slide-in-from-bottom-8 duration-700 delay-200 gpu-layer">
+          <section className="space-y-6 animate-in slide-in-from-bottom-8 duration-700 delay-200">
             <div className="flex items-center justify-between px-4">
               <h3 className="text-xl font-headline font-bold flex items-center gap-3">
                 <BrainCircuit className="w-6 h-6 text-primary" /> Study Arsenal
@@ -189,7 +198,7 @@ export default function Dashboard() {
               {quickActions.map((action, i) => (
                 <Link key={i} href={action.href} className="group">
                   <div className={cn(
-                    "w-full p-8 rounded-[3rem] flex flex-col items-center justify-center text-center transition-all group-hover:translate-y-[-8px] group-active:scale-95 border-2 shadow-xl h-full relative overflow-hidden gpu-layer",
+                    "w-full p-8 rounded-[3rem] flex flex-col items-center justify-center text-center transition-all group-hover:translate-y-[-8px] group-active:scale-95 border-2 shadow-xl h-full relative overflow-hidden",
                     action.color
                   )}>
                     <div className="bg-white/5 p-4 rounded-2xl mb-5 group-hover:scale-110 transition-all shadow-lg relative z-10">
@@ -204,9 +213,9 @@ export default function Dashboard() {
           </section>
         </div>
 
-        <div className="space-y-10 animate-in slide-in-from-right-8 duration-700 delay-300 gpu-layer">
+        <div className="space-y-10 animate-in slide-in-from-right-8 duration-700 delay-300">
           <section className={cn(
-            "p-10 rounded-[4rem] relative overflow-hidden flex flex-col justify-between h-96 transition-all duration-1000 border shadow-2xl group gpu-layer",
+            "p-10 rounded-[4rem] relative overflow-hidden flex flex-col justify-between h-96 transition-all duration-1000 border shadow-2xl group",
             timerActive ? "bg-primary/20 border-primary/50" : "glass-panel border-white/10"
           )}>
             <Zap className={cn("absolute -right-12 -top-12 w-56 h-56 rotate-12 transition-all duration-1000", timerActive ? "text-primary/30 scale-110 animate-pulse" : "text-white/5")} />
@@ -244,7 +253,7 @@ export default function Dashboard() {
             </div>
           </section>
 
-          <section className="glass-panel p-10 rounded-[3.5rem] border border-white/5 bg-gradient-to-br from-secondary/10 via-transparent to-transparent relative overflow-hidden group shadow-2xl gpu-layer">
+          <section className="glass-panel p-10 rounded-[3.5rem] border border-white/5 bg-gradient-to-br from-secondary/10 via-transparent to-transparent relative overflow-hidden group shadow-2xl">
              <div className="space-y-8 relative z-10">
                <div className="flex items-center gap-4">
                  <div className="bg-primary/20 p-3.5 rounded-2xl shadow-xl group-hover:scale-110 transition-transform">

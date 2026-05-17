@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect, useMemo, useCallback, useRef } from "react"
@@ -81,7 +80,7 @@ export default function Dashboard() {
     
     toast({ 
       title: active ? "Deep Focus Engaged" : "Neural Silence Lifted", 
-      description: active ? "Non-essential alerts suppressed." : "System broadacast restored.",
+      description: active ? "Non-essential alerts suppressed." : "System broadcast restored.",
       variant: active ? "default" : "secondary"
     })
   }

@@ -1,4 +1,3 @@
-
 "use client"
 
 import { ChevronLeft, Info } from "lucide-react"

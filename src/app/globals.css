@@ -42,25 +42,14 @@
 }
 
 .glass-panel {
-  @apply bg-card/60 backdrop-blur-2xl border border-white/10 shadow-2xl;
-  /* Force GPU acceleration to eliminate UI lag */
+  @apply bg-card/65 backdrop-blur-3xl border border-white/10 shadow-2xl;
   transform: translateZ(0);
-  backface-visibility: hidden;
-  perspective: 1000;
   will-change: transform, backdrop-filter;
+  backface-visibility: hidden;
 }
 
 .gradient-text {
   @apply bg-clip-text text-transparent bg-gradient-to-r from-[#8C6AFF] to-[#4B78FF];
-}
-
-.neon-glow-purple {
-  box-shadow: 0 0 20px rgba(140, 106, 255, 0.3);
-}
-
-.gpu-layer {
-  transform: translateZ(0);
-  will-change: transform;
 }
 
 @layer utilities {
@@ -73,6 +62,11 @@
   .safe-area-top {
     padding-top: max(1rem, env(safe-area-inset-top));
   }
+  .transform-gpu {
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
+    backface-visibility: hidden;
+  }
 }
 
 @keyframes pulse-glow {
@@ -83,8 +77,8 @@
   }
   50% {
     opacity: 0.8;
-    transform: scale(1.05);
-    box-shadow: 0 0 30px rgba(140, 106, 255, 0.3);
+    transform: scale(1.04);
+    box-shadow: 0 0 35px rgba(140, 106, 255, 0.35);
   }
 }
 
@@ -95,5 +89,5 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors;
+  @apply bg-white/15 rounded-full hover:bg-white/25 transition-colors;
 }

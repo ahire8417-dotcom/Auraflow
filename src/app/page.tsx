@@ -46,7 +46,6 @@ export default function Dashboard() {
     }
   }, [auth])
 
-  // Optimized Neural Sync - Prevents Auth Jitter
   useEffect(() => {
     if (isClient && !userLoading && !user && auth && !syncAttempted.current) {
       syncAttempted.current = true
@@ -113,8 +112,8 @@ export default function Dashboard() {
 
   return (
     <div className={cn(
-      "min-h-full p-4 md:p-8 lg:p-12 max-w-7xl mx-auto space-y-12 transition-all duration-700 gpu-layer pb-32",
-      dndActive && "brightness-[0.8]"
+      "min-h-full p-4 md:p-8 lg:p-12 max-w-7xl mx-auto space-y-12 transition-all duration-700 transform-gpu pb-32",
+      dndActive && "brightness-[0.9]"
     )}>
       {healthStatus === 'degraded' && (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[2000] animate-in slide-in-from-top-4">
@@ -129,7 +128,7 @@ export default function Dashboard() {
         <div className="space-y-2">
           <h1 className={cn(
             "text-4xl md:text-6xl font-headline font-bold transition-all tracking-tighter",
-            dndActive ? "opacity-60 scale-95 origin-left" : "gradient-text"
+            dndActive ? "opacity-70 scale-95 origin-left" : "gradient-text"
           )}>AuraFlow</h1>
           <div className="flex items-center gap-3">
             <p className="text-muted-foreground text-[10px] uppercase font-black tracking-[0.25em] opacity-60">
@@ -164,7 +163,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12">
         <div className="lg:col-span-8 space-y-12">
           <section className={cn(
-            "p-10 md:p-14 rounded-[4rem] relative overflow-hidden group border transition-all duration-700 gpu-layer shadow-2xl",
+            "p-10 md:p-14 rounded-[4rem] relative overflow-hidden group border transition-all duration-700 transform-gpu shadow-2xl",
             dndActive ? "border-primary/10 bg-black/40" : "glass-panel border-primary/20 bg-gradient-to-br from-primary/10 via-transparent to-primary/5"
           )}>
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-10 relative z-10">
@@ -201,8 +200,8 @@ export default function Dashboard() {
               ].map((tool, i) => (
                 <Link key={i} href={tool.href} className="group">
                   <div className={cn(
-                    "glass-panel p-8 md:p-10 rounded-[3rem] flex flex-col items-center justify-center text-center transition-all border-2 border-transparent hover:border-primary/30 h-full gpu-layer shadow-xl",
-                    dndActive ? "opacity-30 grayscale hover:opacity-100" : "group-hover:-translate-y-2 group-hover:bg-primary/5"
+                    "glass-panel p-8 md:p-10 rounded-[3rem] flex flex-col items-center justify-center text-center transition-all border-2 border-transparent hover:border-primary/30 h-full transform-gpu shadow-xl",
+                    dndActive ? "opacity-50 grayscale hover:opacity-100" : "group-hover:-translate-y-2 group-hover:bg-primary/5"
                   )}>
                     <div className={cn("w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-2xl", tool.color)}>
                       <tool.icon className="w-8 h-8" />
@@ -218,7 +217,7 @@ export default function Dashboard() {
 
         <div className="lg:col-span-4 space-y-10">
           <section className={cn(
-            "p-10 md:p-12 rounded-[4rem] relative overflow-hidden flex flex-col justify-between min-h-[480px] transition-all duration-700 border shadow-2xl gpu-layer",
+            "p-10 md:p-12 rounded-[4rem] relative overflow-hidden flex flex-col justify-between min-h-[480px] transition-all duration-700 border shadow-2xl transform-gpu",
             timerRunning ? "bg-primary/10 border-primary/40" : "glass-panel border-white/5"
           )}>
             <div className="relative z-10 flex flex-col items-center justify-center h-full space-y-12">
@@ -268,7 +267,7 @@ export default function Dashboard() {
                 <h4 className="text-[11px] font-black uppercase tracking-widest">Neural Sync Status</h4>
              </div>
              <p className="text-xs text-muted-foreground leading-relaxed font-medium">
-               All strategic intelligence modules are currently synchronized. Database latency is optimized for high-velocity operations.
+               All strategic intelligence modules are synchronized via production link. Latency optimized for high-velocity operations.
              </p>
           </section>
         </div>

@@ -3,6 +3,7 @@
 /**
  * AURAFLOW PRODUCTION FIREBASE CONFIGURATION
  * Verified Project: studio-8163969352-8a0f2
+ * Validated Web API Key for Neural Link Synchronization
  */
 export const firebaseConfig = {
   apiKey: "AIzaSyB5jhjST-mrYzXnpm2-ldhQRX6jBEYylkw",

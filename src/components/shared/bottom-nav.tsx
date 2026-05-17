@@ -29,7 +29,7 @@ export function BottomNav() {
     }
     checkDnd()
     window.addEventListener('storage', checkDnd)
-    const interval = setInterval(checkDnd, 1000)
+    const interval = setInterval(checkDnd, 1500)
     return () => {
       window.removeEventListener('storage', checkDnd)
       clearInterval(interval)
@@ -38,16 +38,15 @@ export function BottomNav() {
 
   if (!mounted) return null
 
-  // Ensure high-priority visibility for the command bar
   return (
     <nav className={cn(
       "fixed bottom-0 left-0 right-0 z-[5000] transition-all duration-700 ease-in-out transform-gpu",
-      dndActive ? "opacity-60 scale-[0.98] translate-y-1" : "opacity-100 translate-y-0"
+      dndActive ? "opacity-70 scale-[0.98] translate-y-1" : "opacity-100 translate-y-0"
     )}>
       <div className="mx-4 mb-8 md:mx-auto md:max-w-2xl">
-        <div className="glass-panel border-white/10 bg-black/95 backdrop-blur-3xl rounded-[2.5rem] shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.9)] px-2 h-20 flex items-center justify-around relative overflow-hidden group ring-1 ring-white/5">
+        <div className="glass-panel border-white/10 bg-black/90 backdrop-blur-3xl rounded-[2.5rem] shadow-[0_-20px_80px_-15px_rgba(140,106,255,0.15)] px-2 h-20 flex items-center justify-around relative overflow-hidden ring-1 ring-white/5">
           
-          <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-50" />
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary/40 to-transparent opacity-30" />
 
           {navItems.map((item) => {
             const isActive = item.href === '/' 
@@ -59,17 +58,17 @@ export function BottomNav() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-1.5 transition-all duration-500 relative py-2 px-1 rounded-2xl group/item min-w-[64px] active:scale-90",
+                  "flex flex-col items-center justify-center gap-1.5 transition-all duration-500 relative py-2 px-1 rounded-2xl group/item min-w-[60px] active:scale-90",
                   isActive ? "text-primary" : "text-muted-foreground hover:text-white/80"
                 )}
               >
                 {isActive && (
-                  <div className="absolute inset-0 bg-primary/20 rounded-2xl blur-2xl animate-pulse" />
+                  <div className="absolute inset-0 bg-primary/15 rounded-2xl blur-xl animate-pulse" />
                 )}
 
                 <div className={cn(
                   "relative z-10 transition-all duration-500",
-                  isActive ? "scale-125 -translate-y-1.5 drop-shadow-[0_0_12px_hsl(var(--primary))]" : "group-hover/item:scale-110"
+                  isActive ? "scale-125 -translate-y-1.5 drop-shadow-[0_0_15px_hsl(var(--primary))]" : "group-hover/item:scale-110"
                 )}>
                   <item.icon className={cn(
                     "w-6 h-6",
@@ -85,7 +84,7 @@ export function BottomNav() {
                 </span>
 
                 {isActive && (
-                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-primary shadow-[0_0_15px_hsl(var(--primary))]" />
+                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-primary shadow-[0_0_20px_hsl(var(--primary))]" />
                 )}
               </Link>
             )

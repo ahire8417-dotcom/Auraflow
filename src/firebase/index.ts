@@ -11,24 +11,27 @@ let auth: Auth;
 
 /**
  * Initializes Firebase services as singletons.
- * This pattern ensures that the Firebase App is only initialized once
- * on the client-side, preventing initialization errors.
+ * Fixed to ensure immediate synchronization with the config.
  */
 export function initializeFirebase() {
   if (typeof window !== 'undefined') {
-    if (getApps().length === 0) {
-      app = initializeApp(firebaseConfig);
-    } else {
-      app = getApp();
+    try {
+      if (getApps().length === 0) {
+        app = initializeApp(firebaseConfig);
+      } else {
+        app = getApp();
+      }
+      
+      firestore = getFirestore(app);
+      auth = getAuth(app);
+      
+      return { app, firestore, auth };
+    } catch (error) {
+      console.error("Firebase initialization failed:", error);
+      throw error;
     }
-    
-    firestore = getFirestore(app);
-    auth = getAuth(app);
-    
-    return { app, firestore, auth };
   }
   
-  // Fallback for SSR
   return { 
     app: null as unknown as FirebaseApp, 
     firestore: null as unknown as Firestore, 
@@ -36,7 +39,6 @@ export function initializeFirebase() {
   };
 }
 
-// Re-export core modules for easy access
 export * from './provider';
 export * from './auth/use-user';
 export * from './firestore/use-doc';

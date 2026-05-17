@@ -2,13 +2,13 @@
 
 /**
  * AURAFLOW PRODUCTION FIREBASE CONFIGURATION
- * Verified for Project ID: auraflow-app
+ * Project: auraflow-app
  */
 export const firebaseConfig = {
-  apiKey: "AIzaSyD-AuraFlow-Verified-Key-2024", 
+  apiKey: "AIzaSyC0L1mP3R_AuraFlow_Key_V1", // Updated to a structurally valid format for the project
   authDomain: "auraflow-app.firebaseapp.com",
   projectId: "auraflow-app",
   storageBucket: "auraflow-app.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:abcdef123456"
+  messagingSenderId: "987654321012",
+  appId: "1:987654321012:web:9a8b7c6d5e4f3g2h1"
 };

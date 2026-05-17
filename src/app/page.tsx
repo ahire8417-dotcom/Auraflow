@@ -31,6 +31,7 @@ export default function Dashboard() {
   const [healthStatus, setHealthStatus] = useState<'nominal' | 'degraded'>('nominal')
 
   const timerRef = useRef<NodeJS.Timeout | null>(null)
+  const syncAttempted = useRef(false)
 
   useEffect(() => {
     setIsClient(true)
@@ -44,10 +45,14 @@ export default function Dashboard() {
     }
   }, [auth, firestore])
 
-  // Silent Neural Sync
+  // Optimized Neural Sync - Prevents Auth Spasm
   useEffect(() => {
-    if (isClient && !userLoading && !user && auth) {
-      signInAnonymously(auth).catch(() => setHealthStatus('degraded'))
+    if (isClient && !userLoading && !user && auth && !syncAttempted.current) {
+      syncAttempted.current = true
+      signInAnonymously(auth).catch(() => {
+        setHealthStatus('degraded')
+        syncAttempted.current = false
+      })
     }
   }, [user, userLoading, auth, isClient])
 

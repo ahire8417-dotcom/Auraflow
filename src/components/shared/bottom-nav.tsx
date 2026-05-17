@@ -17,20 +17,29 @@ const navItems = [
 export function BottomNav() {
   const pathname = usePathname()
   const [mounted, setMounted] = useState(false)
-  const [timerRunning, setTimerRunning] = useState(false)
+  const [shouldHide, setShouldHide] = useState(false)
 
   useEffect(() => {
     setMounted(true)
-    // Only hide if a timer is actually active (DND check)
-    const checkTimer = () => {
-      const isRunning = localStorage.getItem('aura_timer_running') === 'true'
-      const dndActive = localStorage.getItem('aura_dnd_active') === 'true'
-      setTimerRunning(isRunning && dndActive)
+    
+    // Check DND status with high reliability
+    const checkVisibility = () => {
+      const isTimerRunning = localStorage.getItem('aura_timer_running') === 'true'
+      const isDndActive = localStorage.getItem('aura_dnd_active') === 'true'
+      // Only hide if BOTH are true - creating a strict focus mode
+      setShouldHide(isTimerRunning && isDndActive)
     }
     
-    checkTimer()
-    const interval = setInterval(checkTimer, 1000)
-    return () => clearInterval(interval)
+    checkVisibility()
+    // Event listener for cross-tab or cross-component storage changes
+    window.addEventListener('storage', checkVisibility)
+    // Frequent poll for local state changes within the same tab
+    const interval = setInterval(checkVisibility, 500)
+    
+    return () => {
+      window.removeEventListener('storage', checkVisibility)
+      clearInterval(interval)
+    }
   }, [])
 
   if (!mounted) return null
@@ -38,12 +47,11 @@ export function BottomNav() {
   return (
     <nav className={cn(
       "fixed bottom-0 left-0 right-0 z-[100] transition-all duration-700 ease-in-out transform-gpu",
-      timerRunning ? "translate-y-full opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
+      shouldHide ? "translate-y-full opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
     )}>
       <div className="mx-4 mb-6 md:mx-auto md:max-w-2xl">
         <div className="glass-panel border-white/10 bg-black/60 backdrop-blur-3xl rounded-[2.5rem] shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.8)] px-2 h-20 flex items-center justify-around relative overflow-hidden group">
           
-          {/* Futuristic Neon Accent */}
           <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
 
           {navItems.map((item) => {

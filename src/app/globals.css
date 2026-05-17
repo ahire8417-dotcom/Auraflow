@@ -43,8 +43,11 @@
 
 .glass-panel {
   @apply bg-card/60 backdrop-blur-2xl border border-white/10 shadow-2xl;
+  /* Force GPU acceleration to eliminate UI lag */
   transform: translateZ(0);
-  will-change: transform, opacity;
+  backface-visibility: hidden;
+  perspective: 1000;
+  will-change: transform, backdrop-filter;
 }
 
 .gradient-text {

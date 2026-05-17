@@ -1,3 +1,4 @@
+
 "use client"
 
 import { ChevronLeft, Info } from "lucide-react"
@@ -25,7 +26,7 @@ export function HeaderNav({ title, subtitle, showBack = true, backHref, info, cl
   const handleBack = () => {
     if (backHref) {
       router.push(backHref)
-    } else if (window.history.length > 1) {
+    } else if (typeof window !== 'undefined' && window.history.length > 1) {
       router.back()
     } else {
       router.push('/')

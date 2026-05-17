@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useEffect, useMemo, useCallback, useRef } from "react"
@@ -110,7 +111,7 @@ export default function Dashboard() {
 
   return (
     <div className={cn(
-      "min-h-full p-4 md:p-8 lg:p-12 max-w-7xl mx-auto space-y-8 md:space-y-12 transition-all duration-700 gpu-layer",
+      "min-h-full p-4 md:p-8 lg:p-12 max-w-7xl mx-auto space-y-8 md:space-y-12 transition-all duration-700 gpu-layer pb-32",
       dndActive ? "bg-[#05040a]" : "bg-transparent"
     )}>
       {healthStatus === 'degraded' && (
@@ -233,14 +234,13 @@ export default function Dashboard() {
 
                <div className="grid grid-cols-3 gap-2 w-full">
                   {[25, 45, 60].map((m) => (
-                    <Button 
+                    <button 
                       key={m} 
-                      variant="outline" 
                       onClick={() => { setTimeLeft(m * 60); setTimerRunning(false); }}
-                      className="rounded-xl border-white/5 h-11 text-[10px] font-black hover:bg-primary/20"
+                      className="rounded-xl border border-white/5 h-11 text-[10px] font-black hover:bg-primary/20 glass-panel"
                     >
                       {m}M
-                    </Button>
+                    </button>
                   ))}
                </div>
 
@@ -250,7 +250,7 @@ export default function Dashboard() {
                     placeholder="Mins..."
                     value={customMinutes}
                     onChange={(e) => setCustomMinutes(e.target.value)}
-                    className="flex-1 rounded-xl bg-white/5 border border-white/5 px-4 text-xs font-bold outline-none focus:border-primary/40 text-center"
+                    className="flex-1 rounded-xl bg-white/5 border border-white/5 px-4 text-xs font-bold outline-none focus:border-primary/40 text-center h-11"
                   />
                   <Button 
                     size="icon" 

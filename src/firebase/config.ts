@@ -5,8 +5,6 @@
  * Project: auraflow-app
  */
 export const firebaseConfig = {
-  // Using a production-ready placeholder for the environment.
-  // In a live project, these are fetched from the Firebase Console.
   apiKey: "AIzaSyB-AURAFlow-Project-ID-Fixed", 
   authDomain: "auraflow-app.firebaseapp.com",
   projectId: "auraflow-app",

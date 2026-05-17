@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState } from "react"
@@ -22,7 +21,7 @@ import Link from "next/link"
 import { HeaderNav } from "@/components/shared/header-nav"
 import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
-import { toast } from "@/hooks/use-toast"
+import { useToast } from "@/hooks/use-toast"
 
 const CAREER_NICHES = [
   { 
@@ -57,6 +56,7 @@ const CAREER_NICHES = [
 
 export default function CareerHub() {
   const [trackedNiches, setTrackedNiches] = useState<string[]>([])
+  const { toast } = useToast()
 
   const toggleTrackNiche = (title: string) => {
     if (trackedNiches.includes(title)) {
@@ -74,11 +74,11 @@ export default function CareerHub() {
         title="Future Path" 
         subtitle="Career Intelligence Hub" 
         showBack={true} 
+        backHref="/"
         info="Strategic career architect. Charts high-velocity trajectories by analyzing industry shifts, AI disruption, and emerging global niches."
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column: Strategic Tools */}
         <div className="lg:col-span-2 space-y-8">
           <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Link href="/tools/roadmap" className="block group animate-in slide-in-from-left-4 duration-500">
@@ -110,7 +110,6 @@ export default function CareerHub() {
             </Link>
           </section>
 
-          {/* High Velocity Niches */}
           <section className="space-y-6 animate-in slide-in-from-bottom-4 duration-700">
             <div className="flex items-center justify-between px-2">
               <h3 className="text-lg font-headline font-bold flex items-center gap-3">
@@ -148,9 +147,7 @@ export default function CareerHub() {
           </section>
         </div>
 
-        {/* Right Column: Tracking & Alerts */}
         <div className="space-y-8 animate-in slide-in-from-right-4 duration-700">
-          {/* Tracker Card */}
           <section className="glass-panel p-8 rounded-[3rem] border-primary/10 relative overflow-hidden group">
             <div className="absolute -right-12 -top-12 w-48 h-48 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-all" />
             <h3 className="font-headline font-bold text-lg mb-6 flex items-center gap-3 relative z-10">
@@ -177,7 +174,6 @@ export default function CareerHub() {
             </div>
           </section>
 
-          {/* Scholarship Alerts */}
           <section className="space-y-4">
             <div className="flex items-center justify-between px-2">
               <h3 className="text-lg font-headline font-bold flex items-center gap-3">
@@ -207,7 +203,6 @@ export default function CareerHub() {
             </div>
           </section>
 
-          {/* Industry Vibe Check */}
           <section className="glass-panel p-6 rounded-[2.5rem] bg-orange-500/5 border-orange-500/20 relative overflow-hidden">
             <div className="flex items-center gap-2 mb-3">
                <Globe className="w-4 h-4 text-orange-400" />

@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useCallback } from "react"
 import { Progress } from "@/components/ui/progress"
 import { 
   Flame, Bell, Bot, Sparkles, 
-  Map, Trophy, ArrowUpRight, Users, BrainCircuit, Zap, Loader2
+  Map, Trophy, ArrowUpRight, BrainCircuit, Loader2
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -12,13 +12,13 @@ import { cn } from "@/lib/utils"
 import { useUser, useFirestore, useDoc, useAuth, errorEmitter, FirestorePermissionError } from "@/firebase"
 import { doc, setDoc, serverTimestamp } from "firebase/firestore"
 import { signInAnonymously } from "firebase/auth"
-import { Badge } from "@/components/ui/badge"
-import { toast } from "@/hooks/use-toast"
+import { useToast } from "@/hooks/use-toast"
 
 export default function Dashboard() {
   const { user, loading: userLoading } = useUser()
   const auth = useAuth()
   const firestore = useFirestore()
+  const { toast } = useToast()
   
   const [timerActive, setTimerActive] = useState(false)
   const [timeLeft, setTimeLeft] = useState(1500)
@@ -28,16 +28,12 @@ export default function Dashboard() {
     setIsClient(true)
   }, [])
 
-  // Auto-init only once on client
   useEffect(() => {
     if (isClient && !userLoading && !user && auth) {
-      signInAnonymously(auth).catch(() => {
-        // Silent error handling for dev environment
-      })
+      signInAnonymously(auth).catch(() => {})
     }
   }, [user, userLoading, auth, isClient])
 
-  // Stabilize the document reference
   const userStatsRef = useMemo(() => 
     user && firestore ? doc(firestore, "users", user.uid) : null, 
     [user?.uid, firestore]
@@ -45,7 +41,6 @@ export default function Dashboard() {
   
   const { data: userStats, loading: statsLoading } = useDoc(userStatsRef)
 
-  // Initialize stats if missing
   useEffect(() => {
     if (user && !statsLoading && firestore && userStats === null) {
       const statsRef = doc(firestore, "users", user.uid)
@@ -69,7 +64,6 @@ export default function Dashboard() {
     }
   }, [user, userStats, statsLoading, firestore])
 
-  // Optimized Timer Logic
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
     if (timerActive && timeLeft > 0) {
@@ -81,7 +75,7 @@ export default function Dashboard() {
       toast({ title: "Focus Complete", description: "Excellent discipline." })
     }
     return () => { if (interval) clearInterval(interval) }
-  }, [timerActive, timeLeft])
+  }, [timerActive, timeLeft, toast])
 
   const formatTime = useCallback((seconds: number) => {
     const mins = Math.floor(seconds / 60)

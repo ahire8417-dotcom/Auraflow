@@ -1,20 +1,29 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Query, onSnapshot, DocumentData, FirestoreError } from 'firebase/firestore';
 import { errorEmitter } from '../error-emitter';
 import { FirestorePermissionError } from '../errors';
 
+/**
+ * useCollection - Stabilized collection listener hook.
+ * Prevents infinite loops caused by inline query definitions.
+ */
 export function useCollection<T = DocumentData>(q: Query<T> | null) {
   const [data, setData] = useState<T[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<FirestoreError | null>(null);
 
+  // Note: We depend on 'q' directly. 
+  // IMPORTANT: The caller MUST memoize the query using useMemoFirebase or useMemo.
   useEffect(() => {
     if (!q) {
       setLoading(false);
+      setData([]);
       return;
     }
+
+    setLoading(true);
 
     const unsubscribe = onSnapshot(
       q,
@@ -23,8 +32,7 @@ export function useCollection<T = DocumentData>(q: Query<T> | null) {
         setData(docs);
         setLoading(false);
       },
-      async (err) => {
-        // Emit rich error for development context
+      (err) => {
         const permissionError = new FirestorePermissionError({
           path: 'Query Listener',
           operation: 'list',

@@ -1,23 +1,21 @@
 {
   "name": "AuraFlow",
   "short_name": "AuraFlow",
-  "description": "AI-Powered Student Productivity & Career Hub",
+  "description": "Elite AI Study Hub",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0A0714",
-  "theme_color": "#0A0714",
+  "theme_color": "#8C6AFF",
   "icons": [
     {
-      "src": "https://picsum.photos/seed/auraflow-icon/192/192",
+      "src": "https://picsum.photos/seed/auraflow/192/192",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
-      "src": "https://picsum.photos/seed/auraflow-icon/512/512",
+      "src": "https://picsum.photos/seed/auraflow/512/512",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ]
 }

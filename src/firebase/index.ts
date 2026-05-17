@@ -10,26 +10,20 @@ let firestore: Firestore;
 let auth: Auth;
 
 /**
- * Initializes Firebase services as singletons.
- * Fixed to ensure immediate synchronization with the config.
+ * Initializes Firebase services as singletons with high-reliability checks.
  */
 export function initializeFirebase() {
   if (typeof window !== 'undefined') {
-    try {
-      if (getApps().length === 0) {
-        app = initializeApp(firebaseConfig);
-      } else {
-        app = getApp();
-      }
-      
-      firestore = getFirestore(app);
-      auth = getAuth(app);
-      
-      return { app, firestore, auth };
-    } catch (error) {
-      console.error("Firebase initialization failed:", error);
-      throw error;
+    if (!getApps().length) {
+      app = initializeApp(firebaseConfig);
+    } else {
+      app = getApp();
     }
+    
+    firestore = getFirestore(app);
+    auth = getAuth(app);
+    
+    return { app, firestore, auth };
   }
   
   return { 

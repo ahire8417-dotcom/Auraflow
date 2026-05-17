@@ -25,15 +25,18 @@ export function HeaderNav({ title, subtitle, showBack = true, backHref, info, cl
   const handleBack = () => {
     if (backHref) {
       router.push(backHref)
-    } else if (typeof window !== 'undefined' && window.history.length > 1) {
-      router.back()
     } else {
-      router.push('/')
+      // Robust back navigation check
+      if (typeof window !== 'undefined' && window.history.length > 2) {
+        router.back()
+      } else {
+        router.push('/')
+      }
     }
   }
 
   return (
-    <header className={cn("flex items-center gap-4 mb-8 sticky top-0 z-40 bg-background/50 backdrop-blur-xl py-4 -mx-4 px-4 md:-mx-8 md:px-8", className)}>
+    <header className={cn("flex items-center gap-4 mb-8 sticky top-0 z-40 bg-background/60 backdrop-blur-xl py-4 -mx-4 px-4 md:-mx-8 md:px-8 border-b border-white/5", className)}>
       {showBack && (
         <Button 
           variant="ghost" 

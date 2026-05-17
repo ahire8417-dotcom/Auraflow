@@ -39,9 +39,12 @@ export default function Dashboard() {
     
     if (!auth || !firestore) {
       setHealthStatus('degraded')
+    } else {
+      setHealthStatus('nominal')
     }
   }, [auth, firestore])
 
+  // Silent Neural Sync
   useEffect(() => {
     if (isClient && !userLoading && !user && auth) {
       signInAnonymously(auth).catch(() => setHealthStatus('degraded'))
@@ -56,6 +59,7 @@ export default function Dashboard() {
   const { data: userStats } = useDoc(userStatsRef)
 
   useEffect(() => {
+    localStorage.setItem('aura_timer_running', String(timerRunning))
     if (timerRunning && timeLeft > 0) {
       timerRef.current = setInterval(() => {
         setTimeLeft((prev) => prev - 1)
@@ -76,9 +80,8 @@ export default function Dashboard() {
     window.dispatchEvent(new Event('storage'))
     
     toast({ 
-      title: active ? "DND Active" : "DND Disabled", 
-      description: active ? "Study blackout initiated." : "Global alerts restored.",
-      variant: active ? "default" : "secondary"
+      title: active ? "Focus Mode Active" : "Neural Alerts Restored", 
+      description: active ? "Background UI noise suppressed." : "Global synchronization resumed.",
     })
   }
 
@@ -105,10 +108,10 @@ export default function Dashboard() {
       dndActive ? "bg-[#05040a]" : "bg-transparent"
     )}>
       {healthStatus === 'degraded' && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[10000] animate-in slide-in-from-top-4">
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[1000] animate-in slide-in-from-top-4">
           <Badge variant="destructive" className="px-4 py-2 rounded-full flex items-center gap-2 backdrop-blur-xl border-destructive/20 shadow-2xl">
             <AlertCircle className="w-4 h-4" />
-            <span className="text-[10px] font-bold uppercase tracking-widest">Neural Sync Required</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest">Re-Syncing Neural Link...</span>
           </Badge>
         </div>
       )}
@@ -121,9 +124,9 @@ export default function Dashboard() {
           )}>AuraFlow</h1>
           <div className="flex items-center gap-3">
             <p className="text-muted-foreground text-[10px] uppercase font-black tracking-[0.25em] opacity-60">
-              {userStats?.displayName || "Elite Scholar"} • Core Hub Active
+              {userStats?.displayName || "Elite Scholar"} • Command Center
             </p>
-            {dndActive && <Badge className="h-4 bg-primary/20 text-primary border-primary/30 text-[8px] uppercase font-black px-2">Focus Active</Badge>}
+            {dndActive && <Badge className="h-4 bg-primary/20 text-primary border-primary/30 text-[8px] uppercase font-black px-2">DND Active</Badge>}
           </div>
         </div>
 
@@ -134,7 +137,7 @@ export default function Dashboard() {
           )}>
             <div className="flex items-center gap-2 cursor-pointer" onClick={() => toggleDnd(!dndActive)}>
               {dndActive ? <Moon className="w-5 h-5 text-primary" /> : <Sun className="w-5 h-5 text-yellow-500" />}
-              <Label className="text-[10px] font-black uppercase tracking-widest cursor-pointer ml-1">Focus</Label>
+              <Label className="text-[10px] font-black uppercase tracking-widest cursor-pointer ml-1">Do Not Disturb</Label>
             </div>
             <Switch checked={dndActive} onCheckedChange={toggleDnd} className="data-[state=checked]:bg-primary" />
           </div>
@@ -142,8 +145,8 @@ export default function Dashboard() {
           <div className="glass-panel rounded-2xl px-6 py-4 flex items-center gap-4 border-orange-500/20 bg-orange-500/5">
             <Flame className="w-5 h-5 text-orange-500" />
             <div className="text-left hidden md:block">
-              <p className="text-[9px] uppercase font-black text-muted-foreground tracking-widest leading-none mb-1">Streak</p>
-              <p className="text-xs font-bold">{xp > 0 ? "3 Days" : "Beginner"}</p>
+              <p className="text-[9px] uppercase font-black text-muted-foreground tracking-widest leading-none mb-1">Status</p>
+              <p className="text-xs font-bold">{xp > 0 ? "Daily Active" : "Beginner"}</p>
             </div>
           </div>
         </div>
@@ -159,7 +162,7 @@ export default function Dashboard() {
               <div className="space-y-6">
                 <div className="flex items-center gap-4">
                   <Trophy className="w-6 h-6 text-yellow-500" />
-                  <span className="text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground opacity-60">Status Overview</span>
+                  <span className="text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground opacity-60">Mastery Rank</span>
                 </div>
                 <h2 className="text-5xl md:text-7xl font-headline font-bold flex items-center gap-6 tracking-tighter">
                   {rank}
@@ -169,7 +172,7 @@ export default function Dashboard() {
               <div className="w-full md:w-96 space-y-5">
                 <div className="flex justify-between text-[11px] font-black text-primary px-1 uppercase tracking-widest">
                   <span>{xp} Mastery XP</span>
-                  <span>Next: 500</span>
+                  <span>Target 500</span>
                 </div>
                 <Progress value={Math.min(100, (xp / 500) * 100)} className="h-4 bg-white/5" />
               </div>
@@ -178,13 +181,13 @@ export default function Dashboard() {
 
           <section className="space-y-8">
             <h3 className="text-2xl font-headline font-bold px-2 flex items-center gap-4">
-              <BrainCircuit className="w-7 h-7 text-primary" /> Strategic Tools
+              <BrainCircuit className="w-7 h-7 text-primary" /> Neural Tools
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
               {[
                 { title: "Solver", icon: Bot, href: "/tools/solver", color: "text-purple-400 bg-purple-500/10" },
                 { title: "Notes", icon: Sparkles, href: "/tools/summarizer", color: "text-blue-400 bg-blue-500/10" },
-                { title: "Nav", icon: Map, href: "/tools/roadmap", color: "text-orange-400 bg-orange-500/10" },
+                { title: "Roadmap", icon: Map, href: "/tools/roadmap", color: "text-orange-400 bg-orange-500/10" },
                 { title: "Arena", icon: Trophy, href: "/tools/quiz", color: "text-yellow-400 bg-yellow-500/10" },
               ].map((tool, i) => (
                 <Link key={i} href={tool.href} className="group">
@@ -196,7 +199,7 @@ export default function Dashboard() {
                       <tool.icon className="w-8 h-8" />
                     </div>
                     <p className="text-[11px] font-black uppercase tracking-widest mb-1.5">{tool.title}</p>
-                    <p className="text-[9px] opacity-40 uppercase font-black tracking-tighter">Access Tool</p>
+                    <p className="text-[9px] opacity-40 uppercase font-black tracking-tighter">Enter Module</p>
                   </div>
                 </Link>
               ))}
@@ -215,7 +218,7 @@ export default function Dashboard() {
                     {formatTime(timeLeft)}
                   </h2>
                   <p className="text-[10px] font-black text-primary/80 uppercase tracking-[0.4em]">
-                    {timerRunning ? "Focus Blackout" : "Start Session"}
+                    {timerRunning ? "Active Focus" : "Neural Timer"}
                   </p>
                </div>
 
@@ -238,7 +241,7 @@ export default function Dashboard() {
                 className="rounded-[2rem] font-black h-16 text-[11px] uppercase tracking-widest shadow-2xl"
                 onClick={() => setTimerRunning(!timerRunning)}
               >
-                {timerRunning ? "End" : "Start"}
+                {timerRunning ? "Abort" : "Ignite"}
               </Button>
               <Button 
                 variant="outline"
@@ -253,10 +256,10 @@ export default function Dashboard() {
           <section className="glass-panel p-10 rounded-[3rem] border-white/5 space-y-6">
              <div className="flex items-center gap-4">
                 <ShieldCheck className="w-6 h-6 text-primary" />
-                <h4 className="text-[11px] font-black uppercase tracking-widest">Aura Health</h4>
+                <h4 className="text-[11px] font-black uppercase tracking-widest">System Health</h4>
              </div>
              <p className="text-xs text-muted-foreground leading-relaxed font-medium">
-               Neural synchronization optimal. All strategic data is protected by core encryption protocols.
+               Neural synchronization optimal. All strategic study modules are ready for deployment.
              </p>
           </section>
         </div>

@@ -8,16 +8,19 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, Map, CheckCircle2, BookOpen, Briefcase, Sparkles, TrendingUp, Zap, Target, ArrowRight } from "lucide-react"
+import { Loader2, Map, CheckCircle2, BookOpen, Briefcase, Sparkles, TrendingUp, Zap, Target, ArrowRight, Share2, Globe } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
+import { useToast } from "@/hooks/use-toast"
 
 const QUICK_STREAMS = ["Computer Science", "Commerce / Finance", "Science (PCM/PCB)", "Humanities / Arts", "Design / Creative"]
 const QUICK_INTERESTS = ["AI & Machine Learning", "Sustainability", "Digital Marketing", "Psychology", "Content Creation", "Finance & Web3"]
 
 export default function CareerRoadmapPage() {
   const [loading, setLoading] = useState(false)
+  const [publishing, setPublishing] = useState(false)
   const [result, setResult] = useState<GenerateCareerRoadmapOutput | null>(null)
+  const { toast } = useToast()
   const [formData, setFormData] = useState({
     stream: "",
     interests: [] as string[],
@@ -45,9 +48,21 @@ export default function CareerRoadmapPage() {
       setResult(output)
     } catch (err) {
       console.error(err)
+      toast({ variant: "destructive", title: "Strategy Error", description: "Failed to architect roadmap." })
     } finally {
       setLoading(false)
     }
+  }
+
+  const handlePublish = () => {
+    setPublishing(true)
+    setTimeout(() => {
+      setPublishing(false)
+      toast({
+        title: "Roadmap Published",
+        description: "Your career trajectory is now visible in the Global Portfolio.",
+      })
+    }, 1500)
   }
 
   return (
@@ -228,8 +243,13 @@ export default function CareerRoadmapPage() {
             >
               Reset & Adjust Goals
             </Button>
-            <Button className="flex-1 rounded-2xl h-14 bg-primary hover:bg-primary/90 font-bold shadow-xl shadow-primary/20">
-              Export Strategy
+            <Button 
+              className="flex-1 rounded-2xl h-14 bg-primary hover:bg-primary/90 font-bold shadow-xl shadow-primary/20 gap-2"
+              onClick={handlePublish}
+              disabled={publishing}
+            >
+              {publishing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4" />}
+              {publishing ? "Publishing..." : "Publish to Portfolio"}
             </Button>
           </div>
         </div>

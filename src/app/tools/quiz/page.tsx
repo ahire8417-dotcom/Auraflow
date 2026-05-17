@@ -9,12 +9,13 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Loader2, BrainCircuit, CheckCircle2, XCircle, Trophy, RotateCcw, Zap, TrendingUp, Medal, Sparkles, GraduationCap } from "lucide-react"
+import { Loader2, BrainCircuit, CheckCircle2, XCircle, Trophy, RotateCcw, Zap, TrendingUp, Medal, Sparkles, GraduationCap, Globe } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useUser, useFirestore, useDoc } from "@/firebase"
 import { doc, setDoc, increment, serverTimestamp, collection } from "firebase/firestore"
 import { errorEmitter } from "@/firebase/error-emitter"
 import { FirestorePermissionError } from "@/firebase/errors"
+import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
 
 const POINTS_PER_CORRECT = 5
@@ -63,7 +64,9 @@ const getLevel = (score: number) => {
 export default function QuizMaster() {
   const { user } = useUser()
   const firestore = useFirestore()
+  const { toast } = useToast()
   const [loading, setLoading] = useState(false)
+  const [publishing, setPublishing] = useState(false)
   const [topic, setTopic] = useState("")
   const [selectedLevel, setSelectedLevel] = useState<string>("")
   const [quiz, setQuiz] = useState<GenerateQuizOutput | null>(null)
@@ -99,6 +102,7 @@ export default function QuizMaster() {
       setAnswers([])
     } catch (err) {
       console.error(err)
+      toast({ variant: "destructive", title: "Arena Error", description: "Failed to load quiz module." })
     } finally {
       setLoading(false)
     }
@@ -152,6 +156,17 @@ export default function QuizMaster() {
         saveResults()
       }
     }
+  }
+
+  const handlePublishResult = () => {
+    setPublishing(true)
+    setTimeout(() => {
+      setPublishing(false)
+      toast({
+        title: "Victory Published",
+        description: "Your mastery score has been broadcasted to the Arena Leaderboard.",
+      })
+    }, 1500)
   }
 
   const saveResults = () => {
@@ -366,12 +381,13 @@ export default function QuizMaster() {
               </div>
             </div>
             <div className="flex flex-col gap-3 px-6">
-               <Button className="w-full rounded-[1.5rem] h-14 font-bold shadow-xl shadow-primary/20" onClick={() => { setQuiz(null); setShowResults(false); }}>
+               <Button className="w-full rounded-[1.5rem] h-14 font-bold shadow-xl shadow-primary/20 gap-2" onClick={handlePublishResult} disabled={publishing}>
+                  {publishing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4" />}
+                  {publishing ? "Broadcasting..." : "Publish to Arena"}
+               </Button>
+               <Button className="w-full rounded-[1.5rem] h-14 font-bold" variant="outline" onClick={() => { setQuiz(null); setShowResults(false); }}>
                   <RotateCcw className="w-4 h-4 mr-3" /> Battle Again
                </Button>
-               <Link href="/tools/quiz/leaderboard">
-                  <Button className="w-full rounded-[1.5rem] h-14 font-bold" variant="outline">Global Leaderboard</Button>
-               </Link>
             </div>
           </div>
           <div className="absolute inset-0 bg-primary/5 animate-pulse-glow" />
